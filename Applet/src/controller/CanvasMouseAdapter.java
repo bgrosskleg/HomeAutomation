@@ -85,13 +85,9 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 		case "Sensors":		//add sensor
 			//Specify which region this sensor controls
 			ArrayList<String> possibilities = new ArrayList<String>();
-			for(CanvasObject object : ClientController.getCM().getObjects())
+			for(Region region : ClientController.getCM().regions)
 			{
-				if(object instanceof Region)
-				{
-					Region region = (Region) object;
-					possibilities.add(region.name);
-				}
+				possibilities.add(region.name);
 			}
 			
 			if(possibilities.isEmpty())
@@ -117,16 +113,12 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 				
 					//Add sensor to the region
 					Region region = null;
-					for(CanvasObject object : ClientController.getCM().getObjects())
+					for(Region temp : ClientController.getCM().regions)
 					{
-						if(object instanceof Region)
+						if(temp.name.equals(selection))
 						{
-							Region temp = (Region) object;
-							if(temp.name.equals(selection))
-							{
-								region = temp;
-	
-							}
+							region = temp;
+
 						}
 					}
 					
@@ -246,78 +238,47 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						//Order of selecting items is important to only select "top" most item
 						selected.clear();
 			
-						for(CanvasObject object : ClientController.getCM().getObjects())
+						for(Sensor sensor : ClientController.getCM().sensors)
 						{
-							if(object instanceof Sensor)
-							{
-								Sensor sensor = (Sensor) object;
-								if(sensor.location.equals(Canvas.getCursorPoint()))
-								{
-									
-									selected.add(sensor);
-								}
-							}							
+							if(sensor.location.equals(Canvas.getCursorPoint()))
+							{	
+								selected.add(sensor);
+							}						
 						}
 						
 						
-						for(CanvasObject object : ClientController.getCM().getObjects())
+						for(Light light : ClientController.getCM().lights)
 						{
-							if(object instanceof Light)
+							if(light.location.equals(Canvas.getCursorPoint()))
 							{
-								Light light = (Light) object;
-								if(light.location.equals(Canvas.getCursorPoint()))
-								{
-									selected.clear();
-									selected.add(light);
-								}
+								selected.clear();
+								selected.add(light);
 							}
 						}
 			
 						
-						for(CanvasObject object : ClientController.getCM().getObjects())
+						for(Wall wall : ClientController.getCM().walls)
 						{
-							if(object instanceof Wall)
+							if(wall.line.intersects(new Rectangle2D.Double(Canvas.getCursorPoint().getX()- ClientController.getCM().gridSize/2, Canvas.getCursorPoint().getY()- ClientController.getCM().gridSize/2, ClientController.getCM().gridSize, ClientController.getCM().gridSize)))
 							{
-								Wall wall = (Wall) object;
-								if(wall.line.intersects(new Rectangle2D.Double(Canvas.getCursorPoint().getX()- ClientController.getCM().gridSize/2, Canvas.getCursorPoint().getY()- ClientController.getCM().gridSize/2, ClientController.getCM().gridSize, ClientController.getCM().gridSize)))
+								if(selected.isEmpty())
 								{
-									if(selected.isEmpty())
-									{
-										selected.add(wall);
-									}
+									selected.add(wall);
 								}
 							}
 						}
 
 
-						for(CanvasObject object : ClientController.getCM().getObjects())
+						for(Region region : ClientController.getCM().regions)
 						{
-							if(object instanceof Region)
+							if(region.region.contains(Canvas.getCursorPoint()))
 							{
-								Region region = (Region) object;
-								if(region.region.contains(Canvas.getCursorPoint()))
+								if(selected.isEmpty())
 								{
-									if(selected.isEmpty())
-									{
-										selected.add(region);
-									}
+									selected.add(region);
 								}
 							}
-						}
-						
-						
-						for(CanvasObject object : ClientController.getCM().getObjects())
-						{
-							if(selected.contains(object))
-							{
-								object.Select();
-							}
-							else
-							{
-								object.unSelect();
-							}
-						}
-						
+						}					
 		}
 
 		tempObjectChanged();

@@ -18,7 +18,6 @@ import java.net.ServerSocket;
 
 import javax.swing.Timer;
 
-import model.CanvasObject;
 import model.CurrentModel;
 import model.Point;
 import model.Sensor;
@@ -107,30 +106,26 @@ class ServerThread extends Thread
     		
         		*/
         		
-        		for(Point point : ServerController.getCM().getPoints())
+        		for(Point point : ServerController.getCM().points)
         		{
         			point.weight = 0;
         		}
         		Point max = new Point(new Point2D.Double(0,0));
             	double tolerance = 0.10;
         		
-        		for(CanvasObject object : ServerController.getCM().getObjects())
+        		for(Sensor sensor : ServerController.getCM().sensors)
         		{
-        			if(object instanceof Sensor)
-        			{
-        				Sensor sensor = (Sensor) object;
         				
-                		for(Point point : ServerController.getCM().getPoints())
+                	for(Point point : ServerController.getCM().points)
+                	{
+                		if(point.location.distance(sensor.location) > sensor.RSSI*(1-tolerance) && point.location.distance(sensor.location) < sensor.RSSI*(1+tolerance))
                 		{
-                			if(point.location.distance(sensor.location) > sensor.RSSI*(1-tolerance) && point.location.distance(sensor.location) < sensor.RSSI*(1+tolerance))
-                			{
-                				point.weight += 5;
-                			}
+                			point.weight += 5;
                 		}
-        			}
+                	}
         		}
         		
-        		for(Point point : ServerController.getCM().getPoints())
+        		for(Point point : ServerController.getCM().points)
         		{
         			if(point.weight > max.weight)
         			{
@@ -138,7 +133,7 @@ class ServerThread extends Thread
         			}
         		}
         		
-        		ServerController.getCM().getUser().setLocation(max.location);
+        		ServerController.getCM().users.get(0).setLocation(max.location);
         	}
         };
         new Timer(delay2, taskPerformer2).start();
@@ -182,6 +177,7 @@ class ServerThread extends Thread
 																	ServerController.getOutToClient().println("SENDINGMODEL");
 																	
 																	//ServerController.getOOS().reset();
+																	//ServerController.getOOS().writeObject(ServerController.getCM());
 																	ServerController.getOOS().writeUnshared(ServerController.getCM());
 																										
 																	if(ServerController.getInFromClient().readLine().equals("OKAY"))
@@ -194,7 +190,7 @@ class ServerThread extends Thread
 																	}
 																	else
 																	{
-																		System.err.println("Impossible response.");
+																		System.err.println("Impossible response: " + ServerController.getInFromClient().readLine());
 																	}
 																	
 																} catch (Exception e) {

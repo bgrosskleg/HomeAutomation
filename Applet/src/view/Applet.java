@@ -56,6 +56,10 @@ public class Applet extends JApplet
     public void init() 
     {
     	ClientController.initializeNetworkConnection(this);
+    	
+    	Canvas canvas = new Canvas();
+    	ClientController.setCanvas(canvas);
+    	CanvasMouseAdapter.addTempObjectSubscriber(canvas);
     	 
     	ClientController.requestModel();
     	
@@ -88,7 +92,7 @@ public class Applet extends JApplet
       			public void actionPerformed(ActionEvent e) 
       			{
       				ClientController.requestModel();
-      				ClientController.getCM().currentModelChanged();
+      				ClientController.getCanvas().currentModelChanged();
       			}
       		};
 
@@ -99,11 +103,8 @@ public class Applet extends JApplet
     private void createGUI() 
     {    	
     	add(new Instructions(), BorderLayout.NORTH);
-    	
-    	Canvas canvas = new Canvas();
-    	ClientController.getCM().addCurrentModelSubscriber(canvas);
-    	CanvasMouseAdapter.addTempObjectSubscriber(canvas);
-    	add(canvas, BorderLayout.CENTER);
+    
+    	add(ClientController.getCanvas(), BorderLayout.CENTER);
     	
     	add(new CanvasToolbar(), BorderLayout.EAST);
     	

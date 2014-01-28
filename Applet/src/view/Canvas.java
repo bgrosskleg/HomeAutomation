@@ -14,11 +14,11 @@ import subscribers.CurrentModelSubscriber;
 import subscribers.TempObjectSubscriber;
 import controller.CanvasMouseAdapter;
 import controller.ClientController;
-import model.CanvasObject;
 import model.Light;
 import model.Point;
 import model.Region;
 import model.Sensor;
+import model.User;
 import model.Wall;
 
 public class Canvas extends JPanel implements CurrentModelSubscriber, TempObjectSubscriber
@@ -77,48 +77,37 @@ public class Canvas extends JPanel implements CurrentModelSubscriber, TempObject
 		
 		//Paint from model, only painting one type of object then the next achieves layering
 		
-		for(CanvasObject object : ClientController.getCM().getPoints())
+		for(Point point : ClientController.getCM().points)
 		{
-			if(object instanceof Point)
-			{
-				object.paintComponent(g);
-			}
+			point.paintComponent(g);
 		}
 		
-		for(CanvasObject object : ClientController.getCM().getObjects())
+		for(Region region : ClientController.getCM().regions)
 		{
-			if(object instanceof Region)
-			{
-				object.paintComponent(g);
-			}
+			region.paintComponent(g);
 		}
 		
-		for(CanvasObject object : ClientController.getCM().getObjects())
+		for(Wall wall : ClientController.getCM().walls)
 		{
-			if(object instanceof Wall)
-			{
-				object.paintComponent(g);
-			}
+			wall.paintComponent(g);
 		}
 		
-		for(CanvasObject object : ClientController.getCM().getObjects())
+		for(Light light : ClientController.getCM().lights)
 		{
-			if(object instanceof Light)
-			{
-				object.paintComponent(g);
-			}
+			light.paintComponent(g);
 		}
 		
-		for(CanvasObject object : ClientController.getCM().getObjects())
+		for(Sensor sensor : ClientController.getCM().sensors)
 		{
-			if(object instanceof Sensor)
-			{
-				object.paintComponent(g);
-			}
+			sensor.paintComponent(g);
 		}
 		
-		ClientController.getCM().getUser().paintComponent(g);
+		for(User user : ClientController.getCM().users)
+		{
+			user.paintComponent(g);
+		}
 				
+		
 		//Paint temporary wall
 		if(CMA.getTempWall() != null)
 		{
@@ -139,27 +128,22 @@ public class Canvas extends JPanel implements CurrentModelSubscriber, TempObject
 			g2.fill(new Ellipse2D.Double((cursor.x-5)-1, (cursor.y-5)-1, 10, 10));
 			
 			//Paint object label
-			for(CanvasObject object : ClientController.getCM().getObjects())
+			for(Sensor sensor : ClientController.getCM().sensors)
 			{
-				if(object instanceof Sensor)
+				if(sensor.location.equals(Canvas.getCursorPoint()))
 				{
-					Sensor sensor = (Sensor) object;
-					if(sensor.location.equals(Canvas.getCursorPoint()))
-					{
-						g2.setColor(Color.BLACK);
-		    			g2.setFont(new Font("default", Font.BOLD, 16));
-		    			g2.drawString(sensor.toString(),	(int) Canvas.getCursorPoint().x + 10, (int) Canvas.getCursorPoint().y - 1);
-					}
-				}	
-				else if(object instanceof Region)
+					g2.setColor(Color.BLACK);
+					g2.setFont(new Font("default", Font.BOLD, 16));
+					g2.drawString(sensor.toString(),	(int) Canvas.getCursorPoint().x + 10, (int) Canvas.getCursorPoint().y - 1);
+				}
+			}	
+			for(Region region : ClientController.getCM().regions)
+			{
+				if(region.region.contains(cursor))
 				{
-					Region region = (Region) object;
-					if(region.region.contains(cursor))
-					{
-						g2.setColor(Color.BLACK);
-		    			g2.setFont(new Font("default", Font.BOLD, 16));
-		    			g2.drawString(region.toString(),	(int) Canvas.getCursorPoint().x + 10, (int) Canvas.getCursorPoint().y + 17);
-					}
+					g2.setColor(Color.BLACK);
+					g2.setFont(new Font("default", Font.BOLD, 16));
+					g2.drawString(region.toString(),	(int) Canvas.getCursorPoint().x + 10, (int) Canvas.getCursorPoint().y + 17);
 				}
 			}
 		}

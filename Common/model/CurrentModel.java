@@ -16,7 +16,7 @@ public class CurrentModel implements Serializable
 {
 	private static final long serialVersionUID = 1;
 	
-	private static EventListenerList subsscriberList = new EventListenerList();
+	private static EventListenerList subscriberList = new EventListenerList();
 	
 	//private boolean configured;
 	public final int gridSize = 25;
@@ -24,19 +24,28 @@ public class CurrentModel implements Serializable
 	public final int height = 800;
 	
 	//Lists of model objects
-	private ArrayList<Point> points;
-	private ArrayList<CanvasObject> objects;
-	private User user;
+	public ArrayList<Point> points;
+	public ArrayList<Wall> walls;
+	public ArrayList<Region> regions;
+	public ArrayList<Light> lights;
+	public ArrayList<Sensor> sensors;
+	public ArrayList<User> users;
 	
 	public CurrentModel()
-	{			
-		objects = new ArrayList<CanvasObject>();
+	{		
 		points = new ArrayList<Point>();
-		createGrid();		
-		user = new User("Brian","ABCD1234ABCD1234", new Point2D.Double(50, 50));
+		createGrid();
+		
+		walls = new ArrayList<Wall>();
+		regions = new ArrayList<Region>();
+		lights = new ArrayList<Light>();
+		sensors = new ArrayList<Sensor>();
+		
+		users = new ArrayList<User>();	
+		users.add(new User("Brian","ABCD1234ABCD1234", new Point2D.Double(50, 50)));
 	}
 	
-	public void createGrid()
+	private void createGrid()
 	{
 		for (int i = gridSize/2; i < width; i = i + gridSize) 
 		{
@@ -58,7 +67,11 @@ public class CurrentModel implements Serializable
 	
 	public boolean equals(CurrentModel B) 
 	{
-		if( this.objects.equals(B.objects))
+		if( this.walls.equals(B.walls) && 
+				this.regions.equals(B.regions) &&
+				this.lights.equals(B.lights) && 
+				this.sensors.equals(B.sensors) && 
+				this.users.equals(B.users))
 		{
 			return true;
 		}
@@ -70,19 +83,19 @@ public class CurrentModel implements Serializable
 	
 	public void addCurrentModelSubscriber(CurrentModelSubscriber subscriber)
 	{
-		subsscriberList.add(CurrentModelSubscriber.class, subscriber);
+		subscriberList.add(CurrentModelSubscriber.class, subscriber);
 	}
 	
 	public void removeCurrentModelSubscriber(CurrentModelSubscriber subscriber)
 	{
-		subsscriberList.remove(CurrentModelSubscriber.class, subscriber);
+		subscriberList.remove(CurrentModelSubscriber.class, subscriber);
 	}
 	
 	public void currentModelChanged()
 	{	
 
 		//Notify local subscribers
-		Object[] subscribers = subsscriberList.getListenerList();
+		Object[] subscribers = subscriberList.getListenerList();
 	    for (int i = 0; i < subscribers.length; i = i+2) {
 	      if (subscribers[i] == CurrentModelSubscriber.class) {
 	        ((CurrentModelSubscriber) subscribers[i+1]).currentModelChanged();
@@ -90,31 +103,54 @@ public class CurrentModel implements Serializable
 	    }
 	}
 	
-	public void addCanvasObject(CanvasObject object) {
-		objects.add(object);
+	public void addCanvasObject(CanvasObject object) 
+	{
+		if(object instanceof Wall)
+		{
+			walls.add((Wall)object);
+		}
+		
+		if(object instanceof Region)
+		{
+			regions.add((Region)object);
+		}
+		
+		if(object instanceof Light)
+		{
+			lights.add((Light)object);
+		}
+		
+		if(object instanceof Sensor)
+		{
+			sensors.add((Sensor)object);
+		}
 		currentModelChanged();
 	}
 
-	public void removeCanvasObject(CanvasObject object) {
-		objects.remove(object);
+	public void removeCanvasObject(CanvasObject object) 
+	{
+		if(object instanceof Wall)
+		{
+			walls.remove((Wall)object);
+		}
+		
+		if(object instanceof Region)
+		{
+			regions.remove((Region)object);
+		}
+		
+		if(object instanceof Light)
+		{
+			lights.remove((Light)object);
+		}
+		
+		if(object instanceof Sensor)
+		{
+			sensors.remove((Sensor)object);
+		}
 		currentModelChanged();
 	}
-	
-	public ArrayList<CanvasObject> getObjects()
-	{
-		return objects;
-	}
-	
-	public ArrayList<Point> getPoints()
-	{
-		return points;
-	}
-	
-	public User getUser()
-	{
-		return user;
-	}
-	
+		
 	
 	public byte[] serialize()
 	  {		 		  

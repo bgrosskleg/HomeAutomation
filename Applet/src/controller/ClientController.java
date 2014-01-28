@@ -10,23 +10,15 @@ import java.net.Socket;
 import java.net.URL;
 
 import javax.swing.JApplet;
-import javax.swing.event.EventListenerList;
-
-
-
-//import communication.RequestModelWorker;
-//import communication.SendModelWorker;
-import subscribers.MainControllerSubscriber;
+import view.Canvas;
 import model.CurrentModel;
 
 public class ClientController 
 {
-	private static EventListenerList subscriberList = new EventListenerList();
-	
 	private static JApplet application;
 	
 	private static CurrentModel CM;
-	
+	private static Canvas canvas;
 	private static String currentTool;
 	
 	private static URL codebase;
@@ -42,9 +34,6 @@ public class ClientController
     private static BufferedReader inFromServer;
     private static ObjectOutputStream oos;
     private static ObjectInputStream ois;
-    
-    //private static RequestModelWorker requestModel = new RequestModelWorker();
-    //private static SendModelWorker	sendModel = new SendModelWorker();
    	
     public static void initializeNetworkConnection(JApplet application)
     { 
@@ -93,6 +82,14 @@ public class ClientController
 		ClientController.application = application;
 	}
 	
+	//REFERENCE TO CANVAS****************************************
+	public static void setCanvas(Canvas canvas) {
+		ClientController.canvas = canvas;
+	}
+	
+	public static Canvas getCanvas() {
+		return canvas;
+	}
 	
 	//CURRENT MODEL**********************************************
 	public static CurrentModel getCM() {
@@ -102,6 +99,7 @@ public class ClientController
 	public static void setCM(CurrentModel cM) 
 	{
 		CM = cM;
+		getCanvas().currentModelChanged();
 	}	
 	
 	public static void sendModel()
@@ -120,6 +118,7 @@ public class ClientController
 			if(ClientController.getInFromServer().readLine().equals("OKAY"))
 			{
 				//ClientController.getOOS().reset();
+				//ClientController.getOOS().writeObject(ClientController.getCM());
 				ClientController.getOOS().writeUnshared(ClientController.getCM());
 			
 				if(ClientController.getInFromServer().readLine().equals("OKAY"))
@@ -158,8 +157,9 @@ public class ClientController
 			{
 				System.out.println("Model incoming...");
 						
+				//ClientController.setCM((CurrentModel) ClientController.getOIS().readObject());
 				ClientController.setCM((CurrentModel) ClientController.getOIS().readUnshared());
-							
+				
 				ClientController.getOutToServer().println("OKAY");
 				
 				System.out.println("Model recieved.");
@@ -179,7 +179,6 @@ public class ClientController
 
 	public static void setCurrentTool(String currentTool) {
 		ClientController.currentTool = currentTool;
-		clientControllerChanged();
 	}
 	
 	
@@ -212,7 +211,6 @@ public class ClientController
 
 	public static void setCommandSocket(Socket socket) {
 		ClientController.commandSocket = socket;
-		clientControllerChanged();
 	}
 	
 	//Object socket
@@ -222,7 +220,6 @@ public class ClientController
 
 	public static void setObjectSocket(Socket socket) {
 		ClientController.objectSocket = socket;
-		clientControllerChanged();
 	}
 
 	//Host name
@@ -232,7 +229,6 @@ public class ClientController
 
 	public static void setHost(String host) {
 		ClientController.host = host;
-		clientControllerChanged();
 	}
 
 	//Internet address
@@ -242,7 +238,6 @@ public class ClientController
 
 	public static void setAddress(InetAddress address) {
 		ClientController.address = address;
-		clientControllerChanged();
 	}
 		
 	//Input/output TCP Streams
@@ -261,41 +256,6 @@ public class ClientController
 	public static ObjectInputStream getOIS() {
 		return ois;
 	}
+
 	
-	/*public static RequestModelWorker getRequestWorker()
-	{
-		return requestModel;
-	}
-	
-	public static SendModelWorker getSendWorker()
-	{
-		return sendModel;
-	}*/
-		
-	
-	//SUBSCRIBERS************************************************
-
-
-	//Add subscribers
-	public static void addMainControllerSubscriber(MainControllerSubscriber subscriber)
-	{
-		subscriberList.add(MainControllerSubscriber.class, subscriber);
-	}
-
-	//Remove subscriber
-	public static void removeMainControllerSubscriber(MainControllerSubscriber subscriber)
-	{
-		subscriberList.remove(MainControllerSubscriber.class, subscriber);
-	}
-
-	public static void clientControllerChanged()
-	{
-		//Notify Listeners
-		Object[] subscribers = subscriberList.getListenerList();
-		for (int i = 0; i < subscribers.length; i = i+2) {
-			if (subscribers[i] == MainControllerSubscriber.class) {
-				((MainControllerSubscriber) subscribers[i+1]).mainControllerChanged();
-			}
-		}
-	}	
 }
