@@ -181,8 +181,8 @@ class ServerThread extends Thread
 																	System.out.println("Sending model to client...");
 																	ServerController.getOutToClient().println("SENDINGMODEL");
 																	
-																	//ServerController.getOOS().reset();
-																	ServerController.getOOS().writeUnshared(ServerController.getCM());
+																	ServerController.getOOS().reset();
+																	ServerController.getOOS().writeObject(ServerController.getCM());
 																										
 																	if(ServerController.getInFromClient().readLine().equals("OKAY"))
 																	{

@@ -158,7 +158,7 @@ public class ClientController
 			{
 				System.out.println("Model incoming...");
 						
-				ClientController.setCM((CurrentModel) ClientController.getOIS().readUnshared());
+				ClientController.setCM((CurrentModel) ClientController.getOIS().readObject());
 							
 				ClientController.getOutToServer().println("OKAY");
 				

@@ -181,8 +181,8 @@ class ServerThread extends Thread
 																	System.out.println("Sending model to client...");
 																	ServerController.getOutToClient().println("SENDINGMODEL");
 																	
-																	//ServerController.getOOS().reset();
-																	ServerController.getOOS().writeUnshared(ServerController.getCM());
+																	ServerController.getOOS().reset();
+																	ServerController.getOOS().writeObject(ServerController.getCM());
 																										
 																	if(ServerController.getInFromClient().readLine().equals("OKAY"))
 																	{
@@ -208,7 +208,7 @@ class ServerThread extends Thread
 		        	case "SENDINGMODEL":					try {
 																	System.out.println("Receiving model...");
 																	ServerController.getOutToClient().println("OKAY");
-																	ServerController.setCM((CurrentModel) ServerController.getOIS().readUnshared());
+																	ServerController.setCM((CurrentModel) ServerController.getOIS().readObject());
 																	ServerController.getOutToClient().println("OKAY");
 													    			System.out.println("Model recieved.");
 													    			

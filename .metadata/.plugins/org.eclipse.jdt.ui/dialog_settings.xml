@@ -17,21 +17,21 @@
 		<item value="false" key="JarPackageWizardPage.REFACTORINGS"/>
 		<item value="true" key="jarOptionsWizardPage.EXPORT_WARNINGS"/>
 		<item value="false" key="JarManifestWizardPage.SEAL_JAR"/>
-		<item value="/Server/serverManifest" key="JarManifestWizardPage.MANIFEST_LOCATION"/>
+		<item value="/Applet/appletManifest" key="JarManifestWizardPage.MANIFEST_LOCATION"/>
 		<item value="false" key="JarPackageWizardPage.OVERWRITE"/>
 		<item value="true" key="jarOptionsWizardPage.EXPORT_ERRORS"/>
 		<item value="true" key="JarPackageWizardPage.EXPORT_CLASS_FILES"/>
 		<item value="false" key="jarOptionsWizardPage.SAVE_DESCRIPTION"/>
-		<item value="false" key="JarPackageWizardPage.EXPORT_JAVA_FILES"/>
 		<item value="true" key="JarManifestWizardPage.SAVE_MANIFEST"/>
+		<item value="false" key="JarPackageWizardPage.EXPORT_JAVA_FILES"/>
 		<item value="false" key="JarPackageWizardPage.EXPORT_OUTPUT_FOLDER"/>
 		<item value="true" key="JarPackageWizardPage.COMPRESS"/>
 		<item value="true" key="jarOptionsWizardPage.BUILD_IF_NEEDED"/>
 		<item value="false" key="jarOptionsWizardPage.STORE_USE_SRC_FOLDERS"/>
 		<item value="" key="jarOptionsWizardPage.DESCRIPTION_LOCATION"/>
 		<list key="JarPackageWizardPage.DESTINATION_NAMES_ID">
-			<item value="F:\My Documents\University\5th Year\1st Term\EE 495\HomeAutomation\Server2.jar"/>
 			<item value="F:\My Documents\University\5th Year\1st Term\EE 495\HomeAutomation\Applet.jar"/>
+			<item value="F:\My Documents\University\5th Year\1st Term\EE 495\HomeAutomation\Server2.jar"/>
 			<item value="F:\My Documents\University\5th Year\1st Term\EE 495\TCP Attempt\TrackingGUIApplet.jar"/>
 			<item value="TrackingGUIApplet/TrackingGUIApplet.jar"/>
 			<item value="TrackingGUIApplet/src/TrackingGUIApplet.jar"/>
@@ -74,15 +74,15 @@
 	</section>
 	<section name="JavaElementSearchActions">
 	</section>
-	<section name="NewClassWizardPage">
-		<item value="false" key="create_constructor"/>
-		<item value="true" key="create_unimplemented"/>
-	</section>
 	<section name="org.eclipse.ltk.ui.refactoring.settings">
-		<item value="false" key="updateQualifiedNames"/>
 		<item value="*" key="patterns"/>
+		<item value="false" key="updateQualifiedNames"/>
 		<item value="1" key="updateSimilarElementsMatchStrategy"/>
 		<item value="false" key="updateTextualMatches"/>
 		<item value="false" key="updateSimilarElements"/>
+	</section>
+	<section name="NewClassWizardPage">
+		<item value="false" key="create_constructor"/>
+		<item value="true" key="create_unimplemented"/>
 	</section>
 </section>
