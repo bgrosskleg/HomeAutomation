@@ -42,7 +42,7 @@ public class CurrentModel implements Serializable
 		sensors = new ArrayList<Sensor>();
 		
 		users = new ArrayList<User>();	
-		users.add(0, new User("Brian","ABCD1234ABCD1234", new Point2D.Double(50, 50)));
+		users.add(new User("Brian","ABCD1234ABCD1234", new Point2D.Double(50, 50)));
 	}
 	
 	private void createGrid()

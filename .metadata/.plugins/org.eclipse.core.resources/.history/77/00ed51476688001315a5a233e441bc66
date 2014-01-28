@@ -85,7 +85,7 @@ public class Applet extends JApplet
         
         
         //Start update
-      		int delay = 1000; //milliseconds
+      		int delay = 500; //milliseconds
       		ActionListener taskPerformer = new ActionListener() 
       		{
       			@Override

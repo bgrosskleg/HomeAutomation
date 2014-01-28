@@ -117,9 +117,9 @@ public class ClientController
 			ClientController.getOutToServer().println("SENDINGMODEL");
 			if(ClientController.getInFromServer().readLine().equals("OKAY"))
 			{
-				ClientController.getOOS().reset();
-				ClientController.getOOS().writeObject(ClientController.getCM());
-				//ClientController.getOOS().writeUnshared(ClientController.getCM());
+				//ClientController.getOOS().reset();
+				//ClientController.getOOS().writeObject(ClientController.getCM());
+				ClientController.getOOS().writeUnshared(ClientController.getCM());
 			
 				if(ClientController.getInFromServer().readLine().equals("OKAY"))
 				{
@@ -157,8 +157,8 @@ public class ClientController
 			{
 				System.out.println("Model incoming...");
 						
-				ClientController.setCM((CurrentModel) ClientController.getOIS().readObject());
-				//ClientController.setCM((CurrentModel) ClientController.getOIS().readUnshared());
+				//ClientController.setCM((CurrentModel) ClientController.getOIS().readObject());
+				ClientController.setCM((CurrentModel) ClientController.getOIS().readUnshared());
 				
 				ClientController.getOutToServer().println("OKAY");
 				
