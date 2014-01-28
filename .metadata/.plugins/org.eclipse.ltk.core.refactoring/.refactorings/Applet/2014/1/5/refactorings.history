@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;Applet/manifest&apos; to &apos;appletManifest&apos;" description="Rename resource &apos;manifest&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="manifest" name="appletManifest" stamp="1390883162371" updateReferences="true"/>
+</session>
