@@ -34,7 +34,10 @@ public class ClientController
 	private static Socket objectSocket;
     private static String host;
     private static InetAddress address;
-    private static final int serverPort = 65000;
+    
+    private static int commandPort = 65000;
+    private static int objectPort = 65001;
+    
     private static PrintWriter outToServer;
     private static BufferedReader inFromServer;
     private static ObjectOutputStream oos;
@@ -65,8 +68,8 @@ public class ClientController
 		    //TCP Socket Setup
 		    //http://lycog.com/java/tcp-object-transmission-java/
 	    
-		    commandSocket = new Socket(InetAddress.getByName(host), serverPort);
-		    objectSocket = new Socket(InetAddress.getByName(host), serverPort);
+		    commandSocket = new Socket(InetAddress.getByName(host), commandPort);
+		    objectSocket = new Socket(InetAddress.getByName(host), objectPort);
 			//socket = new Socket(host, serverPort);
 			outToServer = new PrintWriter(commandSocket.getOutputStream(), true);
 			inFromServer = new BufferedReader(new InputStreamReader(commandSocket.getInputStream()));
@@ -103,6 +106,12 @@ public class ClientController
 	
 	public static void sendModel()
 	{
+		if(ClientController.getOutToServer() == null || ClientController.getInFromServer() == null || ClientController.getOOS() == null )
+		{
+			System.out.println("Command or object stream not initialized, server may be off...");
+			return;
+		}
+		
 		//Submit model to Pi
 		try 
 		{
@@ -110,10 +119,9 @@ public class ClientController
 			ClientController.getOutToServer().println("SENDINGMODEL");
 			if(ClientController.getInFromServer().readLine().equals("OKAY"))
 			{
-				//ClientController.getOOS().reset();
-				ClientController.getOOS().writeObject(ClientController.getCM());
-				ClientController.getOOS().flush();
 				ClientController.getOOS().reset();
+				ClientController.getOOS().writeObject(ClientController.getCM());
+			
 				if(ClientController.getInFromServer().readLine().equals("OKAY"))
 				{
 					System.out.println("Model save complete.");
@@ -126,6 +134,7 @@ public class ClientController
 		} 
 		catch (Exception e1) 
 		{
+			ClientController.getOutToServer().println("FAIL");
 			System.out.println("Failure sending model to server");
 			//e1.printStackTrace();
 		}
@@ -135,6 +144,12 @@ public class ClientController
 	public static void requestModel()
 	{
 		//Get model from Pi
+		if(ClientController.getOutToServer() == null || ClientController.getInFromServer() == null || ClientController.getOIS() == null )
+		{
+			System.out.println("Command or object stream not initialized, server may be off...");
+			return;
+		}
+		
 		try {
 			System.out.println("Requesting model...");
 			ClientController.getOutToServer().println("REQUESTMODEL");
@@ -145,7 +160,6 @@ public class ClientController
 						
 				ClientController.setCM((CurrentModel) ClientController.getOIS().readObject());
 							
-				System.out.println("Get's here 1");
 				ClientController.getOutToServer().println("OKAY");
 				
 				System.out.println("Model recieved.");
@@ -154,7 +168,7 @@ public class ClientController
 		} catch (Exception e1) {
 			ClientController.getOutToServer().println("FAIL");
 			System.out.println("Failure requesting model from server!");
-			e1.printStackTrace();
+			//e1.printStackTrace();
 		}
 	}
 	
@@ -181,9 +195,14 @@ public class ClientController
 		ClientController.codebase = url;
 	}
 
-	//Server port number
-	public static int getServerPort() {
-		return serverPort;
+	//Command port number
+	public static int getCommandPort() {
+		return commandPort;
+	}
+	
+	//Object port number
+	public static int getObjectPort() {
+		return objectPort;
 	}
 
 	//Command socket

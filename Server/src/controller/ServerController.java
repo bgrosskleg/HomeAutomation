@@ -29,10 +29,12 @@ public class ServerController
 	
 	private static String currentTool;
 	
-	private static ServerSocket serverSocket;
+	private static ServerSocket commandServerSocket;
+	private static ServerSocket objectServerSocket;
 	private static Socket commandSocket;
 	private static Socket objectSocket;
-    private static int serverPort = 65000;
+    private static int commandPort = 65000;
+    private static int objectPort = 65001;
 
     private static PrintWriter outToClient;
     private static BufferedReader inFromClient;
@@ -48,7 +50,8 @@ public class ServerController
 	    	System.out.println("Initializing socket...");
 	    	System.out.println("Waiting for request from applet...");   	
 	       
-	    	commandSocket = serverSocket.accept();
+	    	commandSocket = commandServerSocket.accept();
+	    	objectSocket = objectServerSocket.accept();
 	        
 	        if(commandSocket.getLocalAddress().toString().equals("/127.0.0.1"))
 	        {
@@ -118,12 +121,37 @@ public class ServerController
 	
 	//NETWORKING PARAMETERS*******************************************************
 	
-	//Server port number
-	public static int getServerPort() {
-		return serverPort;
+	//Command port number
+	public static int getCommandPort() {
+		return commandPort;
 	}
+	
+	//Command port number
+		public static int getObjectPort() {
+			return objectPort;
+		}
+		
+	//ServerSocket
+	public static ServerSocket getCommandServerSocket() {
+		return commandServerSocket;
+	}
+	
+	public static void setCommandServerSocket(ServerSocket socket) {
+		ServerController.commandServerSocket = socket;
+		serverControllerChanged();
+	}
+	
+	public static ServerSocket getObjectServerSocket() {
+		return objectServerSocket;
+	}
+	
+	public static void setObjectServerSocket(ServerSocket socket) {
+		ServerController.objectServerSocket = socket;
+		serverControllerChanged();
+	}	
 
-	//Socket and ServerSocket
+
+	//Sockets
 	public static Socket getCommandSocket() {
 		return commandSocket;
 	}
@@ -141,11 +169,7 @@ public class ServerController
 		ServerController.objectSocket = socket;
 		serverControllerChanged();
 	}
-	
-	
-	public static void setServerSocket(ServerSocket ss){
-		ServerController.serverSocket = ss;
-	}
+
 
 				
 	

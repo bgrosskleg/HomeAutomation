@@ -30,19 +30,23 @@ class ServerThread extends Thread
     {
         super("TrackingGUIServer");
         
-        //Create one serverSocket
+        //Create one serverSocket for each command and object steams
+        //Recommended to seperate commands (Strings) from object (CurrentModel) to avoid framing screw ups
+        //http://stackoverflow.com/questions/11199471/multiple-object-streams-over-a-single-socket
         try 
     	{
-			ServerController.setServerSocket(new ServerSocket(ServerController.getServerPort()));
+			ServerController.setCommandServerSocket(new ServerSocket(ServerController.getCommandPort()));
+			ServerController.setObjectServerSocket(new ServerSocket(ServerController.getObjectPort()));
 		} 
     	catch (Exception e1) 
     	{
-			System.err.println("Failure creating server socket!");
+			System.err.println("Failure creating server sockets!");
 			e1.printStackTrace();
 			return;
 		}
     	
-        System.out.println("TrackingGUIServer listening on port: " + ServerController.getServerPort());
+        System.out.println("Server command stream listening on port: " + ServerController.getCommandPort());
+        System.out.println("Server object stream listening on port: " + ServerController.getObjectPort());
         
         
         ServerController.initializeSocket();
@@ -142,23 +146,24 @@ class ServerThread extends Thread
 
     public void run() 
     {
-        if (ServerController.getSocket() == null)
+        if (ServerController.getCommandSocket() == null || ServerController.getObjectSocket() == null)
         {
-        	System.err.println("Socket not created...");
+        	System.err.println("Sockets not created...");
             return;
         }
+        
+        if(ServerController.getInFromClient() == null)
+		{
+			System.out.println("Input stream not initialized...");
+			return;
+		}
                 
         while (true) 
         {
         	// Receive request
         	String received = null;
 			try {
-				if(ServerController.getInFromClient() == null)
-				{
-					System.out.println("Input stream not initialized...");
-					throw new Exception();
-				}
-				
+								
 				received = ServerController.getInFromClient().readLine();
 				
 				if(received == null)
@@ -167,6 +172,59 @@ class ServerThread extends Thread
 					System.out.println("Client closed socket, throw exception...");
 					throw new Exception();
 				}
+				
+				System.out.println("Received: |" + received + "|");
+				
+	        	switch(received)
+		        	{
+		        	case "REQUESTMODEL":					try {
+																	System.out.println("Sending model to client...");
+																	ServerController.getOutToClient().println("SENDINGMODEL");
+																	
+																	ServerController.getOOS().reset();
+																	ServerController.getOOS().writeObject(ServerController.getCM());
+																										
+																	if(ServerController.getInFromClient().readLine().equals("OKAY"))
+																	{
+																		System.out.println("Model sent complete.");
+																	}
+																	else if(ServerController.getInFromClient().readLine().equals("FAIL"))
+																	{
+																		System.out.println("Model did not send correctly.");
+																	}
+																	else
+																	{
+																		System.err.println("Impossible response.");
+																	}
+																	
+																} catch (Exception e) {
+																	System.out.println("Failure sending model to client!");
+																	e.printStackTrace();
+																}
+		        	
+		        												break;
+		        												
+		
+		        	case "SENDINGMODEL":					try {
+																	System.out.println("Receiving model...");
+																	ServerController.getOutToClient().println("OKAY");
+																	ServerController.setCM((CurrentModel) ServerController.getOIS().readObject());
+																	ServerController.getOutToClient().println("OKAY");
+													    			System.out.println("Model recieved.");
+													    			
+			        												//Save CurrentModel to RPi card
+			        								        		ServerController.saveModeltoDisk();
+			        								        		
+																} catch (Exception e) {
+																	System.out.println("Failure getting model from client!");
+																	e.printStackTrace();
+																} 
+		        												break;
+		        	
+		        	default:	
+		        												break;
+		
+		        	}
 			} 
 			catch (Exception e2)
 			{
@@ -219,82 +277,33 @@ class ServerThread extends Thread
 				
 				try
 				{
-					if(ServerController.getSocket() != null)
-					{ServerController.getSocket().close();}
-					System.out.println("Existing socket closed.");
+					if(ServerController.getCommandSocket() != null)
+					{ServerController.getCommandSocket().close();}
+					System.out.println("Existing commandSocket closed.");
+				}
+					catch (Exception e) 
+					{
+						System.out.println("Failure closing commandSocket.");
+						e.printStackTrace();
+					}
 					
-					//Initialize the next connection
-					ServerController.initializeSocket();
+				try
+				{
+					if(ServerController.getObjectSocket() != null)
+					{ServerController.getObjectSocket().close();}
+					System.out.println("Existing objectSocket closed.");	
 				} 
 				catch (Exception e) 
 				{
-					System.out.println("Failure closeing socket.");
+					System.out.println("Failure closing objectSocket.");
 					e.printStackTrace();
 				}
+			
+				//Initialize the next connection
+				ServerController.initializeSocket();
 			}
 			
-			System.out.println("Received: |" + received + "|");
-        	if(received != null)
-          	{
-        	switch(received)
-	        	{
-	        	case "REQUESTMODEL":					try {
-																System.out.println("Sending model to client...");
-																ServerController.getOutToClient().println("SENDINGMODEL");
-																//ServerController.getOOS().reset();
-																ServerController.getOOS().flush();
-																System.out.println("Get's here 1");
-																
-																ServerController.getOOS().writeObject(ServerController.getCM());
-																
-																System.out.println("Get's here 2");
-																//ServerController.getOOS().flush();
-																System.out.println("Get's here 3");
-																//ServerController.getOOS().reset();
-																System.out.println("Get's here 4");
-									
-																if(ServerController.getInFromClient().readLine().equals("OKAY"))
-																{
-																	System.out.println("Model sent complete.");
-																}
-																else if(ServerController.getInFromClient().readLine().equals("FAIL"))
-																{
-																	System.out.println("Model did not send correctly.");
-																}
-																else
-																{
-																	System.err.println("Impossible response.");
-																}
-																
-															} catch (Exception e) {
-																System.out.println("Failure sending model to client!");
-																e.printStackTrace();
-															}
-	        	
-	        												break;
-	        												
-	
-	        	case "SENDINGMODEL":					try {
-																System.out.println("Receiving model...");
-																ServerController.getOutToClient().println("OKAY");
-																ServerController.setCM((CurrentModel) ServerController.getOIS().readObject());
-																ServerController.getOutToClient().println("OKAY");
-												    			System.out.println("Model recieved.");
-												    			
-		        												//Save CurrentModel to RPi card
-		        								        		ServerController.saveModeltoDisk();
-		        								        		
-															} catch (Exception e) {
-																System.out.println("Failure getting model from client!");
-																e.printStackTrace();
-															} 
-	        												break;
-	        	
-	        	default:	
-	        												break;
-	
-	        	}
-          	}
+			
         }
     }
 
