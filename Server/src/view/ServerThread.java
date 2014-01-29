@@ -71,7 +71,7 @@ class ServerThread extends Thread
         
         //Creates a timer to triangulate user position 
       
-        int delay2 = 2000; //milliseconds
+        int delay2 = 100; //milliseconds
 
         ActionListener taskPerformer2 = new ActionListener() {
         	//boolean moveRight = true;
@@ -80,7 +80,7 @@ class ServerThread extends Thread
         	public void actionPerformed(ActionEvent e) 
         	{        		
         		/*
-    					User user = ServerController.getCM().getUser();
+    					User user = ServerController.getCM().users.get(0);
     					
 		        		//Move userA
 		        		int stepSize = ServerController.getCM().gridSize;
@@ -103,8 +103,9 @@ class ServerThread extends Thread
 		    				moveRight = true;
 		    				user.location.x += stepSize;
 		    			}
-    		
-        		*/
+        		 */
+        		
+        		
         		
         		for(Point point : ServerController.getCM().points)
         		{
@@ -134,6 +135,7 @@ class ServerThread extends Thread
         		}
         		
         		ServerController.getCM().users.get(0).setLocation(max.location);
+        		
         	}
         };
         new Timer(delay2, taskPerformer2).start();

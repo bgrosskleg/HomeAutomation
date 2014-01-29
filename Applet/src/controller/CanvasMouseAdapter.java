@@ -240,6 +240,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 			
 						for(Sensor sensor : ClientController.getCM().sensors)
 						{
+							sensor.unSelect();
 							if(sensor.location.equals(Canvas.getCursorPoint()))
 							{	
 								selected.add(sensor);
@@ -249,6 +250,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						
 						for(Light light : ClientController.getCM().lights)
 						{
+							light.unSelect();
 							if(light.location.equals(Canvas.getCursorPoint()))
 							{
 								selected.clear();
@@ -259,6 +261,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						
 						for(Wall wall : ClientController.getCM().walls)
 						{
+							wall.unSelect();
 							if(wall.line.intersects(new Rectangle2D.Double(Canvas.getCursorPoint().getX()- ClientController.getCM().gridSize/2, Canvas.getCursorPoint().getY()- ClientController.getCM().gridSize/2, ClientController.getCM().gridSize, ClientController.getCM().gridSize)))
 							{
 								if(selected.isEmpty())
@@ -271,6 +274,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 
 						for(Region region : ClientController.getCM().regions)
 						{
+							region.unSelect();
 							if(region.region.contains(Canvas.getCursorPoint()))
 							{
 								if(selected.isEmpty())
@@ -278,10 +282,16 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 									selected.add(region);
 								}
 							}
-						}					
+						}				
+						
+						for(CanvasObject object : selected)
+						{
+							object.Select();
+						}
 		}
 
 		tempObjectChanged();
+		ClientController.getCanvas().currentModelChanged();
 	}
 
 	@Override
