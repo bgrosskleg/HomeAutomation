@@ -25,8 +25,7 @@ public class Instructions extends JPanel
 				+ "Regions:&#09Click to define vertices of a region.  Return to initial vertex to complete region. <br>"
 				+ "Lights:&#09Click to place a light. <br>"
 				+ "Sensors:&#09Click to place a sensor. <br>"
-				+ "Erase:&#09Click to erase highlighted objects. <br>"
-				+ "Save:&#09Saves model.</nobr></html>");
+				+ "Erase:&#09Click to erase highlighted objects.</nobr></html>");
 		
 		instructions.revalidate();
 	

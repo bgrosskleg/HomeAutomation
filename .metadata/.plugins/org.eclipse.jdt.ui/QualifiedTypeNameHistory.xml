@@ -17,8 +17,6 @@
 <fullyQualifiedTypeName name="model.Wall"/>
 <fullyQualifiedTypeName name="java.awt.event.ActionListener"/>
 <fullyQualifiedTypeName name="java.awt.event.ActionEvent"/>
-<fullyQualifiedTypeName name="model.User"/>
-<fullyQualifiedTypeName name="view.Canvas"/>
 <fullyQualifiedTypeName name="javax.swing.SwingWorker"/>
 <fullyQualifiedTypeName name="communication.SendModelWorker"/>
 <fullyQualifiedTypeName name="communication.RequestModelWorker"/>
@@ -29,4 +27,7 @@
 <fullyQualifiedTypeName name="java.io.ByteArrayInputStream"/>
 <fullyQualifiedTypeName name="java.io.ObjectInput"/>
 <fullyQualifiedTypeName name="java.awt.geom.Point2D.Double"/>
+<fullyQualifiedTypeName name="subscribers.CurrentModelSubscriber"/>
+<fullyQualifiedTypeName name="view.Canvas"/>
+<fullyQualifiedTypeName name="model.User"/>
 </qualifiedTypeNameHistroy>
