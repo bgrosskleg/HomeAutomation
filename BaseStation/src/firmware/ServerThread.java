@@ -47,7 +47,7 @@ class ServerThread extends Thread
         System.out.println("Server command stream listening on port: " + Controller.getCommandPort());
         System.out.println("Server object stream listening on port: " + Controller.getObjectPort());
         
-        
+        //Wait for applet connection
         Controller.initializeSocket();
         
         
@@ -143,21 +143,24 @@ class ServerThread extends Thread
 
     public void run() 
     {
+    	//Ensure sockets are initialized
         if (Controller.getCommandSocket() == null || Controller.getObjectSocket() == null)
         {
         	System.err.println("Sockets not created...");
             return;
         }
         
+        //Ensure streams are initialized
         if(Controller.getInFromClient() == null)
 		{
 			System.out.println("Input stream not initialized...");
 			return;
 		}
                 
+        //Infinite loop
         while (true) 
         {
-        	// Receive request
+        	// Receive request on command stream
         	String received = null;
 			try {
 								
@@ -172,16 +175,20 @@ class ServerThread extends Thread
 				
 				System.out.println("Received: |" + received + "|");
 				
+				//Process command
 	        	switch(received)
 		        	{
 		        	case "REQUESTMODEL":					try {
 																	System.out.println("Sending model to client...");
+																	
+																	//Respond to client
 																	Controller.getOutToClient().println("SENDINGMODEL");
 																	
+																	//Reset object stream and write model to stream
 																	Controller.getOOS().reset();
 																	Controller.getOOS().writeObject(Controller.getCM());
-																	//ServerController.getOOS().writeUnshared(ServerController.getCM());
-																										
+																	
+																	//Analyze response
 																	if(Controller.getInFromClient().readLine().equals("OKAY"))
 																	{
 																		System.out.println("Model sent complete.");
@@ -205,9 +212,14 @@ class ServerThread extends Thread
 		
 		        	case "SENDINGMODEL":					try {
 																	System.out.println("Receiving model...");
+																	
+																	//Send response to client
 																	Controller.getOutToClient().println("OKAY");
+																	
+																	//Read object off object stream
 																	Controller.setCM((CurrentModel) Controller.getOIS().readObject());
-																	//ServerController.setCM((CurrentModel) ServerController.getOIS().readUnshared());
+																	
+																	//Send response to client
 																	Controller.getOutToClient().println("OKAY");
 													    			System.out.println("Model recieved.");
 													    			
@@ -228,6 +240,8 @@ class ServerThread extends Thread
 			} 
 			catch (Exception e2)
 			{
+				//Socket error, close all streams and sockets
+				
 				System.out.println("Socket Exception, closing existing socket...");
 
 				try 

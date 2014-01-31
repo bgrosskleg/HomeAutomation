@@ -23,7 +23,9 @@ public class Light extends CanvasObject
 	}
 
 	@Override
-	public void paintComponent(Graphics g) {
+	public void paintComponent(Graphics g) 
+	{
+		//Paint circle at location
 		Graphics2D g2 = (Graphics2D) g;
         g2.setColor(currentColor);
         Ellipse2D.Double light = new Ellipse2D.Double((location.x-size/2)-1, (location.y-size/2)-1, size , size);

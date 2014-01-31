@@ -34,7 +34,9 @@ public class Sensor extends CanvasObject
 	}
 
 	@Override
-	public void paintComponent(Graphics g) {
+	public void paintComponent(Graphics g) 
+	{
+		//Paint circle at location
 		Graphics2D g2 = (Graphics2D) g;
         g2.setColor(currentColor);
         

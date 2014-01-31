@@ -4,14 +4,11 @@ package view;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
@@ -23,7 +20,6 @@ public class CanvasToolbar extends JPanel
 	private static final long serialVersionUID = 1L;
 	
 	private JToggleButton buttons[];
-	private JButton saveButton;
 		
 	public CanvasToolbar()
 	{
@@ -36,7 +32,6 @@ public class CanvasToolbar extends JPanel
 		buttons[2] = new JToggleButton("Lights", new ImageIcon(ClientController.getApplication().getImage(ClientController.getCodebase(), "resources/lightbulbIcon.png")), false);
 		buttons[3] = new JToggleButton("Sensors", new ImageIcon(ClientController.getApplication().getImage(ClientController.getCodebase(), "resources/sensorIcon.png")), false);
 		buttons[4] = new JToggleButton("Erase", new ImageIcon(ClientController.getApplication().getImage(ClientController.getCodebase(), "resources/eraserIcon.png")), false);
-		saveButton = new JButton("Save", new ImageIcon(ClientController.getApplication().getImage(ClientController.getCodebase(), "resources/saveIcon.png")));		
 		
 		//Create button group (so that only one may be selected at once), and assign action
 		ButtonGroup group = new ButtonGroup();
@@ -53,36 +48,6 @@ public class CanvasToolbar extends JPanel
 				}
 			});
 		}
-		
-		saveButton.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				//Submit model to Pi
-				try {
-					System.out.println("Sending model to server...");
-					ClientController.getOutToServer().println("SENDINGMODEL");
-					if(ClientController.getInFromServer().readLine().equals("OKAY"))
-					{
-						//ClientController.getOOS().reset();
-						ClientController.getOOS().writeObject(ClientController.getCM());
-						//ClientController.getOOS().flush();
-						if(ClientController.getInFromServer().readLine().equals("OKAY"))
-						{
-							System.out.println("Model save complete.");
-						}
-						else
-						{
-							System.out.println("Model did not save correctly.");
-						}
-					}
-				} catch (Exception e1) {
-					System.out.println("Failure sending model to server");
-					e1.printStackTrace();
-				}
-			}
-		});
 		
 		
 		//Create look and feel, layout
@@ -104,8 +69,6 @@ public class CanvasToolbar extends JPanel
 		gbc.gridy++;
 		this.add(buttons[3], gbc);
 		gbc.gridy++;
-		this.add(buttons[4], gbc);
-		//gbc.gridy++;
-		//this.add(saveButton, gbc);		
+		this.add(buttons[4], gbc);		
 	}
 }

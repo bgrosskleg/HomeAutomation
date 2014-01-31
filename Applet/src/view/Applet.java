@@ -55,21 +55,25 @@ public class Applet extends JApplet
 
     public void init() 
     {
+    	//Set's up socket to server
     	ClientController.initializeNetworkConnection(this);
     	
+    	//Creates canvas and adds subscribers
     	Canvas canvas = new Canvas();
     	ClientController.setCanvas(canvas);
     	CanvasMouseAdapter.addTempObjectSubscriber(canvas);
     	 
+    	//Get model from server
     	ClientController.requestModel();
     	
+    	//If server did not send model, create blank model
     	if(ClientController.getCM() == null)
     	{
         	System.out.println("Server not sending model!");
         	ClientController.setCM(new CurrentModel());
         }
     	
-        //Set up the UI.
+        //Set up the user interface.
         //Execute a job on the event-dispatching thread:
         //creating this applet's GUI.
         try {
@@ -84,13 +88,14 @@ public class Applet extends JApplet
         }
         
         
-        //Start update
+        //Start automatic update
       		int delay = 100; //milliseconds
       		ActionListener taskPerformer = new ActionListener() 
       		{
       			@Override
       			public void actionPerformed(ActionEvent e) 
       			{
+      				//Request model and notify canvas to repaint
       				ClientController.requestModel();
       				ClientController.getCanvas().currentModelChanged();
       			}
@@ -102,10 +107,13 @@ public class Applet extends JApplet
 
     private void createGUI() 
     {    	
+    	//Add instructions pane
     	add(new Instructions(), BorderLayout.NORTH);
     
+    	//Add canvas
     	add(ClientController.getCanvas(), BorderLayout.CENTER);
     	
+    	//Add toolbar
     	add(new CanvasToolbar(), BorderLayout.EAST);
     	
     	setPreferredSize(new Dimension(1000,950));

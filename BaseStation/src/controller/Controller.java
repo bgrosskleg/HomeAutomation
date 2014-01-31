@@ -1,12 +1,9 @@
 package controller;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
@@ -50,9 +47,13 @@ public class Controller
 	    	System.out.println("Initializing socket...");
 	    	System.out.println("Waiting for request from applet...");   	
 	       
+	    	//.accept() sits and waits for connection request on serverSocket then returns 
+	    	//the requesting socket to establish connection
 	    	commandSocket = commandServerSocket.accept();
 	    	objectSocket = objectServerSocket.accept();
 	        
+	    	//If being run locally by eclipse, load the model from local path
+	    	//If being run on webserver on Pi, load model from the /var/www path
 	        if(commandSocket.getLocalAddress().toString().equals("/127.0.0.1"))
 	        {
 	        	System.out.println("modelPath = C:/Users/Brian Grosskleg/Desktop/model.ser");
@@ -70,11 +71,14 @@ public class Controller
 	        }
 	        CM = loadModelfromFile();
 	        
-	        
+	        //Initialize the command stream writer and reader
 	        outToClient = new PrintWriter(commandSocket.getOutputStream(), true);
 	        inFromClient = new BufferedReader(new InputStreamReader(commandSocket.getInputStream()));
+	        
+	        //Initialize the object stream
 	        oos = new ObjectOutputStream(objectSocket.getOutputStream());
 	        ois = new ObjectInputStream(objectSocket.getInputStream());
+	        
 	        System.out.println("Initializing socket complete.");
 	    } 
 	    catch (Exception e) 
@@ -209,21 +213,27 @@ public class Controller
     	} 
     	catch (Exception e1) 
     	{
+    		//Close any open streams
     		try
     		{
 	    		if(fos != null)
 	    		{
 	    			fos.close();
 	    		}
+	    		
 	    		if(oos != null)
 	    		{
 	    			oos.close();
 	    		}
+	    		
 	    		System.out.println("Existing file stream closed.");
-				} catch (Exception e) {
+			} 
+    		catch (Exception e) 
+    		{
 				System.out.println("Failure closeing file stream");
 				e.printStackTrace();
-		}
+    		}
+    		
     		System.out.println("Model not saved to file!");
     		e1.printStackTrace();
     	}	
@@ -232,18 +242,42 @@ public class Controller
     private static CurrentModel loadModelfromFile() 
     {
         //De-serialize the model
+    	
+    	FileInputStream fis = null;
+		ObjectInputStream ois = null;
+		
         try 
         {
-        	InputStream fileStream = new FileInputStream(modelPath);
-            InputStream buffer = new BufferedInputStream(fileStream);
-            ObjectInput input = new ObjectInputStream (buffer);
-			CurrentModel result = (CurrentModel)input.readObject();
-			input.close();
+        	fis = new FileInputStream(modelPath);
+            ois = new ObjectInputStream (fis);
+			CurrentModel result = (CurrentModel)ois.readObject();
+			ois.close();
+			fis.close();
 			System.out.println("Model loaded from file!");
 			return result;
 		} 
         catch (Exception e1) 
         {
+        	//Close any open streams
+        	try
+        	{
+        		if(ois != null)
+        			{
+        		ois.close();
+        			}
+    		
+        		if(fis != null)
+        		{
+        				fis.close();
+        		}
+        		System.out.println("Existing file stream closed.");
+			} 
+    		catch (Exception e) 
+    		{
+				System.out.println("Failure closeing file stream");
+				e.printStackTrace();
+    		}
+    		
         	System.out.println("Model not loaded from file!");
 			System.out.println("New model created.");
 			return new CurrentModel();

@@ -72,8 +72,10 @@ public class Region extends CanvasObject
 		final int r = rand.nextInt(126)+125;
 		final int g = rand.nextInt(126)+125;
 		final int b = rand.nextInt(126)+125;
+		
 		//Alpha 0-255 (transparent -> solid)
 		final int alpha = 200;
+		
 		final Color color = new Color(r,g,b,alpha);
 		
 		

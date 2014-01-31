@@ -35,21 +35,24 @@ public class ClientController
     private static ObjectOutputStream oos;
     private static ObjectInputStream ois;
    	
+    
     public static void initializeNetworkConnection(JApplet application)
     { 
     	try 
     	{
 	    	System.out.println("Initializing network connection...");
+	    	
+	    	//Getting this reference allows calls to the .getCodebase() and .getHost() outside this function
 	    	ClientController.application = application;
 			
-		    //Initialize networking stuff.
+		    //Grab codebase and host.
+	    	//This finds the codebase and host name that the application was loaded from (ie. the server)
 			codebase = application.getCodeBase();
 		    host = application.getCodeBase().getHost();
-		    
 		    System.out.println("Codebase: " + codebase);
-		    System.out.println("Model path: " + codebase.getPath());
 		    System.out.println("Host: " + host);
 		
+		    //Get IP address of host server
 		    address = InetAddress.getByName(host);
 		    System.out.println("Address: " + address);
 		   
@@ -57,11 +60,16 @@ public class ClientController
 		    //TCP Socket Setup
 		    //http://lycog.com/java/tcp-object-transmission-java/
 	    
+		    //socket = new Socket(host, serverPort);
 		    commandSocket = new Socket(InetAddress.getByName(host), commandPort);
 		    objectSocket = new Socket(InetAddress.getByName(host), objectPort);
-			//socket = new Socket(host, serverPort);
+			
+		    //Creates readers and writers on the socket's input and output streams
+		    //Command stream
 			outToServer = new PrintWriter(commandSocket.getOutputStream(), true);
 			inFromServer = new BufferedReader(new InputStreamReader(commandSocket.getInputStream()));
+			
+			//Object stream
 			oos = new ObjectOutputStream(objectSocket.getOutputStream());
 			ois = new ObjectInputStream(objectSocket.getInputStream());
 			
@@ -104,6 +112,7 @@ public class ClientController
 	
 	public static void sendModel()
 	{
+		//Ensure streams have been intialized
 		if(ClientController.getOutToServer() == null || ClientController.getInFromServer() == null || ClientController.getOOS() == null )
 		{
 			System.out.println("Command or object stream not initialized, server may be off...");
@@ -114,13 +123,20 @@ public class ClientController
 		try 
 		{
 			System.out.println("Sending model to server...");
+			
+			//Notify Pi on command stream
 			ClientController.getOutToServer().println("SENDINGMODEL");
+			
+			//Analyze command stream response
 			if(ClientController.getInFromServer().readLine().equals("OKAY"))
 			{
+				//Reset the stream so next write, writes a new complete object, not a reference to the first one
 				ClientController.getOOS().reset();
+				
+				//Write object to object stream
 				ClientController.getOOS().writeObject(ClientController.getCM());
-				//ClientController.getOOS().writeUnshared(ClientController.getCM());
-			
+
+				//Analyze command stream response
 				if(ClientController.getInFromServer().readLine().equals("OKAY"))
 				{
 					System.out.println("Model save complete.");
@@ -142,24 +158,29 @@ public class ClientController
 	
 	public static void requestModel()
 	{
-		//Get model from Pi
+		//Ensure streams have been intialized
 		if(ClientController.getOutToServer() == null || ClientController.getInFromServer() == null || ClientController.getOIS() == null )
 		{
 			System.out.println("Command or object stream not initialized, server may be off...");
 			return;
 		}
 		
+		//Get model from Pi
 		try {
 			System.out.println("Requesting model...");
+			
+			//Request model from Pi on command stream
 			ClientController.getOutToServer().println("REQUESTMODEL");
 				
+			//Analyze response on command stream
 			if(ClientController.getInFromServer().readLine().equals("SENDINGMODEL"))
 			{
 				System.out.println("Model incoming...");
 						
+				//Read model off object stream
 				ClientController.setCM((CurrentModel) ClientController.getOIS().readObject());
-				//ClientController.setCM((CurrentModel) ClientController.getOIS().readUnshared());
 				
+				//Notify server result
 				ClientController.getOutToServer().println("OKAY");
 				
 				System.out.println("Model recieved.");

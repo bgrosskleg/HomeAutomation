@@ -2,7 +2,6 @@ package model;
 
 import java.awt.geom.Point2D;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -93,7 +92,6 @@ public class CurrentModel implements Serializable
 	
 	public void currentModelChanged()
 	{	
-
 		//Notify local subscribers
 		Object[] subscribers = subscriberList.getListenerList();
 	    for (int i = 0; i < subscribers.length; i = i+2) {
@@ -153,29 +151,33 @@ public class CurrentModel implements Serializable
 		
 	
 	public byte[] serialize()
-	  {		 		  
-		  byte[] data = null;
-		  
-	      try {	
-	    	  //http://www.easywayserver.com/blog/save-serializable-object-in-java/
-	    	  ByteArrayOutputStream bos = new ByteArrayOutputStream();
-	    	  ObjectOutputStream oos;
+	{		 		  
+		//Serialize model into byte stream
+		byte[] data = null;
 
-	    	  oos = new ObjectOutputStream(bos);
+		try 
+		{	
+			//http://www.easywayserver.com/blog/save-serializable-object-in-java/
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ObjectOutputStream oos;
 
-	    	  oos.writeObject(this);
-	    	  oos.flush();
-	    	  oos.close();
-	    	  bos.close();
+			oos = new ObjectOutputStream(bos);
 
-	    	 data = bos.toByteArray();
-	        
-	      } catch (IOException e) {
-	    	  	JOptionPane.showMessageDialog(null,"Failure generating house model!");
-				System.out.println("Failure generating house model!");
-				e.printStackTrace();
-	      }
-	      
-	      return data;
+			oos.writeObject(this);
+			oos.flush();
+			oos.close();
+			bos.close();
+
+			data = bos.toByteArray();
+
+		} 
+		catch (Exception e) 
+		{
+			JOptionPane.showMessageDialog(null,"Failure generating house model!");
+			System.out.println("Failure generating house model!");
+			e.printStackTrace();
+		}
+
+		return data;
 	  }
 }
