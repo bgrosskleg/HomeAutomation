@@ -29,7 +29,7 @@ class ServerThread extends Thread
     {
         super("TrackingGUIServer");
         
-        //Create one serverSocket for each command and object steams
+        //Create one serverSocket for each command and object steams 
         //Recommended to seperate commands (Strings) from object (CurrentModel) to avoid framing screw ups
         //http://stackoverflow.com/questions/11199471/multiple-object-streams-over-a-single-socket
         try 

@@ -52,7 +52,7 @@ public class Applet extends JApplet
 
 	private static final long serialVersionUID = 1L;
 	
-
+ 
     public void init() 
     {
     	//Set's up socket to server
