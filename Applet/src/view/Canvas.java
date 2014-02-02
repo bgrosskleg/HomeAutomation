@@ -77,32 +77,32 @@ public class Canvas extends JPanel implements CurrentModelSubscriber, TempObject
 		
 		//Paint from model, only painting one type of object then the next achieves layering
 		
-		for(Point point : AppletController.getCM().points)
+		for(Point point : AppletController.getCM().getPoints())
 		{
 			point.paintComponent(g);
 		}
 		
-		for(Region region : AppletController.getCM().regions)
+		for(Region region : AppletController.getCM().getRegions())
 		{
 			region.paintComponent(g);
 		}
 		
-		for(Wall wall : AppletController.getCM().walls)
+		for(Wall wall : AppletController.getCM().getWalls())
 		{
 			wall.paintComponent(g);
 		}
 		
-		for(Light light : AppletController.getCM().lights)
+		for(Light light : AppletController.getCM().getLights())
 		{
 			light.paintComponent(g);
 		}
 		
-		for(Sensor sensor : AppletController.getCM().sensors)
+		for(Sensor sensor : AppletController.getCM().getSensors())
 		{
 			sensor.paintComponent(g);
 		}
 		
-		for(User user : AppletController.getCM().users)
+		for(User user : AppletController.getCM().getUsers())
 		{
 			user.paintComponent(g);
 		}
@@ -128,7 +128,7 @@ public class Canvas extends JPanel implements CurrentModelSubscriber, TempObject
 			g2.fill(new Ellipse2D.Double((cursor.x-5)-1, (cursor.y-5)-1, 10, 10));
 			
 			//Paint object label
-			for(Sensor sensor : AppletController.getCM().sensors)
+			for(Sensor sensor : AppletController.getCM().getSensors())
 			{
 				if(sensor.location.equals(Canvas.getCursorPoint()))
 				{
@@ -137,7 +137,7 @@ public class Canvas extends JPanel implements CurrentModelSubscriber, TempObject
 					g2.drawString(sensor.toString(),	(int) Canvas.getCursorPoint().x + 10, (int) Canvas.getCursorPoint().y - 1);
 				}
 			}	
-			for(Region region : AppletController.getCM().regions)
+			for(Region region : AppletController.getCM().getRegions())
 			{
 				if(region.region.contains(cursor))
 				{

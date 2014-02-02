@@ -38,7 +38,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 	public void mouseClicked(MouseEvent e) 
 	{
 		//Check for regions under click, open region editor
-		for(Region region : AppletController.getCM().regions)
+		for(Region region : AppletController.getCM().getRegions())
 		{
 			if(region.region.contains(Canvas.getCursorPoint()))
 			{
@@ -94,7 +94,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 		case "Sensors":		//add sensor
 			//Specify which region this sensor controls
 			ArrayList<String> possibilities = new ArrayList<String>();
-			for(Region region : AppletController.getCM().regions)
+			for(Region region : AppletController.getCM().getRegions())
 			{
 				possibilities.add(region.name);
 			}
@@ -122,7 +122,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 				
 					//Add sensor to the region
 					Region region = null;
-					for(Region temp : AppletController.getCM().regions)
+					for(Region temp : AppletController.getCM().getRegions())
 					{
 						if(temp.name.equals(selection))
 						{
@@ -244,7 +244,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						//Order of selecting items is important to only select "top" most item
 						selected.clear();
 			
-						for(Sensor sensor : AppletController.getCM().sensors)
+						for(Sensor sensor : AppletController.getCM().getSensors())
 						{
 							sensor.unSelect();
 							if(sensor.location.equals(Canvas.getCursorPoint()))
@@ -254,7 +254,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						}
 						
 						
-						for(Light light : AppletController.getCM().lights)
+						for(Light light : AppletController.getCM().getLights())
 						{
 							light.unSelect();
 							if(light.location.equals(Canvas.getCursorPoint()))
@@ -265,7 +265,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						}
 			
 						
-						for(Wall wall : AppletController.getCM().walls)
+						for(Wall wall : AppletController.getCM().getWalls())
 						{
 							wall.unSelect();
 							if(wall.line.intersects(new Rectangle2D.Double(Canvas.getCursorPoint().getX()- AppletController.getCM().gridSize/2, Canvas.getCursorPoint().getY()- AppletController.getCM().gridSize/2, AppletController.getCM().gridSize, AppletController.getCM().gridSize)))
@@ -278,7 +278,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						}
 
 
-						for(Region region : AppletController.getCM().regions)
+						for(Region region : AppletController.getCM().getRegions())
 						{
 							region.unSelect();
 							if(region.region.contains(Canvas.getCursorPoint()))

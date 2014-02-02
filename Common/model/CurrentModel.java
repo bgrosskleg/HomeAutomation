@@ -1,14 +1,12 @@
 package model;
 
 import java.awt.geom.Point2D;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import javax.swing.JOptionPane;
 import javax.swing.event.EventListenerList;
 
+import controller.CommunicationThread;
 import subscribers.CurrentModelSubscriber;
 
 public class CurrentModel implements Serializable
@@ -23,12 +21,12 @@ public class CurrentModel implements Serializable
 	public final int height = 800;
 	
 	//Lists of model objects
-	public ArrayList<Point> points;
-	public ArrayList<Wall> walls;
-	public ArrayList<Region> regions;
-	public ArrayList<Light> lights;
-	public ArrayList<Sensor> sensors;
-	public ArrayList<User> users;
+	private ArrayList<Point> points;
+	private ArrayList<Wall> walls;
+	private ArrayList<Region> regions;
+	private ArrayList<Light> lights;
+	private ArrayList<Sensor> sensors;
+	private ArrayList<User> users;
 	
 	public CurrentModel()
 	{		
@@ -55,15 +53,7 @@ public class CurrentModel implements Serializable
 		}
 	}
 	
-	
-	/*BE SURE TO CALL THE MODEL CHANGED FUNCTION WHEN MODIFYING THE MODEL ie
-	 * public void setTestColor(Color color)
-		{
-			testColor = color;
-			currentModelChanged();
-		}
-	 */
-	
+
 	public boolean equals(CurrentModel B) 
 	{
 		if( this.walls.equals(B.walls) && 
@@ -78,29 +68,16 @@ public class CurrentModel implements Serializable
 		{
 			return false;
 		}
-	}	
-	
-	public void addCurrentModelSubscriber(CurrentModelSubscriber subscriber)
-	{
-		subscriberList.add(CurrentModelSubscriber.class, subscriber);
 	}
 	
-	public void removeCurrentModelSubscriber(CurrentModelSubscriber subscriber)
-	{
-		subscriberList.remove(CurrentModelSubscriber.class, subscriber);
-	}
 	
-	public void currentModelChanged()
-	{	
-		//Notify local subscribers
-		Object[] subscribers = subscriberList.getListenerList();
-	    for (int i = 0; i < subscribers.length; i = i+2) {
-	      if (subscribers[i] == CurrentModelSubscriber.class) {
-	        ((CurrentModelSubscriber) subscribers[i+1]).currentModelChanged();
-	      }
-	    }
-	}
-	
+	/*BE SURE TO CALL THE MODEL CHANGED FUNCTION WHEN MODIFYING THE MODEL ie
+	 * public void setTestColor(Color color)
+		{
+			testColor = color;
+			currentModelChanged();
+		}
+	 */
 	public void addCanvasObject(CanvasObject object) 
 	{
 		if(object instanceof Wall)
@@ -122,6 +99,8 @@ public class CurrentModel implements Serializable
 		{
 			sensors.add((Sensor)object);
 		}
+		
+		//Notify subscribers
 		currentModelChanged();
 	}
 
@@ -146,38 +125,71 @@ public class CurrentModel implements Serializable
 		{
 			sensors.remove((Sensor)object);
 		}
-		currentModelChanged();
-	}
 		
+		//Notify subscribers
+		currentModelChanged();
+	}	
 	
-	public byte[] serialize()
-	{		 		  
-		//Serialize model into byte stream
-		byte[] data = null;
-
-		try 
-		{	
-			//http://www.easywayserver.com/blog/save-serializable-object-in-java/
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream oos;
-
-			oos = new ObjectOutputStream(bos);
-
-			oos.writeObject(this);
-			oos.flush();
-			oos.close();
-			bos.close();
-
-			data = bos.toByteArray();
-
-		} 
-		catch (Exception e) 
-		{
-			JOptionPane.showMessageDialog(null,"Failure generating house model!");
-			System.out.println("Failure generating house model!");
-			e.printStackTrace();
-		}
-
-		return data;
-	  }
+	
+	
+	//SUBSCRIBERS***************************************************************
+	
+	public void addCurrentModelSubscriber(CurrentModelSubscriber subscriber)
+	{
+		subscriberList.add(CurrentModelSubscriber.class, subscriber);
+	}
+	
+	public void removeCurrentModelSubscriber(CurrentModelSubscriber subscriber)
+	{
+		subscriberList.remove(CurrentModelSubscriber.class, subscriber);
+	}
+	
+	public void currentModelChanged()
+	{	
+		//Submit model to Pi
+		CommunicationThread.sendModel();
+		
+		//Notify local subscribers
+		Object[] subscribers = subscriberList.getListenerList();
+	    for (int i = 0; i < subscribers.length; i = i+2) 
+	    {
+	    	if (subscribers[i] == CurrentModelSubscriber.class) 
+	    	{
+	    		((CurrentModelSubscriber) subscribers[i+1]).currentModelChanged();
+	    	}
+	    }
+	}
+	
+	
+	//ACCESSORS***************************************************************
+	
+	public ArrayList<Point> getPoints()
+	{
+		return points;
+	}
+	
+	public ArrayList<Wall> getWalls()
+	{
+		return walls;
+	}
+	
+	public ArrayList<Region> getRegions()
+	{
+		return regions;
+	}
+	
+	public ArrayList<Light> getLights()
+	{
+		return lights;
+	}
+	
+	public ArrayList<Sensor> getSensors()
+	{
+		return sensors;
+	}
+	
+	public ArrayList<User> getUsers()
+	{
+		return users;
+	}
 }

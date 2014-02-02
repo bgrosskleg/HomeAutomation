@@ -40,7 +40,7 @@ package view;
 import javax.swing.*;
 
 import model.CurrentModel;
-import controller.AppletCommunicationThread;
+import controller.CommunicationThread;
 import controller.CanvasMouseAdapter;
 import controller.AppletController;
 
@@ -54,13 +54,8 @@ public class Applet extends JApplet
  
     public void init() 
     {
-    	//Creates canvas and adds subscribers
-    	Canvas canvas = new Canvas();
-    	AppletController.setCanvas(canvas);
-    	CanvasMouseAdapter.addTempObjectSubscriber(canvas);
-    	
     	//Set's up socket to server
-    	new AppletCommunicationThread(this).start();
+    	new CommunicationThread(this).start();
     	
     	//If server did not send model, create blank model
     	if(AppletController.getCM() == null)
@@ -68,6 +63,11 @@ public class Applet extends JApplet
         	System.out.println("Server not sending model!");
         	AppletController.setCM(new CurrentModel());
         }
+    	
+    	//Creates canvas and adds subscribers
+    	Canvas canvas = new Canvas();
+    	AppletController.setCanvas(canvas);
+    	CanvasMouseAdapter.addTempObjectSubscriber(canvas);
     	
         //Set up the user interface.
         //Execute a job on the event-dispatching thread:
@@ -107,7 +107,7 @@ public class Applet extends JApplet
     @Override
     public void destroy()
     {    	
-    	AppletCommunicationThread.closeStreams();	
+    	CommunicationThread.closeStreams();	
     }
 }
 
