@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import subscribers.CurrentModelSubscriber;
 import subscribers.TempObjectSubscriber;
 import controller.CanvasMouseAdapter;
-import controller.ClientController;
+import controller.AppletController;
 import model.Light;
 import model.Point;
 import model.Region;
@@ -77,32 +77,32 @@ public class Canvas extends JPanel implements CurrentModelSubscriber, TempObject
 		
 		//Paint from model, only painting one type of object then the next achieves layering
 		
-		for(Point point : ClientController.getCM().points)
+		for(Point point : AppletController.getCM().points)
 		{
 			point.paintComponent(g);
 		}
 		
-		for(Region region : ClientController.getCM().regions)
+		for(Region region : AppletController.getCM().regions)
 		{
 			region.paintComponent(g);
 		}
 		
-		for(Wall wall : ClientController.getCM().walls)
+		for(Wall wall : AppletController.getCM().walls)
 		{
 			wall.paintComponent(g);
 		}
 		
-		for(Light light : ClientController.getCM().lights)
+		for(Light light : AppletController.getCM().lights)
 		{
 			light.paintComponent(g);
 		}
 		
-		for(Sensor sensor : ClientController.getCM().sensors)
+		for(Sensor sensor : AppletController.getCM().sensors)
 		{
 			sensor.paintComponent(g);
 		}
 		
-		for(User user : ClientController.getCM().users)
+		for(User user : AppletController.getCM().users)
 		{
 			user.paintComponent(g);
 		}
@@ -128,7 +128,7 @@ public class Canvas extends JPanel implements CurrentModelSubscriber, TempObject
 			g2.fill(new Ellipse2D.Double((cursor.x-5)-1, (cursor.y-5)-1, 10, 10));
 			
 			//Paint object label
-			for(Sensor sensor : ClientController.getCM().sensors)
+			for(Sensor sensor : AppletController.getCM().sensors)
 			{
 				if(sensor.location.equals(Canvas.getCursorPoint()))
 				{
@@ -137,7 +137,7 @@ public class Canvas extends JPanel implements CurrentModelSubscriber, TempObject
 					g2.drawString(sensor.toString(),	(int) Canvas.getCursorPoint().x + 10, (int) Canvas.getCursorPoint().y - 1);
 				}
 			}	
-			for(Region region : ClientController.getCM().regions)
+			for(Region region : AppletController.getCM().regions)
 			{
 				if(region.region.contains(cursor))
 				{

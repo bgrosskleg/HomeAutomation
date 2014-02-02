@@ -22,7 +22,10 @@ public class Region extends CanvasObject
 	public Point2D.Double startPoint;
 	private boolean finalized;
 	
+	//List of all sensors tied to the region
 	public ArrayList<Sensor> sensors;
+	//Lighting value 0-255
+	public int lightingValue;
 	
 	
 	/**
@@ -38,6 +41,7 @@ public class Region extends CanvasObject
 		this.currentColor = unselectedColor;
 		
 		sensors = new ArrayList<Sensor>();
+		lightingValue = 0;
 		this.startPoint = startPoint;
 		points = new ArrayList<Point2D.Double>();
 		name = null;

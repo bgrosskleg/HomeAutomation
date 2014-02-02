@@ -37,7 +37,18 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 	@Override
 	public void mouseClicked(MouseEvent e) 
 	{
-		switch (ClientController.getCurrentTool())
+		//Check for regions under click, open region editor
+		for(Region region : AppletController.getCM().regions)
+		{
+			if(region.region.contains(Canvas.getCursorPoint()))
+			{
+				
+			}
+		}	
+		
+		
+		//Add new objects
+		switch (AppletController.getCurrentTool())
 		{
 		case "Regions":		//draw region	
 			if(getTempRegion() == null || !isCurrentlyBuildingRegion())
@@ -57,8 +68,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 				{				
 					getTempRegion().name = name;				
 					
-					ClientController.getCM().addCanvasObject(getTempRegion());
-					ClientController.sendModel();
+					AppletController.getCM().addCanvasObject(getTempRegion());
 				}
 
 				setTempRegion(null);
@@ -78,14 +88,13 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 
 		case "Lights":		//add light
 		
-			ClientController.getCM().addCanvasObject(new Light(Canvas.getCursorPoint()));	
-			ClientController.sendModel();
+			AppletController.getCM().addCanvasObject(new Light(Canvas.getCursorPoint()));	
 			break;
 
 		case "Sensors":		//add sensor
 			//Specify which region this sensor controls
 			ArrayList<String> possibilities = new ArrayList<String>();
-			for(Region region : ClientController.getCM().regions)
+			for(Region region : AppletController.getCM().regions)
 			{
 				possibilities.add(region.name);
 			}
@@ -113,7 +122,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 				
 					//Add sensor to the region
 					Region region = null;
-					for(Region temp : ClientController.getCM().regions)
+					for(Region temp : AppletController.getCM().regions)
 					{
 						if(temp.name.equals(selection))
 						{
@@ -125,8 +134,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 					if(region != null)
 					{
 						Sensor newSensor = new Sensor(Canvas.getCursorPoint(), ID);
-						ClientController.getCM().addCanvasObject(newSensor);
-						ClientController.sendModel();
+						AppletController.getCM().addCanvasObject(newSensor);
 						region.addSensor(newSensor);
 					}
 				}				
@@ -136,8 +144,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 		case "Erase":		//check if something is selected
 			for(CanvasObject object : selected)
 			{
-				ClientController.getCM().removeCanvasObject(object);
-				ClientController.sendModel();
+				AppletController.getCM().removeCanvasObject(object);
 			}
 			selected.clear();
 			break;
@@ -152,7 +159,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 	@Override
 	public void mousePressed(MouseEvent e) 
 	{
-		switch (ClientController.getCurrentTool())
+		switch (AppletController.getCurrentTool())
 		{
 		case "Walls":		//create temporary wall
 			setTempWall(new Wall(Canvas.getCursorPoint(), Canvas.getCursorPoint()));	
@@ -171,10 +178,10 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 	{
 		Canvas.setCursorPoint(snapPointToGrid(e));
 
-		switch (ClientController.getCurrentTool())
+		switch (AppletController.getCurrentTool())
 		{
 		case "Walls":		//update temp wall
-			if(e.getX() < 0 || e.getY() < 0 || e.getX() > ClientController.getCM().width || e.getY() > ClientController.getCM().height)
+			if(e.getX() < 0 || e.getY() < 0 || e.getX() > AppletController.getCM().width || e.getY() > AppletController.getCM().height)
 			{
 				//Somewhere mouse went off canvas, erase temp wall
 				setTempWall(null);
@@ -195,7 +202,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 	@Override
 	public void mouseReleased(MouseEvent e) 
 	{
-		switch (ClientController.getCurrentTool())
+		switch (AppletController.getCurrentTool())
 		{
 		case "Walls":		//draw wall
 			if(getTempWall() != null)
@@ -203,11 +210,10 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 				setTempWall(new Wall(getTempWall().startingPoint, Canvas.getCursorPoint()));
 				if(!getTempWall().startingPoint.equals(getTempWall().endingPoint))
 				{	
-					ClientController.getCM().addCanvasObject(getTempWall());
+					AppletController.getCM().addCanvasObject(getTempWall());
 				}
 				setTempWall(null);
 			}
-			ClientController.sendModel();
 			break;
 			
 		default:
@@ -225,7 +231,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 		Canvas.setCursorPoint(snapPointToGrid(e));
 
 		//Check if hovered over
-		switch(ClientController.getCurrentTool())
+		switch(AppletController.getCurrentTool())
 		{
 		case "Regions":
 							if(isCurrentlyBuildingRegion())
@@ -238,7 +244,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						//Order of selecting items is important to only select "top" most item
 						selected.clear();
 			
-						for(Sensor sensor : ClientController.getCM().sensors)
+						for(Sensor sensor : AppletController.getCM().sensors)
 						{
 							sensor.unSelect();
 							if(sensor.location.equals(Canvas.getCursorPoint()))
@@ -248,7 +254,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						}
 						
 						
-						for(Light light : ClientController.getCM().lights)
+						for(Light light : AppletController.getCM().lights)
 						{
 							light.unSelect();
 							if(light.location.equals(Canvas.getCursorPoint()))
@@ -259,10 +265,10 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						}
 			
 						
-						for(Wall wall : ClientController.getCM().walls)
+						for(Wall wall : AppletController.getCM().walls)
 						{
 							wall.unSelect();
-							if(wall.line.intersects(new Rectangle2D.Double(Canvas.getCursorPoint().getX()- ClientController.getCM().gridSize/2, Canvas.getCursorPoint().getY()- ClientController.getCM().gridSize/2, ClientController.getCM().gridSize, ClientController.getCM().gridSize)))
+							if(wall.line.intersects(new Rectangle2D.Double(Canvas.getCursorPoint().getX()- AppletController.getCM().gridSize/2, Canvas.getCursorPoint().getY()- AppletController.getCM().gridSize/2, AppletController.getCM().gridSize, AppletController.getCM().gridSize)))
 							{
 								if(selected.isEmpty())
 								{
@@ -272,7 +278,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						}
 
 
-						for(Region region : ClientController.getCM().regions)
+						for(Region region : AppletController.getCM().regions)
 						{
 							region.unSelect();
 							if(region.region.contains(Canvas.getCursorPoint()))
@@ -288,10 +294,11 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 						{
 							object.Select();
 						}
+						break;
 		}
 
 		tempObjectChanged();
-		ClientController.getCanvas().currentModelChanged();
+		AppletController.getCanvas().currentModelChanged();
 	}
 
 	@Override
@@ -305,30 +312,30 @@ public class CanvasMouseAdapter extends MouseInputAdapter implements TempObjectS
 	{
 		//Quantify mouse position to be on grid
 		//Equation split up to show where divide by zero, if any
-		int tempx = ((Integer)(e.getX()/ClientController.getCM().gridSize));
-		int tempy = ((Integer)(e.getY()/ClientController.getCM().gridSize));
+		int tempx = ((Integer)(e.getX()/AppletController.getCM().gridSize));
+		int tempy = ((Integer)(e.getY()/AppletController.getCM().gridSize));
 
 		//Snap point to grid
-		int finalx = tempx*ClientController.getCM().gridSize + ClientController.getCM().gridSize/2;
-		int finaly = tempy*ClientController.getCM().gridSize + ClientController.getCM().gridSize/2;
+		int finalx = tempx*AppletController.getCM().gridSize + AppletController.getCM().gridSize/2;
+		int finaly = tempy*AppletController.getCM().gridSize + AppletController.getCM().gridSize/2;
 
 		//Limit cursor to canvas size
-		if(finalx >= ClientController.getCM().width)
+		if(finalx >= AppletController.getCM().width)
 		{
-			finalx = ((Integer)(ClientController.getCM().width/ClientController.getCM().gridSize))*ClientController.getCM().gridSize - ClientController.getCM().gridSize/2;
+			finalx = ((Integer)(AppletController.getCM().width/AppletController.getCM().gridSize))*AppletController.getCM().gridSize - AppletController.getCM().gridSize/2;
 		}
 		else if(finalx <= 0)
 		{
-			finalx = ClientController.getCM().gridSize/2;
+			finalx = AppletController.getCM().gridSize/2;
 		}
 
-		if(finaly >= ClientController.getCM().height)
+		if(finaly >= AppletController.getCM().height)
 		{
-			finaly = ((Integer)(ClientController.getCM().height/ClientController.getCM().gridSize))*ClientController.getCM().gridSize - ClientController.getCM().gridSize/2;
+			finaly = ((Integer)(AppletController.getCM().height/AppletController.getCM().gridSize))*AppletController.getCM().gridSize - AppletController.getCM().gridSize/2;
 		}
 		else if(finaly <= 0)
 		{
-			finaly = ClientController.getCM().gridSize/2;;
+			finaly = AppletController.getCM().gridSize/2;;
 		}
 
 		return new Point2D.Double(finalx, finaly);
