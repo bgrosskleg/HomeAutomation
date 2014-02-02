@@ -16,7 +16,7 @@ import javax.swing.event.EventListenerList;
 import subscribers.CurrentModelSubscriber;
 import model.CurrentModel;
 
-public class Controller 
+public class BaseStationController 
 {	
 	private static EventListenerList currentModelSubscriberList = new EventListenerList();
 	
@@ -94,7 +94,7 @@ public class Controller
 	}
 
 	public static void setApplication(JApplet application) {
-		Controller.application = application;
+		BaseStationController.application = application;
 	}
 	
 	
@@ -118,7 +118,7 @@ public class Controller
 	}
 
 	public static void setCurrentTool(String currentTool) {
-		Controller.currentTool = currentTool;
+		BaseStationController.currentTool = currentTool;
 	}
 	
 	
@@ -141,7 +141,7 @@ public class Controller
 	}
 	
 	public static void setCommandServerSocket(ServerSocket socket) {
-		Controller.commandServerSocket = socket;
+		BaseStationController.commandServerSocket = socket;
 	}
 	
 	public static ServerSocket getObjectServerSocket() {
@@ -149,7 +149,7 @@ public class Controller
 	}
 	
 	public static void setObjectServerSocket(ServerSocket socket) {
-		Controller.objectServerSocket = socket;
+		BaseStationController.objectServerSocket = socket;
 	}	
 
 
@@ -159,7 +159,7 @@ public class Controller
 	}
 	
 	public static void setCommandSocket(Socket socket) {
-		Controller.commandSocket = socket;
+		BaseStationController.commandSocket = socket;
 	}
 	
 	public static Socket getObjectSocket() {
@@ -167,7 +167,7 @@ public class Controller
 	}
 	
 	public static void setObjectSocket(Socket socket) {
-		Controller.objectSocket = socket;
+		BaseStationController.objectSocket = socket;
 	}
 	
 	
@@ -190,7 +190,7 @@ public class Controller
 	
 	//Model path
 	public static String getModelPath() {
-		return Controller.modelPath;
+		return BaseStationController.modelPath;
 	}
 	
 	
@@ -206,7 +206,7 @@ public class Controller
     	{
     		fos = new FileOutputStream(modelPath);
     		oos = new ObjectOutputStream(fos);
-    		oos.writeObject(Controller.getCM());
+    		oos.writeObject(BaseStationController.getCM());
     		oos.close();
     		fos.close();
     		System.out.println("Model saved to file!");

@@ -16,6 +16,6 @@ class Firmware
     public static void main(String[] args) 
     {
     	//Start server thread
-        new ServerThread().start();
+        new ServerCommunicationThread().start();
     }
 }

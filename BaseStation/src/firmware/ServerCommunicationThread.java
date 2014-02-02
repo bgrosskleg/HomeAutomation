@@ -21,21 +21,21 @@ import javax.swing.Timer;
 import model.CurrentModel;
 import model.Point;
 import model.Sensor;
-import controller.Controller;
+import controller.BaseStationController;
 
-class ServerThread extends Thread 
+class ServerCommunicationThread extends Thread 
 {   	
-    ServerThread() 
+    ServerCommunicationThread() 
     {
-        super("TrackingGUIServer");
+        super("ServerCommunicationThread");
         
         //Create one serverSocket for each command and object steams 
         //Recommended to seperate commands (Strings) from object (CurrentModel) to avoid framing screw ups
         //http://stackoverflow.com/questions/11199471/multiple-object-streams-over-a-single-socket
         try 
     	{
-			Controller.setCommandServerSocket(new ServerSocket(Controller.getCommandPort()));
-			Controller.setObjectServerSocket(new ServerSocket(Controller.getObjectPort()));
+			BaseStationController.setCommandServerSocket(new ServerSocket(BaseStationController.getCommandPort()));
+			BaseStationController.setObjectServerSocket(new ServerSocket(BaseStationController.getObjectPort()));
 		} 
     	catch (Exception e1) 
     	{
@@ -44,11 +44,11 @@ class ServerThread extends Thread
 			return;
 		}
     	
-        System.out.println("Server command stream listening on port: " + Controller.getCommandPort());
-        System.out.println("Server object stream listening on port: " + Controller.getObjectPort());
+        System.out.println("Server command stream listening on port: " + BaseStationController.getCommandPort());
+        System.out.println("Server object stream listening on port: " + BaseStationController.getObjectPort());
         
         //Wait for applet connection
-        Controller.initializeSocket();
+        BaseStationController.initializeSocket();
         
         
         //Creates a timer to save model to file every 60 seconds
@@ -60,7 +60,7 @@ class ServerThread extends Thread
         	public void actionPerformed(ActionEvent e) 
         	{
         		//Save CurrentModel to RPi card
-        		Controller.saveModeltoDisk();
+        		BaseStationController.saveModeltoDisk();
         	}
         };
         new Timer(delay, taskPerformer).start();
@@ -107,17 +107,17 @@ class ServerThread extends Thread
         		
         		
         		
-        		for(Point point : Controller.getCM().points)
+        		for(Point point : BaseStationController.getCM().points)
         		{
         			point.weight = 0;
         		}
         		Point max = new Point(new Point2D.Double(0,0));
             	double tolerance = 0.10;
         		
-        		for(Sensor sensor : Controller.getCM().sensors)
+        		for(Sensor sensor : BaseStationController.getCM().sensors)
         		{
         				
-                	for(Point point : Controller.getCM().points)
+                	for(Point point : BaseStationController.getCM().points)
                 	{
                 		if(point.location.distance(sensor.location) > sensor.RSSI*(1-tolerance) && point.location.distance(sensor.location) < sensor.RSSI*(1+tolerance))
                 		{
@@ -126,7 +126,7 @@ class ServerThread extends Thread
                 	}
         		}
         		
-        		for(Point point : Controller.getCM().points)
+        		for(Point point : BaseStationController.getCM().points)
         		{
         			if(point.weight > max.weight)
         			{
@@ -134,7 +134,7 @@ class ServerThread extends Thread
         			}
         		}
         		
-        		Controller.getCM().users.get(0).setLocation(max.location);
+        		BaseStationController.getCM().users.get(0).setLocation(max.location);
         		
         	}
         };
@@ -144,14 +144,14 @@ class ServerThread extends Thread
     public void run() 
     {
     	//Ensure sockets are initialized
-        if (Controller.getCommandSocket() == null || Controller.getObjectSocket() == null)
+        if (BaseStationController.getCommandSocket() == null || BaseStationController.getObjectSocket() == null)
         {
         	System.err.println("Sockets not created...");
             return;
         }
         
         //Ensure streams are initialized
-        if(Controller.getInFromClient() == null)
+        if(BaseStationController.getInFromClient() == null)
 		{
 			System.out.println("Input stream not initialized...");
 			return;
@@ -164,7 +164,7 @@ class ServerThread extends Thread
         	String received = null;
 			try {
 								
-				received = Controller.getInFromClient().readLine();
+				received = BaseStationController.getInFromClient().readLine();
 				
 				if(received == null)
 				{
@@ -182,24 +182,24 @@ class ServerThread extends Thread
 																	System.out.println("Sending model to client...");
 																	
 																	//Respond to client
-																	Controller.getOutToClient().println("SENDINGMODEL");
+																	BaseStationController.getOutToClient().println("SENDINGMODEL");
 																	
 																	//Reset object stream and write model to stream
-																	Controller.getOOS().reset();
-																	Controller.getOOS().writeObject(Controller.getCM());
+																	BaseStationController.getOOS().reset();
+																	BaseStationController.getOOS().writeObject(BaseStationController.getCM());
 																	
 																	//Analyze response
-																	if(Controller.getInFromClient().readLine().equals("OKAY"))
+																	if(BaseStationController.getInFromClient().readLine().equals("OKAY"))
 																	{
 																		System.out.println("Model sent complete.");
 																	}
-																	else if(Controller.getInFromClient().readLine().equals("FAIL"))
+																	else if(BaseStationController.getInFromClient().readLine().equals("FAIL"))
 																	{
 																		System.out.println("Model did not send correctly.");
 																	}
 																	else
 																	{
-																		System.err.println("Impossible response: " + Controller.getInFromClient().readLine());
+																		System.err.println("Impossible response: " + BaseStationController.getInFromClient().readLine());
 																	}
 																	
 																} catch (Exception e) {
@@ -214,20 +214,20 @@ class ServerThread extends Thread
 																	System.out.println("Receiving model...");
 																	
 																	//Send response to client
-																	Controller.getOutToClient().println("OKAY");
+																	BaseStationController.getOutToClient().println("OKAY");
 																	
 																	//Read object off object stream
-																	Controller.setCM((CurrentModel) Controller.getOIS().readObject());
+																	BaseStationController.setCM((CurrentModel) BaseStationController.getOIS().readObject());
 																	
 																	//Send response to client
-																	Controller.getOutToClient().println("OKAY");
+																	BaseStationController.getOutToClient().println("OKAY");
 													    			System.out.println("Model recieved.");
 													    			
 			        												//Save CurrentModel to RPi card
-			        								        		Controller.saveModeltoDisk();
+			        								        		BaseStationController.saveModeltoDisk();
 			        								        		
 																} catch (Exception e) {
-																	Controller.getOutToClient().println("FAIL");
+																	BaseStationController.getOutToClient().println("FAIL");
 																	System.out.println("Failure getting model from client!");
 																	e.printStackTrace();
 																} 
@@ -246,8 +246,8 @@ class ServerThread extends Thread
 
 				try 
 				{
-					if(Controller.getOIS() != null)
-					{Controller.getOIS().close();}
+					if(BaseStationController.getOIS() != null)
+					{BaseStationController.getOIS().close();}
 				}
 				
 				catch(Exception e)
@@ -258,8 +258,8 @@ class ServerThread extends Thread
 				
 				try
 				{
-					if(Controller.getOOS() != null)
-					{Controller.getOOS().close();}
+					if(BaseStationController.getOOS() != null)
+					{BaseStationController.getOOS().close();}
 				}
 				catch(Exception e)
 				{
@@ -269,8 +269,8 @@ class ServerThread extends Thread
 				
 				try
 				{
-					if(Controller.getOutToClient() != null)
-					{Controller.getOutToClient().close();}
+					if(BaseStationController.getOutToClient() != null)
+					{BaseStationController.getOutToClient().close();}
 				}
 				catch(Exception e)
 				{
@@ -280,8 +280,8 @@ class ServerThread extends Thread
 				
 				try
 				{
-					if(Controller.getInFromClient() != null)
-					{Controller.getInFromClient().close();}
+					if(BaseStationController.getInFromClient() != null)
+					{BaseStationController.getInFromClient().close();}
 				}
 				catch(Exception e)
 				{
@@ -291,8 +291,8 @@ class ServerThread extends Thread
 				
 				try
 				{
-					if(Controller.getCommandSocket() != null)
-					{Controller.getCommandSocket().close();}
+					if(BaseStationController.getCommandSocket() != null)
+					{BaseStationController.getCommandSocket().close();}
 					System.out.println("Existing commandSocket closed.");
 				}
 					catch (Exception e) 
@@ -303,8 +303,8 @@ class ServerThread extends Thread
 					
 				try
 				{
-					if(Controller.getObjectSocket() != null)
-					{Controller.getObjectSocket().close();}
+					if(BaseStationController.getObjectSocket() != null)
+					{BaseStationController.getObjectSocket().close();}
 					System.out.println("Existing objectSocket closed.");	
 				} 
 				catch (Exception e) 
@@ -314,7 +314,7 @@ class ServerThread extends Thread
 				}
 			
 				//Initialize the next connection
-				Controller.initializeSocket();
+				BaseStationController.initializeSocket();
 			}
 			
 			
