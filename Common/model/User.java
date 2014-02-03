@@ -15,7 +15,7 @@ public class User extends CanvasObject
 	private static int size = 16;
 		
 	//Member variables will be unique for each object
-	public Point2D.Double location;	
+	private Point2D.Double location;	
 	private String name;
 	private String identification;
 	

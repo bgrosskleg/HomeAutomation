@@ -11,11 +11,7 @@ package controller;
 
 //Must omit package in order to compile nicely on RPI command line
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -23,524 +19,501 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import javax.swing.Timer;
-
 import model.CurrentModel;
 
 public class CommunicationThread extends Thread 
 {   	
-	
-	private static ServerSocket commandServerSocket;
 	private static ServerSocket objectServerSocket;
+	private static ServerSocket activeServerSocket;
+	private static ServerSocket passiveServerSocket;
 	
-	private static Socket commandSocket;
 	private static Socket objectSocket;
+	private static Socket activeSocket;
+	private static Socket passiveSocket;
 	
-    private static int commandPort = 65000;
-    private static int objectPort = 65001;
+	//Server
+	//objectPort = 65000
+	//activePort = 65001
+	//passivePort = 65002
+	
+	//Applet
+	//objectPort = 65000
+	//activePort = 65002
+	//passivePort = 65001
+	
+	//Active stream of one must be paired to the passive stream of the other to avoid readLine() collisions
+	
+    private static int objectPort = 65000;
+    private static int activePort = 65001;
+    private static int passivePort = 65002;
+    
+    private static ObjectOutputStream objectStreamOut;
+    private static ObjectInputStream objectStreamIn;
 
-    private static PrintWriter outToClient;
-    private static BufferedReader inFromClient;
+    private static PrintWriter activeStreamOut;
+    private static BufferedReader activeStreamIn;
     
-    private static ObjectOutputStream oos;
-    private static ObjectInputStream ois;
+    private static PrintWriter passiveStreamOut;
+    private static BufferedReader passiveStreamIn;
     
-    private static String modelPath;
-	
-	public static void initialize()
-	    {
-		    try 
-		    {	    	
-		    	if(commandServerSocket == null)
-		    	{commandServerSocket = new ServerSocket(commandPort);}
-		    	if(objectServerSocket == null)
-		    	{objectServerSocket = new ServerSocket(objectPort);}
-		    	
-		        System.out.println("Server command stream listening on port: " + commandPort);
-		        System.out.println("Server object stream listening on port: " + objectPort);
-		        
-		        //Wait for applet connection
-		    	System.out.println("Initializing socket...");
-		    	System.out.println("Waiting for request from applet...");   	
-		       
-		    	//.accept() sits and waits for connection request on serverSocket then returns 
-		    	//the requesting socket to establish connection
-		    	commandSocket = commandServerSocket.accept();
-		    	objectSocket = objectServerSocket.accept();
-		        
-		    	//If being run locally by eclipse, load the model from local path
-		    	//If being run on webserver on Pi, load model from the /var/www path
-		        if(commandSocket.getLocalAddress().toString().equals("/127.0.0.1"))
-		        {
-		        	System.out.println("modelPath = C:/Users/Brian Grosskleg/Desktop/model.ser");
-		        	modelPath = "C:/Users/Brian Grosskleg/Desktop/model.ser";
-		        }
-		        else if(commandSocket.getLocalAddress().toString().equals("/172.16.1.85"))
-		        {
-		        	System.out.println("modelPath = var/www/model.ser");
-		        	modelPath = "/var/www/model.ser";
-		        }
-		        else
-		        {
-		        	System.err.println("Could not set model path.");
-		        	throw new Exception();
-		        }
-		        BaseStationController.setCM(loadModelfromFile());
-		        
-		        //Initialize the command stream writer and reader
-		        outToClient = new PrintWriter(commandSocket.getOutputStream(), true);
-		        inFromClient = new BufferedReader(new InputStreamReader(commandSocket.getInputStream()));
-		        
-		        //Initialize the object stream
-		        oos = new ObjectOutputStream(objectSocket.getOutputStream());
-		        ois = new ObjectInputStream(objectSocket.getInputStream());
-		        
-		        System.out.println("Initializing socket complete.");
-		    } 
-		    catch (Exception e) 
-		    {
-		        System.err.println("Could not initialize socket.");
-		    }   
-	    }
-	 
-	
+    private static boolean connected;
 	
     public CommunicationThread() 
     {
         super("ServerCommunicationThread");
         
         //Create server socket and wait for applet connection
-        initialize();
-        
-        
-        //Creates a timer to save model to file every 60 seconds
-        int delay = 60000; //milliseconds
-
-        ActionListener taskPerformer = new ActionListener() {
-
-        	@Override
-        	public void actionPerformed(ActionEvent e) 
-        	{
-        		//Save CurrentModel to RPi card
-        		saveModeltoDisk();
-        	}
-        };
-        new Timer(delay, taskPerformer).start();     
+        initializeConnection();
     }
     
-    
+	public static void initializeConnection()
+	{
+		try 
+		{	
+			connected = false;
+			if(objectServerSocket == null)
+			{objectServerSocket = new ServerSocket(objectPort);}
+			if(activeServerSocket == null)
+			{activeServerSocket = new ServerSocket(activePort);}		
+			if(passiveServerSocket == null)
+			{passiveServerSocket = new ServerSocket(passivePort);}
+			
+			System.out.println("Server object stream listening on port: " + objectPort);
+			System.out.println("Server active stream listening on port: " + activePort);
+			System.out.println("Server passive stream listening on port: " + passivePort);
 
+			//Wait for applet connection
+			System.out.println("Initializing socket...");
+			System.out.println("Waiting for request from applet...");   	
+
+			//.accept() sits and waits for connection request on serverSocket then returns 
+			//the requesting socket to establish connection
+			objectSocket = objectServerSocket.accept();
+			activeSocket = activeServerSocket.accept();
+			passiveSocket = passiveServerSocket.accept();
+
+			//Initialize the object streams
+			objectStreamOut = new ObjectOutputStream(objectSocket.getOutputStream());
+			objectStreamIn = new ObjectInputStream(objectSocket.getInputStream());
+
+			//Initialize the active stream writer and reader
+			activeStreamOut = new PrintWriter(activeSocket.getOutputStream(), true);
+			activeStreamIn = new BufferedReader(new InputStreamReader(activeSocket.getInputStream()));
+
+			//Initialize the passive stream writer and reader
+			passiveStreamOut = new PrintWriter(passiveSocket.getOutputStream(), true);
+			passiveStreamIn = new BufferedReader(new InputStreamReader(passiveSocket.getInputStream()));
+
+			
+			connected = true;
+			System.out.println("Initializing sockets complete.");
+			
+		} 
+		catch (Exception e) 
+		{
+			System.err.println("Could not initialize socket.");
+			//e.printStackTrace();
+		}   
+	}
+	 
+	
     public void run() 
     {
     	//Ensure sockets are initialized
-        if (commandSocket == null || objectSocket == null)
+        if (objectSocket == null || activeSocket == null || passiveSocket == null || !connected)
         {
-        	System.err.println("Sockets not created...");
+        	System.err.println("One or more sockets not created...");
             return;
         }
         
         //Ensure streams are initialized
-        if(inFromClient == null)
+        if(objectStreamIn == null || objectStreamOut == null || 
+        		activeStreamIn == null || activeStreamOut == null ||
+        		passiveStreamIn == null || passiveStreamOut == null || !connected)
 		{
-			System.out.println("Input stream not initialized...");
+			System.err.println("One or more streams not initialized...");
 			return;
 		}
-                
-        //Infinite loop
+        
+        //Infinite loop, receive requests on passive stream
         while (true) 
         {
-        	// Receive request on command stream
-        	String received = null;
-			try {
-								
-				received = inFromClient.readLine();
+        	// Receive request on passive stream
+        	String recieved = null;
+			try 
+			{		
+				recieved = passiveStreamIn.readLine();
 				
-				if(received == null)
+				if(recieved == null)
 				{
 					//EOF Stream is closed, likely remote closed socket, trigger catch statement
-					System.out.println("Client closed socket, throw exception...");
+					System.err.println("Client closed socket, throw exception...");
 					throw new Exception();
 				}
 				
-				System.out.println("Received: |" + received + "|");
+				System.out.println("Received: |" + recieved + "|");
 				
 				//Process command
-	        	switch(received)
-		        	{
-		        	case "REQUESTMODEL":					try {
-																	System.out.println("Sending model to client...");
-																	
-																	//Respond to client
-																	outToClient.println("SENDINGMODEL");
-																	
-																	//Reset object stream and write model to stream
-																	oos.reset();
-																	oos.writeObject(BaseStationController.getCM());
-																	
-																	//Analyze response
-																	if(inFromClient.readLine().equals("OKAY"))
-																	{
-																		System.out.println("Model sent complete.");
-																	}
-																	else if(inFromClient.readLine().equals("FAIL"))
-																	{
-																		System.out.println("Model did not send correctly.");
-																	}
-																	else
-																	{
-																		System.err.println("Impossible response: " + inFromClient.readLine());
-																	}
-																	
-																} catch (Exception e) {
-																	System.out.println("Failure sending model to client!");
-																	e.printStackTrace();
-																}
-		        	
+	        	switch(recieved)
+		        {		        												
+		        	case "SENDINGMODEL":						recieveModel();
 		        												break;
-		        												
-		
-		        	case "SENDINGMODEL":					try {
-																	System.out.println("Receiving model...");
-																	
-																	//Send response to client
-																	outToClient.println("OKAY");
-																	
-																	//Read object off object stream
-																	BaseStationController.setCM((CurrentModel) ois.readObject());
-																	
-																	//Send response to client
-																	outToClient.println("OKAY");
-													    			System.out.println("Model recieved.");
-													    			
-			        												//Save CurrentModel to RPi card
-			        								        		saveModeltoDisk();
-			        								        		
-																} catch (Exception e) {
-																	outToClient.println("FAIL");
-																	System.out.println("Failure getting model from client!");
-																	e.printStackTrace();
-																} 
-		        												break;
-		        	
-		        	default:	
+      	
+		        	default:									System.out.println("DEFAULT BEHAVIOUR");
 		        												break;
 		
-		        	}
+		        }
 			} 
-			catch (Exception e2)
-			{
+			catch (Exception e)
+			{				
 				//Socket error, close all streams and sockets
+				closeStreams();
 				
-				System.out.println("Socket Exception, closing existing socket...");
-
+				//Wait to let server close as not to re-initializeConnection too soon
 				try 
 				{
-					if(ois != null)
-					{ois.close();}
+					Thread.sleep(1000);
+				} catch (Exception e1) {
+					System.out.println("Failure in waiting to re-connect");
+					e1.printStackTrace();
 				}
 				
-				catch(Exception e)
-				{
-					System.out.println("Failure closing OIS (object input stream).");
-					e.printStackTrace();
-				}
-				
-				try
-				{
-					if(oos != null)
-					{oos.close();}
-				}
-				catch(Exception e)
-				{
-					System.out.println("Failure closing OOS (object output stream).");
-					e.printStackTrace();
-				}
-				
-				try
-				{
-					if(outToClient != null)
-					{outToClient.close();}
-				}
-				catch(Exception e)
-				{
-					System.out.println("Failure closing OutToClient (print writer).");
-					e.printStackTrace();
-				}
-				
-				try
-				{
-					if(inFromClient != null)
-					{inFromClient.close();}
-				}
-				catch(Exception e)
-				{
-					System.out.println("Failure closing InFromClient (buffered reader).");
-					e.printStackTrace();
-				}
-				
-				try
-				{
-					if(commandSocket != null)
-					{commandSocket.close();}
-					System.out.println("Existing commandSocket closed.");
-				}
-					catch (Exception e) 
-					{
-						System.out.println("Failure closing commandSocket.");
-						e.printStackTrace();
-					}
-					
-				try
-				{
-					if(objectSocket != null)
-					{objectSocket.close();}
-					System.out.println("Existing objectSocket closed.");	
-				} 
-				catch (Exception e) 
-				{
-					System.out.println("Failure closing objectSocket.");
-					e.printStackTrace();
-				}
-			
 				//Initialize the next connection
-				initialize();
+				initializeConnection();
 			}
-			
-			
-        }
+        }	
     }
-
+    
+    //MODEL TRANSMISSION*****************************************************************
+    
     public static void sendModel()
 	{
 		//Ensure streams have been initialized
-		if(outToClient == null || inFromClient == null || oos == null )
+		if(activeStreamOut == null || activeStreamIn == null || objectStreamOut == null || !connected )
 		{
-			System.out.println("Command or object stream not initialized, server may be off...");
+			System.err.println("Active or object stream not initialized, server may be off...");
 			return;
 		}
 		
-		//Submit model to Pi
+		//Send model to applet
 		try 
 		{
-			System.out.println("Sending model to server...");
+			System.out.println("Sending model to client...");
 			
-			//Notify Pi on command stream
-			outToClient.println("SENDINGMODEL");
+			//Notify applet on command stream
+			activeStreamOut.println("SENDINGMODEL");
 			
 			//Analyze command stream response
-			if(inFromClient.readLine().equals("OKAY"))
+			if(activeStreamIn.readLine().equals("OKAY"))
 			{
 				//Reset the stream so next write, writes a new complete object, not a reference to the first one
-				oos.reset();
+				objectStreamOut.reset();
 				
 				//Write object to object stream
-				oos.writeObject(BaseStationController.getCM());
+				objectStreamOut.writeObject(BaseStationController.getCM());
 
 				//Analyze command stream response
-				if(inFromClient.readLine().equals("OKAY"))
+				if(activeStreamIn.readLine().equals("OKAY"))
 				{
-					System.out.println("Model save complete.");
+					System.out.println("Model sent to client successfully.");
+				}
+				else if(activeStreamIn.readLine().equals("FAIL"))
+				{
+					System.err.println("Model did not send successfully.");
 				}
 				else
 				{
-					System.out.println("Model did not save correctly.");
+					System.err.println("Impossible response!");
 				}
 			}
 		} 
 		catch (Exception e1) 
 		{
-			outToClient.println("FAIL");
-			System.out.println("Failure sending model to server");
+			//Must check if null because closing streams might have been what caused the initial exception
+			if(activeStreamOut != null)
+			{activeStreamOut.println("FAIL");}
+			System.err.println("Failure sending model to client");
 			//e1.printStackTrace();
 		}
 	}
     
-    
-    public static void requestModel()
+    public static void recieveModel()
 	{
 		//Ensure streams have been initialized
-		if(outToClient == null || inFromClient == null || ois == null )
+		if(passiveStreamOut == null || passiveStreamIn == null || objectStreamIn == null || !connected)
 		{
-			System.out.println("Command or object stream not initialized, server may be off...");
+			System.err.println("Command or object stream not initialized, server may be off...");
 			return;
 		}
 		
-		//Get model from Pi
-		try {
-			System.out.println("Requesting model...");
+		//Get model from applet
+		try 
+		{
+			//Notify applet ready
+			passiveStreamOut.println("OKAY");
 			
-			//Request model from Pi on command stream
-			outToClient.println("REQUESTMODEL");
+			System.out.println("Recieving model...");
+									
+			//Read model off object stream
+			BaseStationController.setCM((CurrentModel) objectStreamIn.readObject());
 				
-			//Analyze response on command stream
-			if(inFromClient.readLine().equals("SENDINGMODEL"))
-			{
-				System.out.println("Model incoming...");
-						
-				//Read model off object stream
-				BaseStationController.setCM((CurrentModel) ois.readObject());
+			//Notify applet result
+			passiveStreamOut.println("OKAY");
 				
-				//Notify server result
-				outToClient.println("OKAY");
-				
-				System.out.println("Model recieved.");
-			}
+			System.out.println("Model recieved.");
 			
-		} catch (Exception e1) {
-			outToClient.println("FAIL");
-			System.out.println("Failure requesting model from server!");
+		} 
+		catch (Exception e1) 
+		{
+			passiveStreamOut.println("FAIL");
+			System.err.println("Failure requesting model from client!");
 			//e1.printStackTrace();
 		}
 	} 
-
-
     
-  //MODEL HANDLING*********************************************
-	
-  	public static void saveModeltoDisk()
-      {
-  		FileOutputStream fos = null;
-  		ObjectOutputStream oos = null;
-  		
-      	try 
-      	{
-      		fos = new FileOutputStream(modelPath);
-      		oos = new ObjectOutputStream(fos);
-      		oos.writeObject(BaseStationController.getCM());
-      		oos.close();
-      		fos.close();
-      		System.out.println("Model saved to file!");
-      	} 
-      	catch (Exception e1) 
-      	{
-      		//Close any open streams
-      		try
-      		{
-  	    		if(fos != null)
-  	    		{
-  	    			fos.close();
-  	    		}
-  	    		
-  	    		if(oos != null)
-  	    		{
-  	    			oos.close();
-  	    		}
-  	    		
-  	    		System.out.println("Existing file stream closed.");
-  			} 
-      		catch (Exception e) 
-      		{
-  				System.out.println("Failure closeing file stream");
-  				e.printStackTrace();
-      		}
-      		
-      		System.out.println("Model not saved to file!");
-      		e1.printStackTrace();
-      	}	
-      }
-  	
-      private static CurrentModel loadModelfromFile() 
-      {
-          //De-serialize the model
-      	
-      	FileInputStream fis = null;
-  		ObjectInputStream ois = null;
-  		
-          try 
-          {
-          	fis = new FileInputStream(modelPath);
-              ois = new ObjectInputStream (fis);
-  			CurrentModel result = (CurrentModel)ois.readObject();
-  			ois.close();
-  			fis.close();
-  			System.out.println("Model loaded from file!");
-  			return result;
-  		} 
-          catch (Exception e1) 
-          {
-          	//Close any open streams
-          	try
-          	{
-          		if(ois != null)
-          			{
-          		ois.close();
-          			}
-      		
-          		if(fis != null)
-          		{
-          				fis.close();
-          		}
-          		System.out.println("Existing file stream closed.");
-  			} 
-      		catch (Exception e) 
-      		{
-  				System.out.println("Failure closeing file stream");
-  				e.printStackTrace();
-      		}
-      		
-          	System.out.println("Model not loaded from file!");
-  			System.out.println("New model created.");
-  			return new CurrentModel();
-  		}
-  	}
-	
-      
+    public static void closeStreams()
+    {
+    	//Socket error, close all streams and sockets
+		
+		System.out.println("Closing existing streams and sockets...");
+
+		//CLOSE STREAMS********************************************
+		
+		//Close object streams
+		try 
+		{
+			if(objectStreamIn != null)
+			{
+				objectStreamIn.close();
+				objectStreamIn = null;
+			}
+		}
+		
+		catch(Exception e)
+		{
+			System.err.println("Failure closing objectStreamIn (object input stream).");
+			//e.printStackTrace();
+		}
+		
+		try
+		{
+			if(objectStreamOut != null)
+			{
+				objectStreamOut.close();
+				objectStreamOut = null;
+			}
+		}
+		catch(Exception e)
+		{
+			System.err.println("Failure closing objectStreamOut (object output stream).");
+			//e.printStackTrace();
+		}
+		
+		
+		//Close active streams
+		try
+		{
+			if(activeStreamOut != null)
+			{
+				activeStreamOut.close();
+				activeStreamOut = null;
+			}
+		}
+		catch(Exception e)
+		{
+			System.err.println("Failure closing activeStreamOut (print writer).");
+			//e.printStackTrace();
+		}
+		
+		try
+		{
+			if(activeStreamIn != null)
+			{
+				activeStreamIn.close();
+				activeStreamIn = null;
+			}
+		}
+		catch(Exception e)
+		{
+			System.err.println("Failure closing activeStreamIn (buffered reader).");
+			//e.printStackTrace();
+		}
+		
+		
+		//Close passive streams
+		try
+		{
+			if(passiveStreamOut != null)
+			{
+				passiveStreamOut.close();
+				passiveStreamOut = null;
+			}
+		}
+		catch(Exception e)
+		{
+			System.err.println("Failure closing passiveStreamOut (print writer).");
+			//e.printStackTrace();
+		}
+		
+		try
+		{
+			if(passiveStreamIn != null)
+			{
+				passiveStreamIn.close();
+				passiveStreamIn = null;
+			}
+		}
+		catch(Exception e)
+		{
+			System.err.println("Failure closing passiveStreamIn (buffered reader).");
+			//e.printStackTrace();
+		}
+		
+		
+		//CLOSE SOCKETS****************************************
+		//Close object socket
+		try
+		{
+			if(objectSocket != null)
+			{
+				objectSocket.close();
+				objectSocket = null;
+			}	
+		} 
+		catch (Exception e) 
+		{
+			System.err.println("Failure closing objectSocket.");
+			//e.printStackTrace();
+		}
+		
+		//Close active socket
+		try
+		{
+			if(activeSocket != null)
+			{
+				activeSocket.close();
+				activeSocket = null;
+			}
+		}
+		catch (Exception e) 
+		{
+			System.err.println("Failure closing activeSocket.");
+			//e.printStackTrace();
+		}
+		
+		//Close passive socket
+		try
+		{
+			if(passiveSocket != null)
+			{
+				passiveSocket.close();
+				passiveSocket = null;
+			}
+		}
+		catch (Exception e) 
+		{
+			System.err.println("Failure closing passiveSocket.");
+			//e.printStackTrace();
+		}
+		
+		System.out.println("Existing streams and sockets closed.");
+    }
+    
+    
     //NETWORKING PARAMETERS*******************************************************
   	
-  	//Command port number
-  	public static int getCommandPort() {
-  		return commandPort;
-  	}
+    //Connected status
+    public static boolean isConnected() {
+    	return connected;
+    }
+    
+    
+  	//PORT NUMBERS**************************************************
+    
+    //Object port number
+	public static int getObjectPort() {
+		return objectPort;
+	}
+	
+	//Active port number
+	public static int getActivePort() {
+		return activePort;
+	}
+		
+	//Passive port number
+	public static int getPassivePort() {
+		return passivePort;
+	}
+      
   	
-  	//Command port number
-  		public static int getObjectPort() {
-  			return objectPort;
-  		}
-  		
-  	//ServerSocket
-  	public static ServerSocket getCommandServerSocket() {
-  		return commandServerSocket;
-  	}
+  	//SERVER SOCKETS************************************************
   	
+  	//Object serverSocket
   	public static ServerSocket getObjectServerSocket() {
-  		return objectServerSocket;
+  	  	return objectServerSocket;
   	}
   	
-  	//Sockets
-  	public static Socket getCommandSocket() {
-  		return commandSocket;
+  	//Active serverSocket
+  	public static ServerSocket getActiveServerSocket() {
+  		return activeServerSocket;
   	}
   	
+  	//Passive serverSocket
+  	public static ServerSocket getPassiveServerSocket() {
+  		return passiveServerSocket;
+  	}
+  	
+  	
+  	//SOCKETS*****************************************************
+  	
+  	//Object socket
   	public static Socket getObjectSocket() {
   		return objectSocket;
   	}  	
   	
-  	//Input/output TCP Streams
-  	//Command stream to client
-  	public static PrintWriter getOutToClient() {
-  		return outToClient;
-  	}
-
-  	//Command stream from client
-  	public static BufferedReader getInFromClient() {
-  		return inFromClient;
+  	//Active socket
+  	public static Socket getActiveSocket() {
+  		return activeSocket;
   	}
   	
+  	//Passive socket
+  	public static Socket getPassiveSocket() {
+  		return passiveSocket;
+  	}
+  	
+  	
+  	//TCP STREAMS*************************************************
+  	
   	//Object stream to client
-  	public static ObjectOutputStream getOOS() {
-  		return oos;
+  	public static ObjectOutputStream getObjectStreamOut() {
+  		return objectStreamOut;
   	}
 
   	//Object stream from client
-  	public static ObjectInputStream getOIS() {
-  		return ois;
+  	public static ObjectInputStream getObjectStreamIn() {
+  		return objectStreamIn;
   	}
   	
-  	//Model path
-  	public static String getModelPath() {
-  		return modelPath;
+  	//Active stream out
+  	public static PrintWriter getActiveStreamOut() {
+  		return activeStreamOut;
   	}
-	
+
+  	//Active stream in
+  	public static BufferedReader getActiveStreamIn() {
+  		return activeStreamIn;
+  	}
+  	
+  	//Passive stream out
+  	public static PrintWriter getPassiveStreamOut() {
+  		return passiveStreamOut;
+  	}
+
+  	//Passive steam in
+  	public static BufferedReader getPassiveStreamIn() {
+  		return passiveStreamIn;
+  	}
+  		
 }
 
 		

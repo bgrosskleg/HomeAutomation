@@ -146,8 +146,11 @@ public class CurrentModel implements Serializable
 	
 	public void currentModelChanged()
 	{	
-		//Submit model to Pi
-		CommunicationThread.sendModel();
+		//Submit model to Pi, if streams are up and running
+		if(CommunicationThread.getActiveStreamIn() != null && CommunicationThread.getActiveStreamOut() != null
+				&& CommunicationThread.getObjectStreamIn() != null && CommunicationThread.getObjectStreamOut() != null
+				&& CommunicationThread.isConnected())
+		{CommunicationThread.sendModel();}
 		
 		//Notify local subscribers
 		Object[] subscribers = subscriberList.getListenerList();

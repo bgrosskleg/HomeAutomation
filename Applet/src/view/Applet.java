@@ -50,17 +50,17 @@ public class Applet extends JApplet
 {
 
 	private static final long serialVersionUID = 1L;
-	
+	CommunicationThread CT;
  
     public void init() 
     {
     	//Set's up socket to server
-    	new CommunicationThread(this).start();
+    	CT = new CommunicationThread(this);
+    	CT.start();
     	
     	//If server did not send model, create blank model
     	if(AppletController.getCM() == null)
     	{
-        	System.out.println("Server not sending model!");
         	AppletController.setCM(new CurrentModel());
         }
     	
@@ -107,6 +107,7 @@ public class Applet extends JApplet
     @Override
     public void destroy()
     {    	
+    	//Must clean up resources (ie. streams) that application/thread is using
     	CommunicationThread.closeStreams();	
     }
 }
