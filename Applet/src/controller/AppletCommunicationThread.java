@@ -36,9 +36,6 @@ public class AppletCommunicationThread extends CommunicationThread
 		objectPort = 65000;
 		activePort = 65002;
 		passivePort = 65001;
-		
-		//Create connection to server
-		initializeConnection();
     }
 	
 	public void initializeConnection()

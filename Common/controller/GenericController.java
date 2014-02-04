@@ -11,6 +11,7 @@ public abstract class GenericController implements Observer
 	public GenericController()
 	{
 		CM = new CurrentModel();
+		CM.addObserver(this);
 	}
 	
 	public CurrentModel getCM()
@@ -18,5 +19,15 @@ public abstract class GenericController implements Observer
 		return CM;
 	}
 
-	public abstract void setCM(CurrentModel cM);
+	public void setCM(CurrentModel cM)
+	{
+		//Replace entire model
+		CM = cM;
+	
+		//Add this BaseStationController to model's observer list
+		CM.addObserver(this);	
+			
+		//Notify observers model has changed
+		CM.currentModelChanged();
+	}
 }

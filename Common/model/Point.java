@@ -35,8 +35,18 @@ public class Point extends CanvasObject implements Serializable
 	public void paintComponent(Graphics g)
 	{
 		Graphics2D g2 = (Graphics2D) g;
-        g2.setColor(currentColor);
         Ellipse2D.Double point = new Ellipse2D.Double((location.x-size/2)-1, (location.y-size/2)-1, size , size);
         g2.fill(point);
+	}
+
+
+	@Override
+	public boolean equals(CanvasObject object) 
+	{
+		if(location.equals(((Point) object).location))
+		{
+			return true;
+		}
+		return false;
 	}
 }

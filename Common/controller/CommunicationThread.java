@@ -4,9 +4,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-
 import model.CanvasObject;
+import model.CanvasObjectList;
 import model.CurrentModel;
+import model.User;
 
 
 public abstract class CommunicationThread extends Thread
@@ -42,11 +43,16 @@ public abstract class CommunicationThread extends Thread
     
     public void run() 
 	{
+    	//Create connection
+    	initializeConnection();
+    			
 		//Ensure sockets are initialized
         if (objectSocket == null || activeSocket == null || passiveSocket == null || !connected)
         {
         	System.err.println("One or more sockets not created, server may be down or off.");
-            return;
+        	
+        	//Initialize the next connection
+			initializeConnection();
         }
         
         //Ensure streams are initialized
@@ -55,7 +61,9 @@ public abstract class CommunicationThread extends Thread
         		passiveStreamIn == null || passiveStreamOut == null || !connected)
 		{
 			System.err.println("One or more streams not initialized, server may be down or off.");
-			return;
+			
+			//Initialize the next connection
+			initializeConnection();
 		}
                 
         //Infinite loop, receive requests on passive stream
@@ -82,16 +90,16 @@ public abstract class CommunicationThread extends Thread
 	        		case "REQUESTMODEL":						sendModel();
 	        													break;
 	        													
-		        	case "SENDINGMODEL":						controller.setCM(recieveModel());
+		        	case "SENDINGMODEL":						controller.setCM(receiveModel());
 		        												break;
       	
-		        	case "ADDOBJECT":							controller.getCM().addCanvasObject(recieveObject());
+		        	case "ADDOBJECT":							controller.getCM().addCanvasObject(receiveObject());
 		        												break;
 		        	
-		        	case "REMOVEOBJECT":						controller.getCM().removeCanvasObject(recieveObject());
+		        	case "REMOVEOBJECT":						controller.getCM().removeCanvasObject(receiveObject());
 		        												break;
-		        												
-		        	case "MODIFYOBJECT":						controller.getCM().modifyCanvasObject(recieveObject());
+		        																				
+		        	case "SENDUSERS":							controller.getCM().setUsers(receiveUsers());
 		        												break;
 		        												
 		        	default:									System.out.println("DEFAULT BEHAVIOUR");
@@ -129,7 +137,7 @@ public abstract class CommunicationThread extends Thread
 			return;
 		}
 		
-		//Send model to applet
+		//Send model
 		try 
 		{
 			System.out.println("Sending model...");
@@ -171,7 +179,7 @@ public abstract class CommunicationThread extends Thread
 		}
 	}
     
-    public CurrentModel recieveModel()
+    public CurrentModel receiveModel()
 	{
 		//Ensure streams have been initialized
 		if(passiveStreamOut == null || passiveStreamIn == null || objectStreamIn == null || !connected)
@@ -180,7 +188,7 @@ public abstract class CommunicationThread extends Thread
 			return null;
 		}
 		
-		//Get model from server
+		//Receive model
 		try 
 		{
 			//Notify applet ready
@@ -219,7 +227,7 @@ public abstract class CommunicationThread extends Thread
 			return;
 		}
 		
-		//Send model to server
+		//Send object to be added
 		try 
 		{
 			System.out.println("Sending object to be added...");
@@ -270,7 +278,7 @@ public abstract class CommunicationThread extends Thread
 			return;
 		}
 		
-		//Send model to server
+		//Send object to be removes
 		try 
 		{
 			System.out.println("Sending object to be removed...");
@@ -312,7 +320,8 @@ public abstract class CommunicationThread extends Thread
 		}
 	}
 	
-	public CanvasObject recieveObject()
+	
+	public CanvasObject receiveObject()
 	{
 		//Ensure streams have been initialized
 		if(passiveStreamOut == null || passiveStreamIn == null || objectStreamIn == null || !connected)
@@ -348,6 +357,99 @@ public abstract class CommunicationThread extends Thread
 			return null;
 		}
 	} 
+	
+	
+	
+	//USERS TRANSMISSION******************************************************************************
+	
+	public void sendUsers()
+	{
+		//Ensure streams have been initialized
+		if(activeStreamOut == null || activeStreamIn == null || objectStreamOut == null || !connected)
+		{
+			System.err.println("Active or object stream not initialized, server may be off...");
+			return;
+		}
+		
+		//Send users
+		try 
+		{
+			System.out.println("Sending object to be removed...");
+			
+			//Notify server on command stream
+			activeStreamOut.println("SENDUSERS");
+			
+			//Analyze command stream response
+			if(activeStreamIn.readLine().equals("OKAY"))
+			{
+				//Reset the stream so next write, writes a new complete object, not a reference to the first one
+				objectStreamOut.reset();
+				
+				//Write object to object stream
+				objectStreamOut.writeObject(controller.getCM().getUsers());
+
+				//Analyze command stream response
+				if(activeStreamIn.readLine().equals("OKAY"))
+				{
+					System.out.println("Users sent successfully.");
+				}
+				else if(activeStreamIn.readLine().equals("FAIL"))
+				{
+					System.err.println("Users did not send successfully.");
+				}
+				else
+				{
+					System.err.println("Impossible response!");
+				}
+			}
+		} 
+		catch (Exception e1) 
+		{
+			//Must check if null because closing streams might have been what caused the initial exception
+			if(activeStreamOut != null)
+			{activeStreamOut.println("FAIL");}
+			System.err.println("Failure sending users.");
+			//e1.printStackTrace();
+		}
+	}
+	
+	public CanvasObjectList<User> receiveUsers()
+	{
+		//Ensure streams have been initialized
+		if(passiveStreamOut == null || passiveStreamIn == null || objectStreamIn == null || !connected)
+		{
+			System.err.println("Command or object stream not initialized, server may be off...");
+			return null;
+		}
+
+		//Get users
+		try 
+		{
+			//Notify applet ready
+			passiveStreamOut.println("OKAY");
+
+			System.out.println("Recieving users...");
+
+			//Read model off object stream
+			@SuppressWarnings("unchecked")
+			CanvasObjectList<User> received = (CanvasObjectList<User>) objectStreamIn.readObject();
+
+			//Notify applet result
+			passiveStreamOut.println("OKAY");
+
+			System.out.println("Users recieved successfully.");
+
+			return received;
+		} 
+		catch (Exception e1) 
+		{
+			passiveStreamOut.println("FAIL");
+			System.err.println("Failure receiving object.");
+			//e1.printStackTrace();
+			return null;
+		}
+	} 
+	
 	
 	
 	//CLOSE STREAMS************************************************************************************

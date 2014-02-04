@@ -59,25 +59,23 @@ class Firmware
         		if(moveRight && user.getLocation().x < 175)
         		{
         			user.setLocation(new Point2D.Double(user.getLocation().x += stepSize, user.getLocation().y));
-        			controller.getCM().currentModelChanged();
         		}
         		else if(moveRight && user.getLocation().x >= 175)
         		{
         			moveRight = false;
         			user.setLocation(new Point2D.Double(user.getLocation().x -= stepSize, user.getLocation().y));
-        			controller.getCM().currentModelChanged();
         		}
         		else if(!moveRight && user.getLocation().x > 25)
         		{
         			user.setLocation(new Point2D.Double(user.getLocation().x -= stepSize, user.getLocation().y));
-        			controller.getCM().currentModelChanged();
         		}
         		else if(!moveRight && user.getLocation().x <= 25)
         		{
         			moveRight = true;
         			user.setLocation(new Point2D.Double(user.getLocation().x += stepSize, user.getLocation().y));
-        			controller.getCM().currentModelChanged();
         		}	
+        		
+    			controller.getCM().currentUsersChanged();
         	}
         };
         

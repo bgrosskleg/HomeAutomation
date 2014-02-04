@@ -24,40 +24,46 @@ public class BaseStationController extends GenericController
 		//modelPath = "/var/www/model.ser";
 		
 		//Load model from file, create new one if failed
-		loadModelfromFile();
+		CurrentModel temp = readModelFromFile();
+		if(temp == null)
+		{
+			System.err.println("Creating new model.");
+			temp = new CurrentModel();
+		}
+		setCM(temp);
 	}
 	
 	//CURRENT MODEL*************************************************
 	
 	@Override
-	public void setCM(CurrentModel cM) 
-	{
-		//Replace entire model (if necessary)
-		CM = cM;
-
-		//Add this BaseStationController to model's observer list
-		CM.addObserver(this);	
-		
-		//Notify observers model has changed
-		CM.currentModelChanged();
-	}
-	
-	@Override
 	public void update(Observable o, Object arg) 
 	{
 		//Save model state to file
-		saveModeltoFile();
+		saveModelToFile();
 				
-		//Send entire model to applet if connected		
+		//Send entire model or just users depending on what was changed	
 		if(Firmware.getComThread() != null && Firmware.getComThread().isConnected())
-		{Firmware.getComThread().sendModel();}		
+		{
+			if(((String) arg).equals("model"))
+			{
+				Firmware.getComThread().sendModel();
+			}
+			else if(((String) arg).equals("users"))
+			{
+				Firmware.getComThread().sendUsers();
+			}
+			else
+			{
+				System.err.println("Impossible parameter: " + arg.toString());
+			}
+		}		
 	}
 		
 	
 	//MODEL FILE HANDLING*********************************************	
 	
   	//Save model
-  	public void saveModeltoFile()
+  	public void saveModelToFile()
     {
   		System.out.println("Saving model to file...");
   		FileOutputStream fos = null;
@@ -74,8 +80,7 @@ public class BaseStationController extends GenericController
       	} 
       	catch(FileNotFoundException e)
         {
-        	System.err.println("File not found, model not saved.");
-          	setCM(new CurrentModel());
+        	System.err.println("File not found: " + modelPath);
         }
       	catch (Exception e) 
       	{
@@ -99,13 +104,12 @@ public class BaseStationController extends GenericController
           	finally
           	{
           		System.err.println("Saving model to file failed, model not saved.");
-              	setCM(new CurrentModel());
           	}
       	}	
     }
   	
   	//Load model
-    public void loadModelfromFile() 
+    public CurrentModel readModelFromFile() 
     {   
     	System.out.println("Loading model from file...");
     	    	
@@ -117,16 +121,16 @@ public class BaseStationController extends GenericController
         {
           	fis = new FileInputStream(modelPath);
             ois = new ObjectInputStream (fis);
-            setCM((CurrentModel) ois.readObject());
+            CurrentModel read = (CurrentModel) ois.readObject();
   			ois.close();
   			fis.close();
   			System.out.println("Model loaded from file!");
+  			return read;
   		} 
         catch(FileNotFoundException e)
         {
-        	System.err.println("File not found, creating new model.");
-          	setCM(new CurrentModel());
-          	saveModeltoFile();
+        	System.err.println("File not found: " + modelPath);
+          	return null;
         }
         catch (Exception e) 
         {
@@ -147,12 +151,9 @@ public class BaseStationController extends GenericController
       		{
   				e1.printStackTrace();
       		}
-          	finally
-          	{
-          		System.err.println("Loading from file failed, creating new model.");
-              	setCM(new CurrentModel());
-              	saveModeltoFile();
-          	}	
+
+          	System.err.println("Loading from file failed.");
+          	return null;
   		}
   	}
 }

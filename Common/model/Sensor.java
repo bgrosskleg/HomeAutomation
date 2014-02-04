@@ -10,15 +10,15 @@ public class Sensor extends CanvasObject
 {
 	//Static variables will be same for all wall objects
 	private static final long serialVersionUID = 1;
+	
 	//Size must be even
-	private static int size = 16;
+	private final int size = 16;
 	
 	//Member variables will be unique for each object
-	public Point2D.Double location;
-	public String identification;
-	public int RSSI;
+	private Point2D.Double location;
+	private String identification;
+	private int RSSI;
 
-	
 	
 	/**
 	 * creates a new sensor at point p
@@ -28,7 +28,7 @@ public class Sensor extends CanvasObject
 	{
 		//Super(unselectedColor, selectedColor)
 		super(new Color(200,0,235), Color.RED);	
-		location = p;
+		setLocation(p);
 		identification = ID;
 		RSSI = 75;
 	}
@@ -38,19 +38,36 @@ public class Sensor extends CanvasObject
 	{
 		//Paint circle at location
 		Graphics2D g2 = (Graphics2D) g;
-        g2.setColor(currentColor);
         
         //Draw sensor
-        Ellipse2D.Double sensor = new Ellipse2D.Double(location.x-size/2, location.y-size/2, size , size);
+        Ellipse2D.Double sensor = new Ellipse2D.Double(getLocation().x-size/2, getLocation().y-size/2, size , size);
         g2.fill(sensor);
         
         //Draw RSSI radius
-        Ellipse2D.Double RSSICircle = new Ellipse2D.Double((location.x-RSSI), (location.y-RSSI), RSSI*2 , RSSI*2);
+        Ellipse2D.Double RSSICircle = new Ellipse2D.Double((getLocation().x-RSSI), (getLocation().y-RSSI), RSSI*2 , RSSI*2);
         g2.draw(RSSICircle);
 	}	
 	
 	public String toString()
 	{
 		return "Sensor ID: " + identification;
+	}
+
+	public Point2D.Double getLocation() {
+		return location;
+	}
+
+	public void setLocation(Point2D.Double location) {
+		this.location = location;
+	}
+
+	@Override
+	public boolean equals(CanvasObject object) 
+	{
+		if(location.equals(((Sensor) object).location) && identification.equals(((Sensor) object).identification))
+		{
+			return true;
+		}
+		return false;
 	}
 }

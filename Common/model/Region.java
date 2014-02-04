@@ -21,7 +21,7 @@ public class Region extends CanvasObject
 	private Point2D.Double nextPoint;
 	
 	private GeneralPath region;
-	private boolean finalized = false;
+	private boolean finalized;
 	
 	//Region name
 	private String name;
@@ -43,19 +43,18 @@ public class Region extends CanvasObject
 		Color color = randomColor();
 		this.unselectedColor = color;
 		this.selectedColor = color.darker().darker();
-		this.currentColor = unselectedColor;
 		
 		startPoint = start;
 		nextPoint = next;
-		
-		sensors = new ArrayList<Sensor>();
-		lightingValue = 0;
-		
-		//Add last point, so points is not null, that is updated on mouse move
-		//points.add(getStartPoint());
-		
+						
 		region = new GeneralPath(GeneralPath.WIND_EVEN_ODD, 1);
 		region.moveTo(getStartPoint().x, getStartPoint().y);
+		
+		finalized = false;
+		
+		//Region features
+		sensors = new CanvasObjectList<Sensor>();
+		lightingValue = 0;
 	}
 	
 	private static Color randomColor()
@@ -113,7 +112,6 @@ public class Region extends CanvasObject
         if(!finalized)
         {
         	//Draw region boundary
-        	g2.setColor(currentColor);
         	g2.fill(new Ellipse2D.Double((getStartPoint().x-5)-1, (getStartPoint().y-5)-1, 10, 10));
         	g2.draw(getRegion());
         	
@@ -122,7 +120,6 @@ public class Region extends CanvasObject
         else
         {
         	//Set region fill color and transparency
-        	g2.setColor(currentColor);
         	g2.fill(region);       		
         }
         
@@ -157,5 +154,16 @@ public class Region extends CanvasObject
 
 	public GeneralPath getRegion() {
 		return region;
+	}
+
+	@Override
+	public boolean equals(CanvasObject object) 
+	{
+		if(region.equals(((Region) object).region) && name.equals(((Region) object).name) &&
+				sensors.equals(((Region) object).sensors))
+		{
+			return true;
+		}
+		return false;
 	}	
 }

@@ -59,4 +59,15 @@ public class User extends CanvasObject
 		this.identification = identification;
 	}
 
+	@Override
+	public boolean equals(CanvasObject object)
+	{
+		if(location.equals(((User) object).location) && identification.equals(((User) object).identification)
+				&& name.equals(((User) object).name))
+		{
+			return true;
+		}
+		return false;
+	}
+
 }

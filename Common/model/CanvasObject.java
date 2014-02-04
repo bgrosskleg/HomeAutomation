@@ -18,24 +18,26 @@ public abstract class CanvasObject  implements Serializable
 	 */
 	protected Color unselectedColor;
 	protected Color selectedColor;
-	protected Color currentColor;
 	
 	public CanvasObject(Color unselected, Color selected)
 	{			
 		unselectedColor = unselected;
 		selectedColor = selected;
-		
-		currentColor = unselectedColor;
 	}
 	
-	public void Select()
+	public Color getUnselectedColor()
 	{
-		currentColor = selectedColor;
+		return unselectedColor;
 	}
 	
-	public void unSelect()
+	public Color getSelectedColor()
 	{
-		currentColor = unselectedColor;
+		return selectedColor;
+	}
+	
+	public boolean equals(CanvasObject object)
+	{
+		return false;
 	}
 	
 	public abstract void paintComponent(Graphics g);

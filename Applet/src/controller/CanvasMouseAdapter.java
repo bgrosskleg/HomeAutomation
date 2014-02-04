@@ -2,7 +2,6 @@ package controller;
 
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
@@ -52,8 +51,11 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 								}
 								else
 								{
-									if(!canvas.getTempWall().startingPoint.equals(canvas.getTempWall().endingPoint))
-									{Applet.getComThread().addObject(canvas.getTempWall());}
+									if(!canvas.getTempWall().getStartingPoint().equals(canvas.getTempWall().getEndingPoint()))
+									{
+										canvas.getTempWall().finalize();
+										Applet.getComThread().addObject(canvas.getTempWall());
+									}
 									
 									canvas.setTempWall(null);
 									canvas.setCurrentlyBuildingWall(false);
@@ -147,10 +149,8 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 		case "Erase":		for(CanvasObject object : canvas.getSelected())
 							{
 								System.out.println("Removing object!");
-								object.unSelect();
 								Applet.getComThread().removeObject(object);
 							}
-							canvas.getSelected().clear();
 							break;
 			
 		default:
@@ -168,88 +168,14 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 	@Override
 	public void mouseMoved(MouseEvent e)
 	{		
-		canvas.snapMouseToGrid(e);
-		
-		//Check if objects are hovered over
-		switch(Applet.getController().getCurrentTool())
-		{
-		case "Erase":		selectObjects();
-							break;
-		}			
+		canvas.snapMouseToGrid(e);		
 	}
 
+	
 	@Override
 	public void mouseExited(MouseEvent e)
 	{
 		canvas.EraseTempObjects();
 	}
 	
-	private void selectObjects()
-	{
-		canvas.getSelected().clear();
-		
-		//Order of selecting items is important to only select "top" most item
-	
-		if(Applet.getController().getCM() != null && Applet.getController().getCM().getSensors() != null)
-		{
-			for(Sensor sensor : Applet.getController().getCM().getSensors())
-			{
-				sensor.unSelect();
-				if(sensor.location.equals(canvas.getCursorPoint()))
-				{	
-					canvas.getSelected().add(sensor);
-				}						
-			}
-		}
-		
-		if(Applet.getController().getCM() != null && Applet.getController().getCM().getLights() != null)
-		{
-			for(Light light : Applet.getController().getCM().getLights())
-			{
-				light.unSelect();
-				if(light.location.equals(canvas.getCursorPoint()))
-				{
-					canvas.getSelected().clear();
-					canvas.getSelected().add(light);
-				}
-			}
-		}
-
-		if(Applet.getController().getCM() != null && Applet.getController().getCM().getWalls() != null)
-		{
-			for(Wall wall : Applet.getController().getCM().getWalls())
-			{
-				wall.unSelect();
-				if(wall.line.intersects(new Rectangle2D.Double(canvas.getCursorPoint().getX()- canvas.gridSize/2, canvas.getCursorPoint().getY()- canvas.gridSize/2, canvas.gridSize, canvas.gridSize)))
-				{
-					if(canvas.getSelected().isEmpty())
-					{
-						canvas.getSelected().add(wall);
-					}
-				}
-			}
-		}
-
-		if(Applet.getController().getCM() != null && Applet.getController().getCM().getRegions() != null)
-		{
-			for(Region region : Applet.getController().getCM().getRegions())
-			{
-				region.unSelect();
-				if(region.getRegion().contains(canvas.getCursorPoint()))
-				{
-					if(canvas.getSelected().isEmpty())
-					{
-						canvas.getSelected().add(region);
-					}
-				}
-			}	
-		}
-		
-		for(CanvasObject object : canvas.getSelected())
-		{
-			object.Select();
-		}
-		
-		canvas.repaint();
-	}
 }

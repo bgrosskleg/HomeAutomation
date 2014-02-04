@@ -33,9 +33,6 @@ public class BaseStationCommunicationThread extends CommunicationThread
 		objectPort = 65000;
 		activePort = 65001;
 		passivePort = 65002;
-
-		//Create connection to applet
-		initializeConnection();
     }
 	
 	public void initializeConnection()
@@ -80,6 +77,9 @@ public class BaseStationCommunicationThread extends CommunicationThread
 
 			connected = true;
 			System.out.println("Initializing sockets complete.");
+			
+			//Send model to applet on startup
+			Firmware.getComThread().sendModel();
 		} 
 		catch (Exception e) 
 		{

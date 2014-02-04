@@ -4,7 +4,6 @@ import java.util.Observable;
 
 import javax.swing.JApplet;
 
-import model.CurrentModel;
 import view.Canvas;
 
 public class AppletController extends GenericController
@@ -17,38 +16,22 @@ public class AppletController extends GenericController
 	public AppletController(JApplet app, Canvas canvas)
 	{
 		super();
+		
 		this.application = app;
 		this.canvas = canvas;
 	}
 	
 	//CURRENT MODEL*********************************************
-	@Override
-	public void setCM(CurrentModel cM) 
-	{
-		//Replace entire model (if necessary)
-		CM = cM;
-
-		//Add this BaseStationController to model's observer list
-		CM.addObserver(this);
-		
-		//Notify observers model has changed
-		CM.currentModelChanged();
-	}
 	
 	@Override
 	public void update(Observable o, Object arg) 
 	{
 		//Repaint canvas
-		canvas.repaint();
+		if(canvas != null)
+		{canvas.repaint();}
 	}
 	
-	//REFERENCE TO CANVAS****************************************	
-	public Canvas getCanvas() 
-	{
-		return canvas;
-	}
-	
-	
+
 	//CURRENT TOOL***********************************************
 	public String getCurrentTool() 
 	{
@@ -61,12 +44,15 @@ public class AppletController extends GenericController
 	}
 
 	
+	//REFERENCE TO CANVAS****************************************	
+	public Canvas getCanvas() 
+	{
+		return canvas;
+	}
+	
+	
 	//REFERENCE TO APPLICATION***********************************
 	public JApplet getApplication() {
 		return application;
-	}
-
-	public void setApplication(JApplet application) {
-		this.application = application;
 	}
 }
