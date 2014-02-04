@@ -39,9 +39,7 @@ package view;
 
 import javax.swing.*;
 
-import model.CurrentModel;
-import controller.CommunicationThread;
-import controller.CanvasMouseAdapter;
+import controller.AppletCommunicationThread;
 import controller.AppletController;
 
 import java.awt.*;
@@ -50,40 +48,30 @@ public class Applet extends JApplet
 {
 
 	private static final long serialVersionUID = 1L;
-	CommunicationThread CT;
  
     public void init() 
     {
     	//Set's up socket to server
-    	CT = new CommunicationThread(this);
-    	CT.start();
-    	
-    	//If server did not send model, create blank model
-    	if(AppletController.getCM() == null)
-    	{
-        	AppletController.setCM(new CurrentModel());
-        }
-    	
-    	//Creates canvas and adds subscribers
-    	Canvas canvas = new Canvas();
-    	AppletController.setCanvas(canvas);
-    	CanvasMouseAdapter.addTempObjectSubscriber(canvas);
+    	new AppletCommunicationThread(this).start();  	
     	
         //Set up the user interface.
         //Execute a job on the event-dispatching thread:
         //creating this applet's GUI.
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
+        try 
+        {
+            SwingUtilities.invokeAndWait(new Runnable() 
+            {
+                public void run() 
+                {
                     createGUI();
                 }
             });
-        } catch (Exception e) {
+        }
+        catch (Exception e) 
+        {
             System.err.println("createGUI didn't successfully complete");
             e.printStackTrace();
-        }
-        
-      		
+        } 		
     }
 
     private void createGUI() 
@@ -92,6 +80,7 @@ public class Applet extends JApplet
     	add(new Instructions(), BorderLayout.NORTH);
     
     	//Add canvas
+    	AppletController.setCanvas(new Canvas());
     	add(AppletController.getCanvas(), BorderLayout.CENTER);
     	
     	//Add toolbar
@@ -108,7 +97,7 @@ public class Applet extends JApplet
     public void destroy()
     {    	
     	//Must clean up resources (ie. streams) that application/thread is using
-    	CommunicationThread.closeStreams();	
+    	AppletCommunicationThread.closeStreams();	
     }
 }
 

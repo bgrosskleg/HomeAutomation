@@ -11,7 +11,7 @@ public class BaseStationController
 {		
 	private static CurrentModel CM;
 	private static String modelPath;
-
+	
 
 	//CURRENT MODEL**********************************************
 	public static CurrentModel getCM()
@@ -87,12 +87,12 @@ public class BaseStationController
     	
     	//If being run locally by eclipse, load the model from local path
 		//If being run on webserver on Pi, load model from the /var/www path
-		if(CommunicationThread.getObjectSocket().getLocalAddress().toString().equals("/127.0.0.1"))
+		if(BaseStationCommunicationThread.getObjectSocket().getLocalAddress().toString().equals("/127.0.0.1"))
 		{
 			System.out.println("modelPath = C:/Users/Brian Grosskleg/Desktop/model.ser");
 			BaseStationController.setModelPath("C:/Users/Brian Grosskleg/Desktop/model.ser");
 		}
-		else if(CommunicationThread.getObjectSocket().getLocalAddress().toString().equals("/172.16.1.85"))
+		else if(BaseStationCommunicationThread.getObjectSocket().getLocalAddress().toString().equals("/172.16.1.85"))
 		{
 			System.out.println("modelPath = var/www/model.ser");
 			BaseStationController.setModelPath("/var/www/model.ser");
@@ -113,7 +113,7 @@ public class BaseStationController
         {
           	fis = new FileInputStream(modelPath);
             ois = new ObjectInputStream (fis);
-  			CurrentModel result = (CurrentModel)ois.readObject();
+            CurrentModel result = (CurrentModel)ois.readObject();
   			ois.close();
   			fis.close();
   			System.out.println("Model loaded from file!");

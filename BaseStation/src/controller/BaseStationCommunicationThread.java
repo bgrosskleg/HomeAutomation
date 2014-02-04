@@ -19,9 +19,9 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import model.CurrentModel;
+import model.CanvasObject;
 
-public class CommunicationThread extends Thread 
+public class BaseStationCommunicationThread extends Thread 
 {   	
 	private static ServerSocket objectServerSocket;
 	private static ServerSocket activeServerSocket;
@@ -58,7 +58,7 @@ public class CommunicationThread extends Thread
     
     private static boolean connected;
 	
-    public CommunicationThread() 
+    public BaseStationCommunicationThread() 
     {
         super("ServerCommunicationThread");
         
@@ -156,9 +156,16 @@ public class CommunicationThread extends Thread
 				//Process command
 	        	switch(recieved)
 		        {		        												
-		        	case "SENDINGMODEL":						recieveModel();
+		        	case "SENDINGMODEL":						//recieveModel();
+		        												//BaseStationController.saveModeltoFile();
 		        												break;
       	
+		        	case "ADDOBJECT":							BaseStationController.getCM().addCanvasObject(recieveObject());
+		        												break;
+		        	
+		        	case "REMOVEOBJECT":						BaseStationController.getCM().removeCanvasObject(recieveObject());
+		        												break;
+		        												
 		        	default:									System.out.println("DEFAULT BEHAVIOUR");
 		        												break;
 		
@@ -237,13 +244,13 @@ public class CommunicationThread extends Thread
 		}
 	}
     
-    public static void recieveModel()
+    public static CanvasObject recieveObject()
 	{
 		//Ensure streams have been initialized
 		if(passiveStreamOut == null || passiveStreamIn == null || objectStreamIn == null || !connected)
 		{
 			System.err.println("Command or object stream not initialized, server may be off...");
-			return;
+			return null;
 		}
 		
 		//Get model from applet
@@ -252,15 +259,17 @@ public class CommunicationThread extends Thread
 			//Notify applet ready
 			passiveStreamOut.println("OKAY");
 			
-			System.out.println("Recieving model...");
+			System.out.println("Recieving object...");
 									
 			//Read model off object stream
-			BaseStationController.setCM((CurrentModel) objectStreamIn.readObject());
+			CanvasObject received = (CanvasObject) objectStreamIn.readObject();
 				
 			//Notify applet result
 			passiveStreamOut.println("OKAY");
 				
-			System.out.println("Model recieved.");
+			System.out.println("Object recieved.");
+			
+			return received;
 			
 		} 
 		catch (Exception e1) 
@@ -268,6 +277,7 @@ public class CommunicationThread extends Thread
 			passiveStreamOut.println("FAIL");
 			System.err.println("Failure requesting model from client!");
 			//e1.printStackTrace();
+			return null;
 		}
 	} 
     

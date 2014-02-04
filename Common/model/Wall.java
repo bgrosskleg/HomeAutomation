@@ -39,12 +39,6 @@ public class Wall extends CanvasObject
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
         g2.setColor(currentColor);
-        if(currentColor.equals(Color.black))
-        {
-       		//Rectangle r = new Rectangle(0, 0, 65, 65);
-           // TexturePaint tp = new TexturePaint((BufferedImage) texture, r);
-            //g2.setPaint(tp);        	
-        }
         g2.setStroke(new BasicStroke(strokeWidth));
         g2.draw(new Line2D.Double(startingPoint, endingPoint));
 	}

@@ -11,34 +11,37 @@ public class AppletController
 	
 
 	//REFERENCE TO CANVAS****************************************
-	public static void setCanvas(Canvas canvas) {
+	public static void setCanvas(Canvas canvas) 
+	{
 		AppletController.canvas = canvas;
 	}
 	
-	public static Canvas getCanvas() {
+	public static Canvas getCanvas() 
+	{
 		return canvas;
 	}
 	
 	//CURRENT MODEL**********************************************
-	public static CurrentModel getCM() {
+	public static CurrentModel getCM() 
+	{
 		return CM;
 	}
 
 	public static void setCM(CurrentModel cM) 
 	{
 		CM = cM;
-		
-		if(canvas != null)
-		{canvas.currentModelChanged();}
+		canvas.repaint();
 	}	
 		
 	
 	//CURRENT TOOL***********************************************
-	public static String getCurrentTool() {
+	public static String getCurrentTool() 
+	{
 		return currentTool;
 	}
 
-	public static void setCurrentTool(String currentTool) {
+	public static void setCurrentTool(String currentTool) 
+	{
 		AppletController.currentTool = currentTool;
 	}
 

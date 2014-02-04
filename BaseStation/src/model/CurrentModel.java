@@ -4,18 +4,14 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import javax.swing.event.EventListenerList;
-
-import controller.CommunicationThread;
-import subscribers.CurrentModelSubscriber;
+import controller.BaseStationCommunicationThread;
 
 public class CurrentModel implements Serializable
 {
 	private static final long serialVersionUID = 1;
 	
-	private static EventListenerList subscriberList = new EventListenerList();
 	
-	//private boolean configured;
+	//Grid parameters;
 	public final int gridSize = 25;
 	public final int width = 800;
 	public final int height = 800;
@@ -70,14 +66,6 @@ public class CurrentModel implements Serializable
 		}
 	}
 	
-	
-	/*BE SURE TO CALL THE MODEL CHANGED FUNCTION WHEN MODIFYING THE MODEL ie
-	 * public void setTestColor(Color color)
-		{
-			testColor = color;
-			currentModelChanged();
-		}
-	 */
 	public void addCanvasObject(CanvasObject object) 
 	{
 		if(object instanceof Wall)
@@ -100,7 +88,6 @@ public class CurrentModel implements Serializable
 			sensors.add((Sensor)object);
 		}
 		
-		//Notify subscribers
 		currentModelChanged();
 	}
 
@@ -126,43 +113,18 @@ public class CurrentModel implements Serializable
 			sensors.remove((Sensor)object);
 		}
 		
-		//Notify subscribers
 		currentModelChanged();
 	}	
 	
 	
-	
-	//SUBSCRIBERS***************************************************************
-	
-	public void addCurrentModelSubscriber(CurrentModelSubscriber subscriber)
-	{
-		subscriberList.add(CurrentModelSubscriber.class, subscriber);
-	}
-	
-	public void removeCurrentModelSubscriber(CurrentModelSubscriber subscriber)
-	{
-		subscriberList.remove(CurrentModelSubscriber.class, subscriber);
-	}
-	
 	public void currentModelChanged()
-	{	
-		//Submit model to Pi, if streams are up and running
-		if(CommunicationThread.getActiveStreamIn() != null && CommunicationThread.getActiveStreamOut() != null
-				&& CommunicationThread.getObjectStreamIn() != null && CommunicationThread.getObjectStreamOut() != null
-				&& CommunicationThread.isConnected())
-		{CommunicationThread.sendModel();}
-		
-		//Notify local subscribers
-		Object[] subscribers = subscriberList.getListenerList();
-	    for (int i = 0; i < subscribers.length; i = i+2) 
-	    {
-	    	if (subscribers[i] == CurrentModelSubscriber.class) 
-	    	{
-	    		((CurrentModelSubscriber) subscribers[i+1]).currentModelChanged();
-	    	}
-	    }
+	{
+		//Push model to applet if streams are up and running
+		if(BaseStationCommunicationThread.getActiveStreamIn() != null && BaseStationCommunicationThread.getActiveStreamOut() != null
+				&& BaseStationCommunicationThread.getObjectStreamIn() != null && BaseStationCommunicationThread.getObjectStreamOut() != null
+				&& BaseStationCommunicationThread.isConnected())
+		{BaseStationCommunicationThread.sendModel();}
 	}
-	
 	
 	//ACCESSORS***************************************************************
 	
