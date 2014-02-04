@@ -124,6 +124,8 @@ public class Canvas extends JPanel
 				{
 					//Paint in selected color
 					g2.setColor(wall.getSelectedColor());
+					if(!selected.isEmpty())
+					{selected.clear();}
 					selected.add(wall);
 				}	
 				else
@@ -141,6 +143,8 @@ public class Canvas extends JPanel
 				{	
 					//Paint in selected color
 					g2.setColor(light.getSelectedColor());
+					if(!selected.isEmpty())
+					{selected.clear();}
 					selected.add(light);
 				}	
 				else
@@ -158,6 +162,8 @@ public class Canvas extends JPanel
 				{	
 					//Paint in selected color
 					g2.setColor(sensor.getSelectedColor());
+					if(!selected.isEmpty())
+					{selected.clear();}
 					selected.add(sensor);
 				}	
 				else
@@ -216,6 +222,15 @@ public class Canvas extends JPanel
 						g2.setColor(Color.BLACK);
 						g2.setFont(new Font("default", Font.BOLD, 16));
 						g2.drawString(region.toString(),	(int) cursorPoint.x + 10, (int) cursorPoint.y + 17);
+					}
+				}
+				for(User user : Applet.getController().getCM().getUsers())
+				{
+					if(user.getLocation().equals(cursorPoint))
+					{
+						g2.setColor(Color.BLACK);
+						g2.setFont(new Font("default", Font.BOLD, 16));
+						g2.drawString(user.toString(),	(int) cursorPoint.x + 10, (int) cursorPoint.y + 17);
 					}
 				}
 			}

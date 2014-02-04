@@ -4,8 +4,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+
 import model.CanvasObject;
-import model.CanvasObjectList;
 import model.CurrentModel;
 import model.User;
 
@@ -413,7 +414,7 @@ public abstract class CommunicationThread extends Thread
 		}
 	}
 	
-	public CanvasObjectList<User> receiveUsers()
+	public ArrayList<User> receiveUsers()
 	{
 		//Ensure streams have been initialized
 		if(passiveStreamOut == null || passiveStreamIn == null || objectStreamIn == null || !connected)
@@ -432,7 +433,7 @@ public abstract class CommunicationThread extends Thread
 
 			//Read model off object stream
 			@SuppressWarnings("unchecked")
-			CanvasObjectList<User> received = (CanvasObjectList<User>) objectStreamIn.readObject();
+			ArrayList<User> received = (ArrayList<User>) objectStreamIn.readObject();
 
 			//Notify applet result
 			passiveStreamOut.println("OKAY");

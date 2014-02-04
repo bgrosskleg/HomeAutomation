@@ -74,9 +74,15 @@ public class Wall extends CanvasObject
 	@Override
 	public boolean equals(CanvasObject object) 
 	{
-		if(startingPoint.equals(((Wall) object).startingPoint) && endingPoint.equals(((Wall) object).endingPoint))
-		{return true;}
-		else
-		{return false;}
+		if(object instanceof Wall)
+		{
+			Wall temp = (Wall) object;
+			if(startingPoint.equals(temp.startingPoint) && endingPoint.equals(temp.endingPoint))
+			{
+				return true;
+			}
+			return false;
+		}
+		return false;
 	}
 }

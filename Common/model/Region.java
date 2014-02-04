@@ -53,7 +53,7 @@ public class Region extends CanvasObject
 		finalized = false;
 		
 		//Region features
-		sensors = new CanvasObjectList<Sensor>();
+		sensors = new ArrayList<Sensor>();
 		lightingValue = 0;
 	}
 	
@@ -156,13 +156,19 @@ public class Region extends CanvasObject
 		return region;
 	}
 
+
 	@Override
 	public boolean equals(CanvasObject object) 
 	{
-		if(region.equals(((Region) object).region) && name.equals(((Region) object).name) &&
-				sensors.equals(((Region) object).sensors))
+		if(object instanceof Region)
 		{
-			return true;
+			Region temp = (Region) object;
+			if(name.equals(temp.name))
+			{
+				System.out.println("TRUE");
+				return true;
+			}
+			return false;
 		}
 		return false;
 	}	

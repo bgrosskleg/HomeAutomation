@@ -148,7 +148,6 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 			
 		case "Erase":		for(CanvasObject object : canvas.getSelected())
 							{
-								System.out.println("Removing object!");
 								Applet.getComThread().removeObject(object);
 							}
 							break;

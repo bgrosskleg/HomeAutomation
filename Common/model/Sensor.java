@@ -64,9 +64,14 @@ public class Sensor extends CanvasObject
 	@Override
 	public boolean equals(CanvasObject object) 
 	{
-		if(location.equals(((Sensor) object).location) && identification.equals(((Sensor) object).identification))
+		if(object instanceof Sensor)
 		{
-			return true;
+			Sensor temp = (Sensor) object;
+			if(this.location.equals(temp.location))
+			{
+				return true;
+			}
+			return false;
 		}
 		return false;
 	}

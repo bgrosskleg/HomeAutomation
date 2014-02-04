@@ -35,10 +35,6 @@ public abstract class CanvasObject  implements Serializable
 		return selectedColor;
 	}
 	
-	public boolean equals(CanvasObject object)
-	{
-		return false;
-	}
-	
+	public abstract boolean equals(CanvasObject object);
 	public abstract void paintComponent(Graphics g);
 }

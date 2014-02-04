@@ -34,9 +34,14 @@ public class Light extends CanvasObject
 	@Override
 	public boolean equals(CanvasObject object) 
 	{
-		if(location.equals(((Light) object).location))
+		if(object instanceof Light)
 		{
-			return true;
+			Light temp = (Light) object;
+			if(this.location.equals(temp.location))
+			{
+				return true;
+			}
+			return false;
 		}
 		return false;
 	}

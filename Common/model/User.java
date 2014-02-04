@@ -62,10 +62,14 @@ public class User extends CanvasObject
 	@Override
 	public boolean equals(CanvasObject object)
 	{
-		if(location.equals(((User) object).location) && identification.equals(((User) object).identification)
-				&& name.equals(((User) object).name))
+		if(object instanceof User)
 		{
-			return true;
+			if(location.equals(((User) object).location) && identification.equals(((User) object).identification)
+				&& name.equals(((User) object).name))
+			{
+				return true;
+			}
+			return false;
 		}
 		return false;
 	}

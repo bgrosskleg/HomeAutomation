@@ -10,43 +10,44 @@ public class CurrentModel extends Observable implements Serializable
 	private static final long serialVersionUID = 1;
 				
 	//Lists of model objects
-	private CanvasObjectList<Wall> walls;
-	private CanvasObjectList<Region> regions;
-	private CanvasObjectList<Light> lights;
-	private CanvasObjectList<Sensor> sensors;
-	private CanvasObjectList<User> users;
+	private ArrayList<Wall> walls;
+	private ArrayList<Region> regions;
+	private ArrayList<Light> lights;
+	private ArrayList<Sensor> sensors;
+	private ArrayList<User> users;
 	
 	public CurrentModel()
 	{							
-		walls = new CanvasObjectList<Wall>();
-		regions = new CanvasObjectList<Region>();
-		lights = new CanvasObjectList<Light>();
-		sensors = new CanvasObjectList<Sensor>();
-		users = new CanvasObjectList<User>();	
+		walls = new ArrayList<Wall>();
+		regions = new ArrayList<Region>();
+		lights = new ArrayList<Light>();
+		sensors = new ArrayList<Sensor>();
+		users = new ArrayList<User>();	
 		
-		users.add(0, new User("Brian","ABCD1234ABCD1234", new Point2D.Double(50, 50)));
+		users.add(0, new User("Brian","ABCD1234ABCD1234", new Point2D.Double(25/2, 25/2)));
 	}	
 	
 	public void addCanvasObject(CanvasObject object) 
 	{
+		//Adding objects, doesn't matter that references are broken on transmission
 		if(object instanceof Wall)
 		{
-			walls.customAdd((Wall)object);
+			walls.add((Wall)object);
 		}
 		
 		if(object instanceof Region)
 		{
-			regions.customAdd((Region)object);
+			regions.add((Region)object);
 		}
 		
 		if(object instanceof Light)
 		{
-			lights.customAdd((Light)object);
+			lights.add((Light)object);
 		}
 		
 		if(object instanceof Sensor)
 		{
-			sensors.customAdd((Sensor)object);
+			sensors.add((Sensor)object);
 		}
 		
 		currentModelChanged();
@@ -54,39 +55,58 @@ public class CurrentModel extends Observable implements Serializable
 
 	public void removeCanvasObject(CanvasObject object) 
 	{
+		//References are broken when transmitted in stream, must compare important features using equals() rather than referring to object	directly	
 		if(object instanceof Wall)
 		{
-			System.out.println("Object is a wall");
-			if(walls.customContains((Wall) object))
+			for(Wall wall : walls)
 			{
-				System.out.println("Wall is in list");
+				if(wall.equals((Wall)object))
+				{
+					walls.remove(wall);
+					currentModelChanged();
+					return;
+				}
 			}
-			else
-			{
-				System.out.println("Wall is NOT in list");
-			}
-			
 		}
 		
 		if(object instanceof Region)
 		{
-			System.out.println("Object is a region");
-			regions.remove((Region)object);
+			for(Region region : regions)
+			{
+				if(region.equals((Region)object))
+				{
+					regions.remove(region);
+					currentModelChanged();
+					return;
+				}
+			}
 		}
 		
 		if(object instanceof Light)
 		{
-			System.out.println("Object is a light");
-			lights.remove((Light)object);
+			for(Light light : lights)
+			{
+				if(light.equals((Light)object))
+				{
+					lights.remove(light);
+					currentModelChanged();
+					return;
+				}
+			}
 		}
 		
 		if(object instanceof Sensor)
 		{
-			System.out.println("Object is a sensor");
-			sensors.remove((Sensor)object);
+			for(Sensor sensor : sensors)
+			{
+				if(sensor.equals((Sensor)object))
+				{
+					sensors.remove(sensor);
+					currentModelChanged();
+					return;
+				}
+			}
 		}
-		
-		currentModelChanged();
 	}	
 	
 	
@@ -129,7 +149,7 @@ public class CurrentModel extends Observable implements Serializable
 		return users;
 	}		
 	
-	public void setUsers(CanvasObjectList<User> users) 
+	public void setUsers(ArrayList<User> users) 
 	{
 		this.users = users;
 		currentUsersChanged();
