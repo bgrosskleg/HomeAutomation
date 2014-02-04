@@ -11,9 +11,10 @@ import java.net.URL;
 
 import javax.swing.JApplet;
 
+import model.CanvasObject;
 import model.CurrentModel;
 
-public class CommunicationThread extends Thread
+public class AppletCommunicationThread extends Thread
 {
 	private static JApplet application;
 	
@@ -52,7 +53,7 @@ public class CommunicationThread extends Thread
     
     private static boolean connected;
 	
-	public CommunicationThread(JApplet application) 
+	public AppletCommunicationThread(JApplet application) 
     {
 		super("AppletCommunicationThread");
 		
@@ -179,7 +180,7 @@ public class CommunicationThread extends Thread
         }
 	}	
 	
-	public static void sendModel()
+	public static void addObject(CanvasObject object)
 	{
 		//Ensure streams have been initialized
 		if(activeStreamOut == null || activeStreamIn == null || objectStreamOut == null || !connected)
@@ -194,7 +195,7 @@ public class CommunicationThread extends Thread
 			System.out.println("Sending model to server...");
 			
 			//Notify server on command stream
-			activeStreamOut.println("SENDINGMODEL");
+			activeStreamOut.println("ADDOBJECT");
 			
 			//Analyze command stream response
 			if(activeStreamIn.readLine().equals("OKAY"))
@@ -203,16 +204,16 @@ public class CommunicationThread extends Thread
 				objectStreamOut.reset();
 				
 				//Write object to object stream
-				objectStreamOut.writeObject(AppletController.getCM());
+				objectStreamOut.writeObject(object);
 
 				//Analyze command stream response
 				if(activeStreamIn.readLine().equals("OKAY"))
 				{
-					System.out.println("Model sent successfully.");
+					System.out.println("Object sent successfully.");
 				}
 				else if(activeStreamIn.readLine().equals("FAIL"))
 				{
-					System.err.println("Model did not send successfully.");
+					System.err.println("Object did not send successfully.");
 				}
 				else
 				{
@@ -225,7 +226,58 @@ public class CommunicationThread extends Thread
 			//Must check if null because closing streams might have been what caused the initial exception
 			if(activeStreamOut != null)
 			{activeStreamOut.println("FAIL");}
-			System.err.println("Failure sending model to applet");
+			System.err.println("Failure sending object to baseStation");
+			//e1.printStackTrace();
+		}
+	}
+	
+	public static void removeObject(CanvasObject object)
+	{
+		//Ensure streams have been initialized
+		if(activeStreamOut == null || activeStreamIn == null || objectStreamOut == null || !connected)
+		{
+			System.err.println("Active or object stream not initialized, server may be off...");
+			return;
+		}
+		
+		//Send model to server
+		try 
+		{
+			System.out.println("Sending model to server...");
+			
+			//Notify server on command stream
+			activeStreamOut.println("REMOVEOBJECT");
+			
+			//Analyze command stream response
+			if(activeStreamIn.readLine().equals("OKAY"))
+			{
+				//Reset the stream so next write, writes a new complete object, not a reference to the first one
+				objectStreamOut.reset();
+				
+				//Write object to object stream
+				objectStreamOut.writeObject(object);
+
+				//Analyze command stream response
+				if(activeStreamIn.readLine().equals("OKAY"))
+				{
+					System.out.println("Object sent successfully.");
+				}
+				else if(activeStreamIn.readLine().equals("FAIL"))
+				{
+					System.err.println("Object did not send successfully.");
+				}
+				else
+				{
+					System.err.println("Impossible response!");
+				}
+			}
+		} 
+		catch (Exception e1) 
+		{
+			//Must check if null because closing streams might have been what caused the initial exception
+			if(activeStreamOut != null)
+			{activeStreamOut.println("FAIL");}
+			System.err.println("Failure sending object to baseStation");
 			//e1.printStackTrace();
 		}
 	}

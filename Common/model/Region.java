@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Random;
@@ -16,14 +17,18 @@ public class Region extends CanvasObject
 	private static final long serialVersionUID = 1;
 	private static int strokeWidth = 4;
 		
-	public GeneralPath region;
-	public String name;
-	private ArrayList<Point2D.Double> points;
-	public Point2D.Double startPoint;
-	private boolean finalized;
+	private Point2D.Double startPoint;
+	private Point2D.Double nextPoint;
+	
+	private GeneralPath region;
+	private boolean finalized = false;
+	
+	//Region name
+	private String name;
 	
 	//List of all sensors tied to the region
 	public ArrayList<Sensor> sensors;
+	
 	//Lighting value 0-255
 	public int lightingValue;
 	
@@ -31,7 +36,7 @@ public class Region extends CanvasObject
 	/**
 	 * Creates a region with no objects
 	 */
-	public Region(Point2D.Double startPoint)
+	public Region(Point2D.Double start, Point2D.Double next)
 	{		
 		super(null, null);	
 		
@@ -40,19 +45,17 @@ public class Region extends CanvasObject
 		this.selectedColor = color.darker().darker();
 		this.currentColor = unselectedColor;
 		
+		startPoint = start;
+		nextPoint = next;
+		
 		sensors = new ArrayList<Sensor>();
 		lightingValue = 0;
-		this.startPoint = startPoint;
-		points = new ArrayList<Point2D.Double>();
-		name = null;
-		finalized = false;
 		
 		//Add last point, so points is not null, that is updated on mouse move
-		points.add(startPoint);
+		//points.add(getStartPoint());
 		
-		region = new GeneralPath(GeneralPath.WIND_EVEN_ODD, points.size());
-		region.moveTo(startPoint.x, startPoint.y);
-		
+		region = new GeneralPath(GeneralPath.WIND_EVEN_ODD, 1);
+		region.moveTo(getStartPoint().x, getStartPoint().y);
 	}
 	
 	private static Color randomColor()
@@ -82,68 +85,47 @@ public class Region extends CanvasObject
 		
 		final Color color = new Color(r,g,b,alpha);
 		
-		
 		return color;
 	}
 	
-	public void addPointToRegion(Point2D.Double point)
+	public void addPointToRegion()
 	{
-		points.add(point);
-		region.lineTo(point.x, point.y);
-	}
-	
-	public void setLastPoint(Point2D.Double point)
-	{
-		//If new point is not the current last point
-		if(!region.getCurrentPoint().equals(point))
-		{			
-			points.set(points.size()-1, point);
-			//Remake region with new last point
-			region.reset();
-			region.moveTo(startPoint.x, startPoint.y);
-			for (int index = 1; index < points.size(); index++) 
-			{
-				region.lineTo(points.get(index).x, points.get(index).y);
-			}
-			//Append new line
-			region.lineTo(point.x, point.y);
-		}
+		Point2D.Double temp = (Point2D.Double)nextPoint.clone();
+		getRegion().lineTo(temp.x, temp.y);
 	}
 	
 	public void finalize()
 	{
-		region.closePath();		
+		getRegion().closePath();		
 		finalized = true;
 	}
-	
 	
 	public void addSensor(Sensor s)
 	{
 		sensors.add(s);
 	}
 	
-	
 	public void paintComponent(Graphics g)
 	{
 		Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        //Create start point indicator
-        if(!points.isEmpty())
+             
+        if(!finalized)
         {
-        	if(!finalized)
-        	{
-        		g2.setColor(currentColor);
-        		g2.fill(new Ellipse2D.Double((startPoint.x-5)-1, (startPoint.y-5)-1, 10, 10));
-        		g2.draw(region);
-        	}
-        	else
-        	{
-        		//Order is important for layering
-        		//Set region fill color and transparency
-        		g2.setColor(currentColor);
-        		g2.fill(region);       		
-        	}
+        	//Draw region boundary
+        	g2.setColor(currentColor);
+        	g2.fill(new Ellipse2D.Double((getStartPoint().x-5)-1, (getStartPoint().y-5)-1, 10, 10));
+        	g2.draw(getRegion());
+        	
+        	g2.draw(new Line2D.Double(region.getCurrentPoint().getX(), region.getCurrentPoint().getY(), nextPoint.getX(), nextPoint.getY()));
         }
+        else
+        {
+        	//Set region fill color and transparency
+        	g2.setColor(currentColor);
+        	g2.fill(region);       		
+        }
+        
 	}
 	
 	public boolean isFinalized()
@@ -157,4 +139,23 @@ public class Region extends CanvasObject
 		return "Region: " + name;
 	}
 	
+	
+	public String getName()
+	{
+		return name;
+	}
+	
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public Point2D.Double getStartPoint() {
+		return startPoint;
+	}
+
+
+	public GeneralPath getRegion() {
+		return region;
+	}	
 }

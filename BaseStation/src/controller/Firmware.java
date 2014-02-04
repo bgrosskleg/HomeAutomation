@@ -20,13 +20,13 @@ class Firmware
     public static void main(String[] args) 
     {
     	//Start server thread
-        new CommunicationThread().start();
+        new BaseStationCommunicationThread().start();
         
         //Load model from file
         BaseStationController.setCM(BaseStationController.loadModelfromFile());
         
         //Send model to applet
-		CommunicationThread.sendModel();
+		BaseStationCommunicationThread.sendModel();
         
 		
 		
@@ -52,7 +52,7 @@ class Firmware
         
         //Creates a timer to triangulate user position 
         
-        int delay2 = 250; //milliseconds
+        int delay2 = 2000; //milliseconds
 
         ActionListener taskPerformer2 = new ActionListener() 
         {

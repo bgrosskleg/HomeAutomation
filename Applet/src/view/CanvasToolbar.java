@@ -13,7 +13,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import controller.CommunicationThread;
+import controller.AppletCommunicationThread;
 import controller.AppletController;
 
 
@@ -28,12 +28,12 @@ public class CanvasToolbar extends JPanel
 		//Create buttons
 		buttons = new JToggleButton[5];
 		
-		buttons[0] = new JToggleButton("Walls", new ImageIcon(CommunicationThread.getApplication().getImage(CommunicationThread.getCodebase(), "resources/wallsIcon.png")), true);
+		buttons[0] = new JToggleButton("Walls", new ImageIcon(AppletCommunicationThread.getApplication().getImage(AppletCommunicationThread.getCodebase(), "resources/wallsIcon.png")), true);
 		AppletController.setCurrentTool("Walls");
-		buttons[1] = new JToggleButton("Regions", new ImageIcon(CommunicationThread.getApplication().getImage(CommunicationThread.getCodebase(), "resources/regionsIcon.png")), false);
-		buttons[2] = new JToggleButton("Lights", new ImageIcon(CommunicationThread.getApplication().getImage(CommunicationThread.getCodebase(), "resources/lightbulbIcon.png")), false);
-		buttons[3] = new JToggleButton("Sensors", new ImageIcon(CommunicationThread.getApplication().getImage(CommunicationThread.getCodebase(), "resources/sensorIcon.png")), false);
-		buttons[4] = new JToggleButton("Erase", new ImageIcon(CommunicationThread.getApplication().getImage(CommunicationThread.getCodebase(), "resources/eraserIcon.png")), false);
+		buttons[1] = new JToggleButton("Regions", new ImageIcon(AppletCommunicationThread.getApplication().getImage(AppletCommunicationThread.getCodebase(), "resources/regionsIcon.png")), false);
+		buttons[2] = new JToggleButton("Lights", new ImageIcon(AppletCommunicationThread.getApplication().getImage(AppletCommunicationThread.getCodebase(), "resources/lightbulbIcon.png")), false);
+		buttons[3] = new JToggleButton("Sensors", new ImageIcon(AppletCommunicationThread.getApplication().getImage(AppletCommunicationThread.getCodebase(), "resources/sensorIcon.png")), false);
+		buttons[4] = new JToggleButton("Erase", new ImageIcon(AppletCommunicationThread.getApplication().getImage(AppletCommunicationThread.getCodebase(), "resources/eraserIcon.png")), false);
 		
 		//Create button group (so that only one may be selected at once), and assign action
 		ButtonGroup group = new ButtonGroup();
