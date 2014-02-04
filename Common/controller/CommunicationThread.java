@@ -375,7 +375,7 @@ public abstract class CommunicationThread extends Thread
 		//Send users
 		try 
 		{
-			System.out.println("Sending object to be removed...");
+			System.out.println("Sending users...");
 			
 			//Notify server on command stream
 			activeStreamOut.println("SENDUSERS");
