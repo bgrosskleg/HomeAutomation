@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 import controller.CanvasMouseAdapter;
-import controller.AppletController;
 import model.CanvasObject;
 import model.Light;
 import model.Point;
@@ -95,29 +94,41 @@ public class Canvas extends JPanel
 			point.paintComponent(g);
 		}
 			
-		if(AppletController.getCM() != null)
+		
+		if(Applet.getController() == null)
 		{
-			for(Region region : AppletController.getCM().getRegions())
+			System.out.println("Applet Controller is null");
+		}
+		
+		if(Applet.getController().getCM() == null)
+		{
+			System.out.println("Applet Controller's current model is null");
+		}
+		
+		
+		if(Applet.getController().getCM() != null)
+		{
+			for(Region region : Applet.getController().getCM().getRegions())
 			{
 				region.paintComponent(g);
 			}
 			
-			for(Wall wall : AppletController.getCM().getWalls())
+			for(Wall wall : Applet.getController().getCM().getWalls())
 			{
 				wall.paintComponent(g);
 			}
 			
-			for(Light light : AppletController.getCM().getLights())
+			for(Light light : Applet.getController().getCM().getLights())
 			{
 				light.paintComponent(g);
 			}
 			
-			for(Sensor sensor : AppletController.getCM().getSensors())
+			for(Sensor sensor : Applet.getController().getCM().getSensors())
 			{
 				sensor.paintComponent(g);
 			}
 			
-			for(User user : AppletController.getCM().getUsers())
+			for(User user : Applet.getController().getCM().getUsers())
 			{
 				user.paintComponent(g);
 			}
@@ -143,9 +154,9 @@ public class Canvas extends JPanel
 			g2.fill(new Ellipse2D.Double((cursor.x-5)-1, (cursor.y-5)-1, 10, 10));
 
 			//Paint object label
-			if(AppletController.getCM() != null)
+			if(Applet.getController().getCM() != null)
 			{
-				for(Sensor sensor : AppletController.getCM().getSensors())
+				for(Sensor sensor : Applet.getController().getCM().getSensors())
 				{
 					if(sensor.location.equals(cursor))
 					{
@@ -154,7 +165,7 @@ public class Canvas extends JPanel
 						g2.drawString(sensor.toString(),	(int) cursor.x + 10, (int) cursor.y - 1);
 					}
 				}	
-				for(Region region : AppletController.getCM().getRegions())
+				for(Region region : Applet.getController().getCM().getRegions())
 				{
 					if(region.getRegion().contains(cursor))
 					{

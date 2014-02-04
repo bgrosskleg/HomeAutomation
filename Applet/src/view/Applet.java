@@ -48,11 +48,27 @@ public class Applet extends JApplet
 {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static AppletController controller;
+	private static AppletCommunicationThread appComThread;
  
     public void init() 
     {
-    	//Set's up socket to server
-    	new AppletCommunicationThread(this).start();  	
+    	//Create applet controller and canvas
+    	controller = new AppletController(this, new Canvas());
+    	
+    	//Start communication thread
+    	try 
+    	{
+    		appComThread = new AppletCommunicationThread(controller);
+    		appComThread.start();
+		}
+    	catch (Exception e1) 
+    	{
+    		System.err.println("Error creating AppletCommunicationThread!");
+			System.err.println("Running locally!");
+			e1.printStackTrace();
+		}  	
     	
         //Set up the user interface.
         //Execute a job on the event-dispatching thread:
@@ -80,8 +96,7 @@ public class Applet extends JApplet
     	add(new Instructions(), BorderLayout.NORTH);
     
     	//Add canvas
-    	AppletController.setCanvas(new Canvas());
-    	add(AppletController.getCanvas(), BorderLayout.CENTER);
+    	add(controller.getCanvas(), BorderLayout.CENTER);
     	
     	//Add toolbar
     	add(new CanvasToolbar(), BorderLayout.EAST);
@@ -92,12 +107,15 @@ public class Applet extends JApplet
     	setSize(getPreferredSize());
     } 
     
+        
+    public static AppletController getController()
+    {
+    	return controller;
+    }
     
-    @Override
-    public void destroy()
-    {    	
-    	//Must clean up resources (ie. streams) that application/thread is using
-    	AppletCommunicationThread.closeStreams();	
+    public static AppletCommunicationThread getComThread()
+    {
+    	return appComThread;
     }
 }
 

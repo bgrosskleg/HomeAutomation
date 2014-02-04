@@ -1,42 +1,63 @@
 package controller;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Observable;
 
 import model.CurrentModel;
 
-public class BaseStationController 
+public class BaseStationController extends GenericController
 {		
-	private static CurrentModel CM;
-	private static String modelPath;
+	private String modelPath;
 	
-
-	//CURRENT MODEL**********************************************
-	public static CurrentModel getCM()
+	public BaseStationController()
 	{
-		return CM;
+		super();
+		
+		//Path to model
+		//Computer: = 	modelPath = C:/Users/Brian Grosskleg/Desktop/model.ser
+		//Pi: 			modelPath = /var/www/model.ser
+		modelPath = "C:/Users/Brian Grosskleg/Desktop/model.ser";
+		//modelPath = "/var/www/model.ser";
+		
+		//Load model from file, create new one if failed
+		loadModelfromFile();
 	}
-
-	public static void setCM(CurrentModel cM) 
+	
+	//CURRENT MODEL*************************************************
+	
+	@Override
+	public void setCM(CurrentModel cM) 
 	{
+		//Replace entire model (if necessary)
 		CM = cM;
+
+		//Add this BaseStationController to model's observer list
+		CM.addObserver(this);	
+		
+		//Notify observers model has changed
+		CM.currentModelChanged();
 	}
 	
-//MODEL FILE HANDLING*********************************************
-  	
-  	//Model path
-  	public static String getModelPath() {
-  		return modelPath;
-  	}
-  	
-  	public static void setModelPath(String path) {
-  		modelPath = path;
-  	}
-  	
+	@Override
+	public void update(Observable o, Object arg) 
+	{
+		//Save model state to file
+		saveModeltoFile();
+				
+		//Send entire model to applet if connected		
+		if(Firmware.getComThread() != null && Firmware.getComThread().isConnected())
+		{Firmware.getComThread().sendModel();}		
+	}
+		
+	
+	//MODEL FILE HANDLING*********************************************	
+	
   	//Save model
-  	public static void saveModeltoFile()
+  	public void saveModeltoFile()
     {
   		System.out.println("Saving model to file...");
   		FileOutputStream fos = null;
@@ -46,12 +67,17 @@ public class BaseStationController
       	{
       		fos = new FileOutputStream(modelPath);
       		oos = new ObjectOutputStream(fos);
-      		oos.writeObject(BaseStationController.getCM());
+      		oos.writeObject(getCM());
       		oos.close();
       		fos.close();
       		System.out.println("Model saved to file!");
       	} 
-      	catch (Exception e1) 
+      	catch(FileNotFoundException e)
+        {
+        	System.err.println("File not found, model not saved.");
+          	setCM(new CurrentModel());
+        }
+      	catch (Exception e) 
       	{
       		//Close any open streams
       		try
@@ -65,47 +91,25 @@ public class BaseStationController
   	    		{
   	    			oos.close();
   	    		}
-  	    		
-  	    		System.out.println("Existing file stream closed.");
   			} 
-      		catch (Exception e) 
+      		catch (Exception e1) 
       		{
-  				System.err.println("Failure closeing file stream");
-  				e.printStackTrace();
+  				e1.printStackTrace();
       		}
-      		
-      		System.err.println("Model not saved to file!");
-      		e1.printStackTrace();
+          	finally
+          	{
+          		System.err.println("Saving model to file failed, model not saved.");
+              	setCM(new CurrentModel());
+          	}
       	}	
     }
   	
   	//Load model
-    public static CurrentModel loadModelfromFile() 
+    public void loadModelfromFile() 
     {   
-    	//Determine model path
     	System.out.println("Loading model from file...");
-    	
-    	//If being run locally by eclipse, load the model from local path
-		//If being run on webserver on Pi, load model from the /var/www path
-		if(BaseStationCommunicationThread.getObjectSocket().getLocalAddress().toString().equals("/127.0.0.1"))
-		{
-			System.out.println("modelPath = C:/Users/Brian Grosskleg/Desktop/model.ser");
-			BaseStationController.setModelPath("C:/Users/Brian Grosskleg/Desktop/model.ser");
-		}
-		else if(BaseStationCommunicationThread.getObjectSocket().getLocalAddress().toString().equals("/172.16.1.85"))
-		{
-			System.out.println("modelPath = var/www/model.ser");
-			BaseStationController.setModelPath("/var/www/model.ser");
-		}
-		else
-		{
-			System.err.println("Could not set model path, creating new model.");
-			return new CurrentModel();	
-		}
-    	
-    	
+    	    	
 		//Load model from model path
-		
       	FileInputStream fis = null;
   		ObjectInputStream ois = null;
   		
@@ -113,13 +117,18 @@ public class BaseStationController
         {
           	fis = new FileInputStream(modelPath);
             ois = new ObjectInputStream (fis);
-            CurrentModel result = (CurrentModel)ois.readObject();
+            setCM((CurrentModel) ois.readObject());
   			ois.close();
   			fis.close();
   			System.out.println("Model loaded from file!");
-  			return result;
   		} 
-        catch (Exception e1) 
+        catch(FileNotFoundException e)
+        {
+        	System.err.println("File not found, creating new model.");
+          	setCM(new CurrentModel());
+          	saveModeltoFile();
+        }
+        catch (Exception e) 
         {
           	//Close any open streams
           	try
@@ -131,18 +140,19 @@ public class BaseStationController
       		
           		if(fis != null)
           		{
-          				fis.close();
+          			fis.close();
           		}
-          		System.out.println("Existing file stream closed.");
   			} 
-      		catch (Exception e) 
+      		catch (Exception e1) 
       		{
-  				System.err.println("Failure closeing file stream");
-  				e.printStackTrace();
+  				e1.printStackTrace();
       		}
-      		
-          	System.err.println("Model not loaded from file, creating new model.");
-  			return new CurrentModel();
+          	finally
+          	{
+          		System.err.println("Loading from file failed, creating new model.");
+              	setCM(new CurrentModel());
+              	saveModeltoFile();
+          	}	
   		}
   	}
 }

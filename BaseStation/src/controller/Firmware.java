@@ -16,43 +16,32 @@ import model.User;
 
 
 class Firmware 
-{
+{	
+	private static BaseStationController controller;
+	private static BaseStationCommunicationThread baseComThread;
+	
     public static void main(String[] args) 
     {
-    	//Start server thread
-        new BaseStationCommunicationThread().start();
-        
-        //Load model from file
-        BaseStationController.setCM(BaseStationController.loadModelfromFile());
-        
-        //Send model to applet
-		BaseStationCommunicationThread.sendModel();
-        
-		
-		
-		
-		
-		
-		
-      //Creates an autosave timer to save model to file every 60 seconds
-        int delay = 60000; //milliseconds
-
-        ActionListener taskPerformer = new ActionListener() {
-
-        	@Override
-        	public void actionPerformed(ActionEvent e) 
-        	{
-        		//Save CurrentModel to RPi card
-        		BaseStationController.saveModeltoFile();
-        	}
-        };
-        new Timer(delay, taskPerformer).start();    
-        
+    	//Create base station controller
+    	controller = new BaseStationController();
+    	    	
+    	//Start communication thread
+        try 
+        {
+        	baseComThread = new BaseStationCommunicationThread(controller);
+        	baseComThread.start();
+		} 
+        catch (Exception e1) 
+        {
+			System.err.println("Error creating BaseStationCommunicationThread!");
+			System.err.println("Running locally!");
+			e1.printStackTrace();
+		}              
         
         
         //Creates a timer to triangulate user position 
         
-        int delay2 = 2000; //milliseconds
+        int delay2 = 500; //milliseconds
 
         ActionListener taskPerformer2 = new ActionListener() 
         {
@@ -62,36 +51,46 @@ class Firmware
         	public void actionPerformed(ActionEvent e) 
         	{        		
         		
-        		User user = BaseStationController.getCM().getUsers().get(0);
+        		User user = controller.getCM().getUsers().get(0);
 
         		//Move userA
-        		int stepSize = BaseStationController.getCM().gridSize;
+        		int stepSize = 25;
 
         		if(moveRight && user.getLocation().x < 175)
         		{
         			user.setLocation(new Point2D.Double(user.getLocation().x += stepSize, user.getLocation().y));
-        			BaseStationController.getCM().currentModelChanged();
+        			controller.getCM().currentModelChanged();
         		}
         		else if(moveRight && user.getLocation().x >= 175)
         		{
         			moveRight = false;
         			user.setLocation(new Point2D.Double(user.getLocation().x -= stepSize, user.getLocation().y));
-        			BaseStationController.getCM().currentModelChanged();
+        			controller.getCM().currentModelChanged();
         		}
         		else if(!moveRight && user.getLocation().x > 25)
         		{
         			user.setLocation(new Point2D.Double(user.getLocation().x -= stepSize, user.getLocation().y));
-        			BaseStationController.getCM().currentModelChanged();
+        			controller.getCM().currentModelChanged();
         		}
         		else if(!moveRight && user.getLocation().x <= 25)
         		{
         			moveRight = true;
         			user.setLocation(new Point2D.Double(user.getLocation().x += stepSize, user.getLocation().y));
-        			BaseStationController.getCM().currentModelChanged();
+        			controller.getCM().currentModelChanged();
         		}	
         	}
         };
         
         new Timer(delay2, taskPerformer2).start(); 
+    }
+    
+    public static BaseStationController getController()
+    {
+    	return controller;
+    }
+    
+    public static BaseStationCommunicationThread getComThread()
+    {
+    	return baseComThread;
     }
 }

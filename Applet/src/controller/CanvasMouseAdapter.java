@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.event.MouseInputAdapter;
 
+import view.Applet;
 import view.Canvas;
 import model.CanvasObject;
 import model.Light;
@@ -27,13 +28,11 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 
 	@Override
 	public void mouseClicked(MouseEvent e) 
-	{
-		canvas.snapMouseToGrid(e);
-		
+	{		
 		//Check for regions under click, open region editor
-		if(AppletController.getCM() != null && AppletController.getCM().getRegions() != null)
+		if(Applet.getController().getCM() != null && Applet.getController().getCM().getRegions() != null)
 		{
-			for(Region region : AppletController.getCM().getRegions())
+			for(Region region : Applet.getController().getCM().getRegions())
 			{
 				if(region.getRegion().contains(canvas.getCursorPoint()))
 				{
@@ -44,7 +43,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 		
 		
 		//Add new objects
-		switch (AppletController.getCurrentTool())
+		switch (Applet.getController().getCurrentTool())
 		{
 		case "Walls":			if(!canvas.isCurrentlyBuildingWall())
 								{
@@ -54,7 +53,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 								else
 								{
 									if(!canvas.getTempWall().startingPoint.equals(canvas.getTempWall().endingPoint))
-									{AppletCommunicationThread.addObject(canvas.getTempWall());}
+									{Applet.getComThread().addObject(canvas.getTempWall());}
 									
 									canvas.setTempWall(null);
 									canvas.setCurrentlyBuildingWall(false);
@@ -82,7 +81,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 									{				
 										canvas.getTempRegion().setName(name);				
 							
-										AppletCommunicationThread.addObject(canvas.getTempRegion());
+										Applet.getComThread().addObject(canvas.getTempRegion());
 									}
 					
 									canvas.setTempRegion(null);
@@ -92,13 +91,13 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 								break;
 
 		case "Lights":		//add light
-							AppletCommunicationThread.addObject(new Light(canvas.getCursorPoint()));	
+							Applet.getComThread().addObject(new Light(canvas.getCursorPoint()));	
 							break;
 
 		case "Sensors":		//add sensor
 							//Specify which region this sensor controls
 							ArrayList<String> possibilities = new ArrayList<String>();
-							for(Region region : AppletController.getCM().getRegions())
+							for(Region region : Applet.getController().getCM().getRegions())
 							{
 								possibilities.add(region.getName());
 							}
@@ -126,7 +125,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 								
 									//Add sensor to the region
 									Region region = null;
-									for(Region temp : AppletController.getCM().getRegions())
+									for(Region temp : Applet.getController().getCM().getRegions())
 									{
 										if(temp.getName().equals(selection))
 										{
@@ -138,7 +137,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 									if(region != null)
 									{
 										Sensor newSensor = new Sensor(canvas.getCursorPoint(), ID);
-										AppletCommunicationThread.addObject(newSensor);
+										Applet.getComThread().addObject(newSensor);
 										region.addSensor(newSensor);
 									}
 								}				
@@ -149,7 +148,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 							{
 								System.out.println("Removing object!");
 								object.unSelect();
-								AppletCommunicationThread.removeObject(object);
+								Applet.getComThread().removeObject(object);
 							}
 							canvas.getSelected().clear();
 							break;
@@ -168,11 +167,11 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 
 	@Override
 	public void mouseMoved(MouseEvent e)
-	{
+	{		
 		canvas.snapMouseToGrid(e);
 		
 		//Check if objects are hovered over
-		switch(AppletController.getCurrentTool())
+		switch(Applet.getController().getCurrentTool())
 		{
 		case "Erase":		selectObjects();
 							break;
@@ -191,9 +190,9 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 		
 		//Order of selecting items is important to only select "top" most item
 	
-		if(AppletController.getCM() != null && AppletController.getCM().getSensors() != null)
+		if(Applet.getController().getCM() != null && Applet.getController().getCM().getSensors() != null)
 		{
-			for(Sensor sensor : AppletController.getCM().getSensors())
+			for(Sensor sensor : Applet.getController().getCM().getSensors())
 			{
 				sensor.unSelect();
 				if(sensor.location.equals(canvas.getCursorPoint()))
@@ -203,9 +202,9 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 			}
 		}
 		
-		if(AppletController.getCM() != null && AppletController.getCM().getLights() != null)
+		if(Applet.getController().getCM() != null && Applet.getController().getCM().getLights() != null)
 		{
-			for(Light light : AppletController.getCM().getLights())
+			for(Light light : Applet.getController().getCM().getLights())
 			{
 				light.unSelect();
 				if(light.location.equals(canvas.getCursorPoint()))
@@ -216,9 +215,9 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 			}
 		}
 
-		if(AppletController.getCM() != null && AppletController.getCM().getWalls() != null)
+		if(Applet.getController().getCM() != null && Applet.getController().getCM().getWalls() != null)
 		{
-			for(Wall wall : AppletController.getCM().getWalls())
+			for(Wall wall : Applet.getController().getCM().getWalls())
 			{
 				wall.unSelect();
 				if(wall.line.intersects(new Rectangle2D.Double(canvas.getCursorPoint().getX()- canvas.gridSize/2, canvas.getCursorPoint().getY()- canvas.gridSize/2, canvas.gridSize, canvas.gridSize)))
@@ -231,9 +230,9 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 			}
 		}
 
-		if(AppletController.getCM() != null && AppletController.getCM().getRegions() != null)
+		if(Applet.getController().getCM() != null && Applet.getController().getCM().getRegions() != null)
 		{
-			for(Region region : AppletController.getCM().getRegions())
+			for(Region region : Applet.getController().getCM().getRegions())
 			{
 				region.unSelect();
 				if(region.getRegion().contains(canvas.getCursorPoint()))

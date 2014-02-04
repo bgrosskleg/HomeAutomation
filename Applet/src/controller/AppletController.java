@@ -1,48 +1,72 @@
 package controller;
 
-import view.Canvas;
-import model.CurrentModel;
+import java.util.Observable;
 
-public class AppletController 
+import javax.swing.JApplet;
+
+import model.CurrentModel;
+import view.Canvas;
+
+public class AppletController extends GenericController
 {	
-	private static CurrentModel CM;
-	private static Canvas canvas;
-	private static String currentTool;
+	private JApplet application;
+	private Canvas canvas;
+	private String currentTool;
 	
 
-	//REFERENCE TO CANVAS****************************************
-	public static void setCanvas(Canvas canvas) 
+	public AppletController(JApplet app, Canvas canvas)
 	{
-		AppletController.canvas = canvas;
+		super();
+		this.application = app;
+		this.canvas = canvas;
 	}
 	
-	public static Canvas getCanvas() 
+	//CURRENT MODEL*********************************************
+	@Override
+	public void setCM(CurrentModel cM) 
+	{
+		//Replace entire model (if necessary)
+		CM = cM;
+
+		//Add this BaseStationController to model's observer list
+		CM.addObserver(this);
+		
+		//Notify observers model has changed
+		CM.currentModelChanged();
+	}
+	
+	@Override
+	public void update(Observable o, Object arg) 
+	{
+		//Repaint canvas
+		canvas.repaint();
+	}
+	
+	//REFERENCE TO CANVAS****************************************	
+	public Canvas getCanvas() 
 	{
 		return canvas;
 	}
 	
-	//CURRENT MODEL**********************************************
-	public static CurrentModel getCM() 
-	{
-		return CM;
-	}
-
-	public static void setCM(CurrentModel cM) 
-	{
-		CM = cM;
-		canvas.repaint();
-	}	
-		
 	
 	//CURRENT TOOL***********************************************
-	public static String getCurrentTool() 
+	public String getCurrentTool() 
 	{
 		return currentTool;
 	}
 
-	public static void setCurrentTool(String currentTool) 
+	public void setCurrentTool(String currentTool) 
 	{
-		AppletController.currentTool = currentTool;
+		this.currentTool = currentTool;
 	}
 
+	
+	//REFERENCE TO APPLICATION***********************************
+	public JApplet getApplication() {
+		return application;
+	}
+
+	public void setApplication(JApplet application) {
+		this.application = application;
+	}
 }
