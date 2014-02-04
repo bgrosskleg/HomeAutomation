@@ -27,10 +27,10 @@ public class Region extends CanvasObject
 	private String name;
 	
 	//List of all sensors tied to the region
-	public ArrayList<Sensor> sensors;
+	private ArrayList<Sensor> sensors;
 	
 	//Lighting value 0-255
-	public int lightingValue;
+	private int lightingValue;
 	
 	
 	/**
@@ -54,7 +54,7 @@ public class Region extends CanvasObject
 		
 		//Region features
 		sensors = new ArrayList<Sensor>();
-		lightingValue = 0;
+		setLightingValue(0);
 	}
 	
 	private static Color randomColor()
@@ -171,5 +171,17 @@ public class Region extends CanvasObject
 			return false;
 		}
 		return false;
+	}
+
+	public int getLightingValue() {
+		return lightingValue;
+	}
+
+	public void setLightingValue(int lightingValue) 
+	{
+		this.lightingValue = lightingValue;
+		
+		//Send command to Pi to update model
+		
 	}	
 }

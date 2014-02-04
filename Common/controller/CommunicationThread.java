@@ -99,6 +99,9 @@ public abstract class CommunicationThread extends Thread
 		        	
 		        	case "REMOVEOBJECT":						controller.getCM().removeCanvasObject(receiveObject());
 		        												break;
+		        												
+		        	case "MODIFYOBJECT":						controller.getCM().modifyCanvasObject(receiveObject());
+																break;
 		        																				
 		        	case "SENDUSERS":							controller.getCM().setUsers(receiveUsers());
 		        												break;
@@ -286,6 +289,58 @@ public abstract class CommunicationThread extends Thread
 			
 			//Notify server on command stream
 			activeStreamOut.println("REMOVEOBJECT");
+			
+			//Analyze command stream response
+			if(activeStreamIn.readLine().equals("OKAY"))
+			{
+				//Reset the stream so next write, writes a new complete object, not a reference to the first one
+				objectStreamOut.reset();
+				
+				//Write object to object stream
+				objectStreamOut.writeObject(object);
+
+				//Analyze command stream response
+				if(activeStreamIn.readLine().equals("OKAY"))
+				{
+					System.out.println("Object sent successfully.");
+				}
+				else if(activeStreamIn.readLine().equals("FAIL"))
+				{
+					System.err.println("Object did not send successfully.");
+				}
+				else
+				{
+					System.err.println("Impossible response!");
+				}
+			}
+		} 
+		catch (Exception e1) 
+		{
+			//Must check if null because closing streams might have been what caused the initial exception
+			if(activeStreamOut != null)
+			{activeStreamOut.println("FAIL");}
+			System.err.println("Failure sending object.");
+			//e1.printStackTrace();
+		}
+	}
+	
+	
+	public void modifyObject(CanvasObject object)
+	{
+		//Ensure streams have been initialized
+		if(activeStreamOut == null || activeStreamIn == null || objectStreamOut == null || !connected)
+		{
+			System.err.println("Active or object stream not initialized, server may be off...");
+			return;
+		}
+		
+		//Send object to be removes
+		try 
+		{
+			System.out.println("Sending object to be modified...");
+			
+			//Notify server on command stream
+			activeStreamOut.println("MODIFYOBJECT");
 			
 			//Analyze command stream response
 			if(activeStreamIn.readLine().equals("OKAY"))

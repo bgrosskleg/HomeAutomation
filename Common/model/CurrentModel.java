@@ -109,6 +109,63 @@ public class CurrentModel extends Observable implements Serializable
 		}
 	}	
 	
+	public void modifyCanvasObject(CanvasObject object) 
+	{
+		//References are broken when transmitted in stream, must compare important features using equals() rather than referring to object	directly	
+		if(object instanceof Wall)
+		{
+			for(Wall wall : walls)
+			{
+				if(wall.equals((Wall)object))
+				{
+					wall = (Wall) object;
+					currentModelChanged();
+					return;
+				}
+			}
+		}
+
+		if(object instanceof Region)
+		{
+			for(Region region : regions)
+			{
+				if(region.equals((Region)object))
+				{
+					System.err.println(((Region) object).getLightingValue());
+					region = (Region) object;
+					currentModelChanged();
+					return;
+				}
+			}
+		}
+
+		if(object instanceof Light)
+		{
+			for(Light light : lights)
+			{
+				if(light.equals((Light)object))
+				{
+					light = (Light) object;
+					currentModelChanged();
+					return;
+				}
+			}
+		}
+
+		if(object instanceof Sensor)
+		{
+			for(Sensor sensor : sensors)
+			{
+				if(sensor.equals((Sensor)object))
+				{
+					sensor = (Sensor) object;
+					currentModelChanged();
+					return;
+				}
+			}
+		}
+	}
+	
 	
 	public void currentModelChanged()
 	{
