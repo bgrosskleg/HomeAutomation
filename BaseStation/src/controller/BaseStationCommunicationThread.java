@@ -38,6 +38,7 @@ public class BaseStationCommunicationThread extends GenericCommunicationThread
 		
 		activeObjectPort = 65000;
 		passiveObjectPort = 65001;
+		
 		activeCommandPort = 65002;
 		passiveCommandPort = 65003;
     }
@@ -84,16 +85,25 @@ public class BaseStationCommunicationThread extends GenericCommunicationThread
 		passiveCommandSocket = passiveCommandServerSocket.accept();
 		System.out.println("passiveCommand connection made!");
 
-		System.err.println("GETS HERE 1");
 
+
+		//Opening streams, CAREFUL, ObjectInputStream() blocks, create output first, flush then create input
+		//http://stackoverflow.com/questions/5658089/java-creating-a-new-objectinputstream-blocks
+		//http://stackoverflow.com/questions/14110986/new-objectinputstream-blocks
+		//http://www.velocityreviews.com/forums/t138056-why-does-objectinputstream-constructor-block-reading-a-header.html
+		//ORDER IS IMPORTANT TO PREVENT DEADLOCK
+		
+		//MUST INITIALIZE ACTIVE-PASSIVE PAIRS TOGETHER TO AVOID DEADLOCK WITH BLOCKING INPUTOUTPUTSTREAM()
+		
 		//Initialize the active object streams
 		activeObjectStreamOut = new ObjectOutputStream(activeObjectSocket.getOutputStream());
-		System.err.println("GETS HERE 2");
+		activeObjectStreamOut.flush();
 		activeObjectStreamIn = new ObjectInputStream(activeObjectSocket.getInputStream());
 		System.out.println("ActiveObjectStream ready!");
-
+		
 		//Initialize the passive object streams
 		passiveObjectStreamOut = new ObjectOutputStream(passiveObjectSocket.getOutputStream());
+		passiveObjectStreamOut.flush();
 		passiveObjectStreamIn = new ObjectInputStream(passiveObjectSocket.getInputStream());
 		System.out.println("PassiveObjectStream ready!");
 
@@ -109,6 +119,9 @@ public class BaseStationCommunicationThread extends GenericCommunicationThread
 
 		connected = true;
 		System.out.println("Initializing sockets complete.");
+		
+		//Send model to clientApplet
+		//sendModel(GenericCommunicationThread.HOUSEOBJECTS, );
 	}
 	
 	//NETWORKING PARAMETERS*******************************************************

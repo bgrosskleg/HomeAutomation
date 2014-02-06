@@ -172,7 +172,7 @@ public class BaseStationController extends GenericController
 		System.out.println("userModelChanged()");
 		
 		//Send update to applet
-		//if(comThread.isConnected())
-		//{comThread.sendUserList();}
+		if(comThread.isConnected())
+		{comThread.sendModel(GenericCommunicationThread.USERS, systemModel);}
 	}
 }

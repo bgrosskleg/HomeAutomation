@@ -15,27 +15,34 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
 	
 	private GenericController controller;
 	
-	protected Socket activeObjectSocket;
-	protected Socket passiveObjectSocket;
-	protected Socket activeCommandSocket;
-	protected Socket passiveCommandSocket;
 	
+	//ActiveObject stream
+	protected Socket activeObjectSocket;
+	protected ObjectOutputStream activeObjectStreamOut;
+    protected ObjectInputStream activeObjectStreamIn;
     protected int activeObjectPort;
+    
+    
+    //PassiveObject stream
+	protected Socket passiveObjectSocket;
+	protected ObjectOutputStream passiveObjectStreamOut;
+    protected ObjectInputStream passiveObjectStreamIn;
     protected int passiveObjectPort;
+	
+    
+    //ActiveCommand stream
+	protected Socket activeCommandSocket;
+	protected PrintWriter activeCommandStreamOut;
+    protected BufferedReader activeCommandStreamIn;
     protected int activeCommandPort;
+    
+    
+    //PassiveCommand stream
+	protected Socket passiveCommandSocket;
+    protected PrintWriter passiveCommandStreamOut;
+    protected BufferedReader passiveCommandStreamIn;
     protected int passiveCommandPort;
     
-    protected ObjectOutputStream activeObjectStreamOut;
-    protected ObjectInputStream activeObjectStreamIn;
-
-    protected PrintWriter activeCommandStreamOut;
-    protected BufferedReader activeCommandStreamIn;
-    
-    protected ObjectOutputStream passiveObjectStreamOut;
-    protected ObjectInputStream passiveObjectStreamIn;
-    
-    protected PrintWriter passiveCommandStreamOut;
-    protected BufferedReader passiveCommandStreamIn;	
     
     protected boolean connected;
     
@@ -64,7 +71,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     				initializeConnection();
     			}
     			while(!connected);
-
+ 
     			//Ensure sockets are initialized
     			if (activeObjectSocket == null || activeCommandSocket == null || passiveObjectSocket == null || passiveCommandSocket == null || !connected)
     			{
@@ -118,7 +125,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     		{				
     			//Socket error, close all streams and sockets
     			closeStreams();
-    			e.printStackTrace();
+    			//e.printStackTrace();
     		}
     	}
 	}	

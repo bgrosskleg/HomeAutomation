@@ -42,6 +42,7 @@ public class AppletCommunicationThread extends GenericCommunicationThread
 
 		activeObjectPort = 65001;
 		passiveObjectPort = 65000;
+		
 		activeCommandPort = 65003;
 		passiveCommandPort = 65002;
     }
@@ -61,14 +62,24 @@ public class AppletCommunicationThread extends GenericCommunicationThread
 		activeCommandSocket = new Socket(InetAddress.getByName(getCodebase().getHost()), activeCommandPort);
 		passiveCommandSocket = new Socket(InetAddress.getByName(getCodebase().getHost()), passiveCommandPort);
 
-		//Initialize the active object streams
-		activeObjectStreamOut = new ObjectOutputStream(activeObjectSocket.getOutputStream());
-		activeObjectStreamIn = new ObjectInputStream(activeObjectSocket.getInputStream());
-
+		
+		//Opening streams, CAREFUL, ObjectInputStream() blocks, create output first, flush then create input
+		//http://stackoverflow.com/questions/5658089/java-creating-a-new-objectinputstream-blocks
+		//http://stackoverflow.com/questions/14110986/new-objectinputstream-blocks
+		//http://www.velocityreviews.com/forums/t138056-why-does-objectinputstream-constructor-block-reading-a-header.html
+		
+		
 		//Initialize the passive object streams
 		passiveObjectStreamOut = new ObjectOutputStream(passiveObjectSocket.getOutputStream());
+		passiveObjectStreamOut.flush();
 		passiveObjectStreamIn = new ObjectInputStream(passiveObjectSocket.getInputStream());
 
+		//Initialize the active object streams
+		activeObjectStreamOut = new ObjectOutputStream(activeObjectSocket.getOutputStream());
+		activeObjectStreamOut.flush();
+		activeObjectStreamIn = new ObjectInputStream(activeObjectSocket.getInputStream());
+
+		
 		//Initialize the active stream writer and reader
 		activeCommandStreamOut = new PrintWriter(activeCommandSocket.getOutputStream(), true);
 		activeCommandStreamIn = new BufferedReader(new InputStreamReader(activeCommandSocket.getInputStream()));
