@@ -29,7 +29,7 @@ public class CanvasToolbar extends JPanel
 		buttons[1] = new JToggleButton("Regions", ClientApplet.getController().loadImageIconFromHost("resources/regionsIcon.png"), false);
 		buttons[2] = new JToggleButton("Lights", ClientApplet.getController().loadImageIconFromHost("resources/lightbulbIcon.png"), false);
 		buttons[3] = new JToggleButton("Sensors", ClientApplet.getController().loadImageIconFromHost("resources/sensorIcon.png"), false);
-		buttons[4] = new JToggleButton("Erase", ClientApplet.getController().loadImageIconFromHost("resources/eraseIcon.png"), false);
+		buttons[4] = new JToggleButton("Erase", ClientApplet.getController().loadImageIconFromHost("resources/eraserIcon.png"), false);
 		
 		//Create button group (so that only one may be selected at once), and assign action
 		ButtonGroup group = new ButtonGroup();

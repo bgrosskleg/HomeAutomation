@@ -62,7 +62,7 @@ public class AppletController extends GenericController
 		//Send model to Pi, if not initial loading
 		if(!isFirstLoad && comThread.isConnected())
 		{
-			comThread.sendModel(GenericCommunicationThread.HOUSEOBJECTS, systemModel);
+			comThread.sendModel(GenericCommunicationThread.HOUSEOBJECTS);
 		}
 		
 		isFirstLoad = false;

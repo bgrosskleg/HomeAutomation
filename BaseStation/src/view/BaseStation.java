@@ -22,10 +22,13 @@ class BaseStation
         
         //Creates a timer to simulate moving user position 
         
-        int delay2 = 2000; //milliseconds
+        int delay2 = 500; //milliseconds
         
-        User user = new User("Brian", "ABCDEDGH12345678", new Point2D.Double(25/2, 25/2), HouseObject.randomColor());
-    	BaseStation.getController().addUser(user);
+        if(controller.getUser("ABCDEDGH12345678") == null)
+        {
+        	User user = new User("Brian", "ABCDEDGH12345678", new Point2D.Double(25/2, 25/2), HouseObject.randomColor());
+        	controller.addUser(user);
+    	}
     	       
         ActionListener taskPerformer2 = new ActionListener() 
         {

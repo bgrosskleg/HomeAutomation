@@ -120,8 +120,8 @@ public class BaseStationCommunicationThread extends GenericCommunicationThread
 		connected = true;
 		System.out.println("Initializing sockets complete.");
 		
-		//Send model to clientApplet
-		//sendModel(GenericCommunicationThread.HOUSEOBJECTS, );
+		//Send model to ClientApplet
+		sendModel(GenericCommunicationThread.HOUSEOBJECTS);
 	}
 	
 	//NETWORKING PARAMETERS*******************************************************

@@ -42,6 +42,26 @@ public class BaseStationController extends GenericController
 		comThread = new BaseStationCommunicationThread(this);
 		comThread.start();
 	}
+	
+	@Override
+	public void houseModelChanged() 
+	{
+		System.out.println("houseModelChanged()");
+		
+		//Save model to file
+		saveModelToFile();
+	}
+
+	@Override
+	public void userModelChanged() 
+	{
+		System.out.println("userModelChanged()");
+		
+		//Send update to applet
+		if(comThread.isConnected())
+		{comThread.sendModel(GenericCommunicationThread.USERS);}
+	}
+	
 		
 	//MODEL FILE HANDLING*********************************************	
 	
@@ -156,23 +176,4 @@ public class BaseStationController extends GenericController
           	return null;
   		}
   	}
-
-	@Override
-	public void houseModelChanged() 
-	{
-		System.out.println("houseModelChanged()");
-		
-		//Save model to file
-		saveModelToFile();
-	}
-
-	@Override
-	public void userModelChanged() 
-	{
-		System.out.println("userModelChanged()");
-		
-		//Send update to applet
-		if(comThread.isConnected())
-		{comThread.sendModel(GenericCommunicationThread.USERS, systemModel);}
-	}
 }

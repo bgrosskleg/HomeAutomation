@@ -134,12 +134,12 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     
   //OBJECT TRANSMISSION*****************************************************************
 
-  	public void sendModel(String type, SystemModel model)
+  	public void sendModel(String type)
   	{		
   		//Send object
   		try 
   		{
-  			System.out.println("Sending house objects...");
+  			System.out.println("Sending model...");
 
   			//Notify on command stream
   			activeCommandStreamOut.println(type);
@@ -151,16 +151,16 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
   				activeObjectStreamOut.reset();
 
   				//Write object to object stream
-  				activeObjectStreamOut.writeObject(model);
+  				activeObjectStreamOut.writeObject(controller.systemModel);
 
   				//Analyze command stream response
   				if(activeCommandStreamIn.readLine().equals("OKAY"))
   				{
-  					System.out.println("House objects sent successfully.");
+  					System.out.println("Model sent successfully.");
   				}
   				else if(activeCommandStreamIn.readLine().equals("FAIL"))
   				{
-  					System.err.println("House objects did not send successfully.");
+  					System.err.println("Model did not send successfully.");
   				}
   				else
   				{
@@ -174,8 +174,8 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
   		} 
   		catch (Exception e) 
   		{
-  			System.err.println("Failure sending house objects.");
-  			e.printStackTrace();
+  			System.err.println("Failure sending model.");
+  			//e.printStackTrace();
   		}
   	}
 
@@ -188,7 +188,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
   			//Notify ready
   			passiveCommandStreamOut.println("OKAY");
 
-  			System.out.println("Recieving user list...");
+  			System.out.println("Recieving model...");
 
   			//Read object off object stream
   			SystemModel received = (SystemModel) passiveObjectStreamIn.readObject();
@@ -196,15 +196,15 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
   			//Notify result
   			passiveCommandStreamOut.println("OKAY");
 
-  			System.out.println("User list recieved successfully.");
+  			System.out.println("Model recieved successfully.");
 
   			return (SystemModel) received;
   		} 
   		catch (Exception e) 
   		{
   			passiveCommandStreamOut.println("FAIL");
-  			System.err.println("Failure receiving user list.");
-  			e.printStackTrace();
+  			System.err.println("Failure receiving model.");
+  			//e.printStackTrace();
   			return null;
   		}
   	} 
