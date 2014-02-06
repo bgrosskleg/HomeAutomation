@@ -6,38 +6,43 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.Socket;
-import java.util.ArrayList;
-
-import model.HouseObject;
-import model.User;
+import model.SystemModel;
 
 
 public abstract class GenericCommunicationThread extends Thread implements Serializable
 {
 	private static final long serialVersionUID = 1L;
-
-	protected GenericController controller;
 	
-	protected Socket objectSocket;
-	protected Socket activeSocket;
-	protected Socket passiveSocket;
+	private GenericController controller;
 	
-    protected int objectPort;
-    protected int activePort;
-    protected int passivePort;
+	protected Socket activeObjectSocket;
+	protected Socket passiveObjectSocket;
+	protected Socket activeCommandSocket;
+	protected Socket passiveCommandSocket;
+	
+    protected int activeObjectPort;
+    protected int passiveObjectPort;
+    protected int activeCommandPort;
+    protected int passiveCommandPort;
     
-    protected ObjectOutputStream objectStreamOut;
-    protected ObjectInputStream objectStreamIn;
+    protected ObjectOutputStream activeObjectStreamOut;
+    protected ObjectInputStream activeObjectStreamIn;
 
-    protected PrintWriter activeStreamOut;
-    protected BufferedReader activeStreamIn;
+    protected PrintWriter activeCommandStreamOut;
+    protected BufferedReader activeCommandStreamIn;
     
-    protected PrintWriter passiveStreamOut;
-    protected BufferedReader passiveStreamIn;	
+    protected ObjectOutputStream passiveObjectStreamOut;
+    protected ObjectInputStream passiveObjectStreamIn;
+    
+    protected PrintWriter passiveCommandStreamOut;
+    protected BufferedReader passiveCommandStreamIn;	
     
     protected boolean connected;
     
-    public GenericCommunicationThread(GenericController cntrl, String name)
+    public final static String HOUSEOBJECTS = "HOUSEOBJECTS";
+    public final static String USERS = "USERS";
+    
+    public GenericCommunicationThread(String name, GenericController cntrl)
     {
     	super(name);
     	controller = cntrl;
@@ -55,20 +60,23 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     		{	   			
     			//Await connection
     			do
-    			{initializeConnection();}
+    			{
+    				initializeConnection();
+    			}
     			while(!connected);
 
     			//Ensure sockets are initialized
-    			if (objectSocket == null || activeSocket == null || passiveSocket == null || !connected)
+    			if (activeObjectSocket == null || activeCommandSocket == null || passiveObjectSocket == null || passiveCommandSocket == null || !connected)
     			{
     				System.err.println("One or more sockets not created, server may be down or off.");
     				throw new Exception();
     			}
 
     			//Ensure streams are initialized
-    			if(objectStreamIn == null || objectStreamOut == null || 
-    					activeStreamIn == null || activeStreamOut == null ||
-    					passiveStreamIn == null || passiveStreamOut == null || !connected)
+    			if(activeObjectStreamOut == null || activeObjectStreamIn == null || 
+    					activeCommandStreamOut == null || activeCommandStreamIn == null ||
+    					passiveObjectStreamOut == null || passiveObjectStreamIn == null ||
+    					passiveCommandStreamOut == null || passiveCommandStreamIn == null || !connected)
     			{
     				System.err.println("One or more streams not initialized, server may be down or off.");
     				throw new Exception();
@@ -80,7 +88,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     				// Receive request on passive stream
     				String recieved = null;
 
-    				recieved = passiveStreamIn.readLine();
+    				recieved = passiveCommandStreamIn.readLine();
 
     				if(recieved == null)
     				{
@@ -89,24 +97,16 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     				}
 
     				System.out.println("Received: |" + recieved + "|");
-
+    				
     				//Process command
     				switch(recieved)
     				{	
-	    				case "UPDATEHOUSEOBJECTS":					ArrayList<HouseObject> temp1 = receiveHouseObjectList();
-												    				if(temp1 != null)
-												    				{
-												    					//Update just the house objects
-												    					controller.getSystemModel().setHouseObjectList(temp1);
-												    				}
+	    				case HOUSEOBJECTS:							//Update just the house objects
+												    				controller.setHouseObjectList(receiveModel().getHouseObjectList());;
 												    				break;
 	
-	    				case "UPDATEUSERS":							ArrayList<User> temp2 = receiveUserList();
-												    				if(temp2 != null)
-												    				{
-												    					//Update just the users
-												    					controller.getSystemModel().setUserList(temp2);
-												    				}
+	    				case USERS:									//Update just the users
+												    				controller.setUserList(receiveModel().getUserList());
 												    				break;
 	
 	    				default:									System.out.println("DEFAULT BEHAVIOUR");
@@ -118,185 +118,91 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     		{				
     			//Socket error, close all streams and sockets
     			closeStreams();
+    			e.printStackTrace();
     		}
     	}
 	}	
     
-    //OBJECT TRANSMISSION*****************************************************************
     
-    public void sendHouseObjectList()
-	{		
-		//Send object
-		try 
-		{
-			System.out.println("Sending house objects...");
-			
-			//Notify on command stream
-			activeStreamOut.println("UPDATEHOUSEOBJECTS");
-			
-			//Analyze command stream response
-			if(activeStreamIn.readLine().equals("OKAY"))
-			{
-				//Reset the stream so next write, writes a new complete object, not a reference to the first one
-				objectStreamOut.reset();
-				
-				//Write object to object stream
-				objectStreamOut.writeObject(controller.getSystemModel().getHouseObjectList());
-
-				//Analyze command stream response
-				if(activeStreamIn.readLine().equals("OKAY"))
-				{
-					System.out.println("House objects sent successfully.");
-				}
-				else if(activeStreamIn.readLine().equals("FAIL"))
-				{
-					System.err.println("House objects did not send successfully.");
-				}
-				else
-				{
-					System.err.println("Impossible response!");
-				}
-			}
-			else
-			{
-				System.err.println("Remote application not ready!");
-			}
-		} 
-		catch (Exception e) 
-		{
-			System.err.println("Failure sending house objects.");
-			e.printStackTrace();
-		}
-	}
     
-    public void sendUserList()
-   	{		
-   		//Send object
-   		try 
-   		{
-   			System.out.println("Sending users...");
-   			
-   			//Notify on command stream
-   			activeStreamOut.println("UPDATEUSERS");
-   			
-   			//Analyze command stream response
-   			if(activeStreamIn.readLine().equals("OKAY"))
-   			{
-   				//Reset the stream so next write, writes a new complete object, not a reference to the first one
-   				objectStreamOut.reset();
-   				
-   				//Write object to object stream
-   				objectStreamOut.writeObject(controller.getSystemModel().getUserList());
+  //OBJECT TRANSMISSION*****************************************************************
 
-   				//Analyze command stream response
-   				if(activeStreamIn.readLine().equals("OKAY"))
-   				{
-   					System.out.println("Users sent successfully.");
-   				}
-   				else if(activeStreamIn.readLine().equals("FAIL"))
-   				{
-   					System.err.println("Users did not send successfully.");
-   				}
-   				else
-   				{
-   					System.err.println("Impossible response!");
-   				}
-   			}
-   			else
-   			{
-   				System.err.println("Remote application not ready!");
-   			}
-   		} 
-   		catch (Exception e) 
-   		{
-   			System.err.println("Failure sending users.");
-   			//e.printStackTrace();
-   		}
-   	}
+  	public void sendModel(String type, SystemModel model)
+  	{		
+  		//Send object
+  		try 
+  		{
+  			System.out.println("Sending house objects...");
+
+  			//Notify on command stream
+  			activeCommandStreamOut.println(type);
+
+  			//Analyze command stream response
+  			if(activeCommandStreamIn.readLine().equals("OKAY"))
+  			{
+  				//Reset the stream so next write, writes a new complete object, not a reference to the first one
+  				activeObjectStreamOut.reset();
+
+  				//Write object to object stream
+  				activeObjectStreamOut.writeObject(model);
+
+  				//Analyze command stream response
+  				if(activeCommandStreamIn.readLine().equals("OKAY"))
+  				{
+  					System.out.println("House objects sent successfully.");
+  				}
+  				else if(activeCommandStreamIn.readLine().equals("FAIL"))
+  				{
+  					System.err.println("House objects did not send successfully.");
+  				}
+  				else
+  				{
+  					System.err.println("Impossible response!");
+  				}
+  			}
+  			else
+  			{
+  				System.err.println("Remote application not ready!");
+  			}
+  		} 
+  		catch (Exception e) 
+  		{
+  			System.err.println("Failure sending house objects.");
+  			e.printStackTrace();
+  		}
+  	}
+
+
+  	public SystemModel receiveModel()
+  	{
+  		//Get objects
+  		try 
+  		{
+  			//Notify ready
+  			passiveCommandStreamOut.println("OKAY");
+
+  			System.out.println("Recieving user list...");
+
+  			//Read object off object stream
+  			SystemModel received = (SystemModel) passiveObjectStreamIn.readObject();
+  			
+  			//Notify result
+  			passiveCommandStreamOut.println("OKAY");
+
+  			System.out.println("User list recieved successfully.");
+
+  			return (SystemModel) received;
+  		} 
+  		catch (Exception e) 
+  		{
+  			passiveCommandStreamOut.println("FAIL");
+  			System.err.println("Failure receiving user list.");
+  			e.printStackTrace();
+  			return null;
+  		}
+  	} 
     
-   
-	@SuppressWarnings("unchecked")
-	public ArrayList<HouseObject> receiveHouseObjectList()
-	{
-		//Get objects
-		try 
-		{
-			//Notify ready
-			passiveStreamOut.println("OKAY");
-
-			System.out.println("Recieving house object list...");
-
-			//Read object off object stream
-			Object received = objectStreamIn.readObject();
-			
-			//Check to ensure it is a model
-			if(received instanceof ArrayList)
-			{
-				//Notify result
-				passiveStreamOut.println("OKAY");
-	
-				System.out.println("House object list recieved successfully.");
-	
-				return (ArrayList<HouseObject>) received;
-			}
-			else
-			{
-				System.err.println("Object not a ArrayList object.");
-				throw new Exception();
-			}
-
-		} 
-		catch (Exception e) 
-		{
-			passiveStreamOut.println("FAIL");
-			System.err.println("Failure receiving house object list.");
-			//e.printStackTrace();
-			return null;
-		}
-	} 
-	
-	
-	@SuppressWarnings("unchecked")
-	public ArrayList<User> receiveUserList()
-	{
-		//Get objects
-		try 
-		{
-			//Notify ready
-			passiveStreamOut.println("OKAY");
-
-			System.out.println("Recieving user list...");
-
-			//Read object off object stream
-			Object received = objectStreamIn.readObject();
-			
-			//Check to ensure it is a model
-			if(received instanceof ArrayList)
-			{
-				//Notify result
-				passiveStreamOut.println("OKAY");
-	
-				System.out.println("User list recieved successfully.");
-	
-				return (ArrayList<User>) received;
-			}
-			else
-			{
-				System.err.println("Object not a ArrayList object.");
-				throw new Exception();
-			}
-
-		} 
-		catch (Exception e) 
-		{
-			passiveStreamOut.println("FAIL");
-			System.err.println("Failure receiving user list.");
-			e.printStackTrace();
-			return null;
-		}
-	} 
-		
-	
+ 	
 	
 	//CLOSE STREAMS************************************************************************************
 	
@@ -308,149 +214,197 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
 
 		//CLOSE STREAMS********************************************
 		
-		//Close object streams
+		//Close active object streams
 		try 
 		{
-			if(objectStreamIn != null)
+			if(activeObjectStreamIn != null)
 			{
-				System.out.println("Closing objectStreamIn...");
-				objectStreamIn.close();
-				objectStreamIn = null;
+				System.out.println("Closing activeObjectStreamIn...");
+				activeObjectStreamIn.close();
+				activeObjectStreamIn = null;
 			}
 		}
 		
 		catch(Exception e)
 		{
-			System.err.println("Failure closing objectStreamIn (object input stream).");
+			System.err.println("Failure closing activeObjectStreamIn (object input stream).");
 			//e.printStackTrace();
 		}
 		
 		try
 		{
-			if(objectStreamOut != null)
+			if(activeObjectStreamOut != null)
 			{
-				System.out.println("Closing objectStreamOut...");
-				objectStreamOut.close();
-				objectStreamOut = null;
+				System.out.println("Closing activeObjectStreamOut...");
+				activeObjectStreamOut.close();
+				activeObjectStreamOut = null;
 			}
 		}
 		catch(Exception e)
 		{
-			System.err.println("Failure closing objectStreamOut (object output stream).");
+			System.err.println("Failure closing activeObjectStreamOut (object output stream).");
+			//e.printStackTrace();
+		}
+		
+		//Close passive object streams
+		try 
+		{
+			if(passiveObjectStreamIn != null)
+			{
+				System.out.println("Closing passiveObjectStreamIn...");
+				passiveObjectStreamIn.close();
+				passiveObjectStreamIn = null;
+			}
+		}
+		
+		catch(Exception e)
+		{
+			System.err.println("Failure closing passiveObjectStreamIn (object input stream).");
+			//e.printStackTrace();
+		}
+		
+		try
+		{
+			if(passiveObjectStreamOut != null)
+			{
+				System.out.println("Closing passiveObjectStreamOut...");
+				passiveObjectStreamOut.close();
+				passiveObjectStreamOut = null;
+			}
+		}
+		catch(Exception e)
+		{
+			System.err.println("Failure closing passiveObjectStreamOut (object output stream).");
 			//e.printStackTrace();
 		}
 		
 		
-		//Close active streams
+		//Close active command streams
 		try
 		{
-			if(activeStreamIn != null)
+			if(activeCommandStreamIn != null)
 			{
-				System.out.println("Closing activeStreamIn...");
-				activeStreamIn.close();
-				activeStreamIn = null;
+				System.out.println("Closing activeCommandStreamIn...");
+				activeCommandStreamIn.close();
+				activeCommandStreamIn = null;
 			}
 		}
 		catch(Exception e)
 		{
-			System.err.println("Failure closing activeStreamIn (buffered reader).");
+			System.err.println("Failure closing activeCommandStreamIn (buffered reader).");
 			//e.printStackTrace();
 		}
 		
 		try
 		{
-			if(activeStreamOut != null)
+			if(activeCommandStreamOut != null)
 			{
-				System.out.println("Closing activeStreamOut...");
-				activeStreamOut.close();
-				activeStreamOut = null;
+				System.out.println("Closing activeCommandStreamOut...");
+				activeCommandStreamOut.close();
+				activeCommandStreamOut = null;
 			}
 		}
 		catch(Exception e)
 		{
-			System.err.println("Failure closing activeStreamOut (print writer).");
+			System.err.println("Failure closing activeCommandStreamOut (print writer).");
 			//e.printStackTrace();
 		}
 			
 		
-		//Close passive streams
+		//Close passive streams command
 		try
 		{
-			if(passiveStreamIn != null)
+			if(passiveCommandStreamIn != null)
 			{
-				System.out.println("Closing passiveStreamIn...");
-				passiveStreamIn.close();
-				passiveStreamIn = null;
+				System.out.println("Closing passiveCommandStreamIn...");
+				passiveCommandStreamIn.close();
+				passiveCommandStreamIn = null;
 			}
 		}
 		catch(Exception e)
 		{
-			System.err.println("Failure closing passiveStreamIn (buffered reader).");
+			System.err.println("Failure closing passiveCommandStreamIn (buffered reader).");
 			//e.printStackTrace();
 		}
 		
 		try
 		{
-			if(passiveStreamOut != null)
+			if(passiveCommandStreamOut != null)
 			{
-				System.out.println("Closing passiveStreamOut...");
-				passiveStreamOut.close();
-				passiveStreamOut = null;
+				System.out.println("Closing passiveCommandStreamOut...");
+				passiveCommandStreamOut.close();
+				passiveCommandStreamOut = null;
 			}
 		}
 		catch(Exception e)
 		{
-			System.err.println("Failure closing passiveStreamOut (print writer).");
+			System.err.println("Failure closing passiveCommandStreamOut (print writer).");
 			//e.printStackTrace();
 		}
 		
 		
 		//CLOSE SOCKETS****************************************
-		//Close object socket
+		//Close active object socket
 		try
 		{
-			if(objectSocket != null)
+			if(activeObjectSocket != null)
 			{
-				System.out.println("Closing objectSocket...");
-				objectSocket.close();
-				objectSocket = null;
+				System.out.println("Closing activeObjectSocket...");
+				activeObjectSocket.close();
+				activeObjectSocket = null;
 			}
 		} 
 		catch (Exception e) 
 		{
-			System.err.println("Failure closing objectSocket.");
+			System.err.println("Failure closing activeObjectSocket.");
 			//e.printStackTrace();
 		}
 		
-		//Close active socket
+		//Close passive object socket
 		try
 		{
-			if(activeSocket != null)
+			if(passiveObjectSocket != null)
 			{
-				System.out.println("Closing activeSocket...");
-				activeSocket.close();
-				activeSocket = null;
+				System.out.println("Closing passiveObjectSocket...");
+				passiveObjectSocket.close();
+				passiveObjectSocket = null;
+			}
+		} 
+		catch (Exception e) 
+		{
+			System.err.println("Failure closing passiveObjectSocket.");
+			//e.printStackTrace();
+		}
+
+		//Close active command socket
+		try
+		{
+			if(activeCommandSocket != null)
+			{
+				System.out.println("Closing activeCommandSocket...");
+				activeCommandSocket.close();
+				activeCommandSocket = null;
 			}
 		}
 		catch (Exception e) 
 		{
-			System.err.println("Failure closing activeSocket.");
+			System.err.println("Failure closing activeCommandSocket.");
 			//e.printStackTrace();
 		}
 		
-		//Close passive socket
+		//Close passive command socket
 		try
 		{
-			if(passiveSocket != null)
+			if(passiveCommandSocket != null)
 			{
-				System.out.println("Closing passiveSocket...");
-				passiveSocket.close();
-				passiveSocket = null;
+				System.out.println("Closing passiveCommandSocket...");
+				passiveCommandSocket.close();
+				passiveCommandSocket = null;
 			}
 		}
 		catch (Exception e) 
 		{
-			System.err.println("Failure closing passiveSocket.");
+			System.err.println("Failure closing passiveCommandSocket.");
 			//e.printStackTrace();
 		}
 				
@@ -464,73 +418,4 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     public boolean isConnected() {
     	return connected;
     }
-	
-	
-  	//PORT NUMBERS**************************************************
-    
-    //Object port number
-	public int getObjectPort() {
-		return objectPort;
-	}
-	
-	//Active port number
-	public int getActivePort() {
-		return activePort;
-	}
-		
-	//Passive port number
-	public int getPassivePort() {
-		return passivePort;
-	}
-    	
-  	
-  	//SOCKETS*****************************************************
-  	
-  	//Object socket
-  	public Socket getObjectSocket() {
-  		return objectSocket;
-  	}  	
-  	
-  	//Active socket
-  	public Socket getActiveSocket() {
-  		return activeSocket;
-  	}
-  	
-  	//Passive socket
-  	public Socket getPassiveSocket() {
-  		return passiveSocket;
-  	}
-  	
-  	
-  	//TCP STREAMS*************************************************
-  	
-  	//Object stream to client
-  	public ObjectOutputStream getObjectStreamOut() {
-  		return objectStreamOut;
-  	}
-
-  	//Object stream from client
-  	public ObjectInputStream getObjectStreamIn() {
-  		return objectStreamIn;
-  	}
-  	
-  	//Active stream out
-  	public PrintWriter getActiveStreamOut() {
-  		return activeStreamOut;
-  	}
-
-  	//Active stream in
-  	public BufferedReader getActiveStreamIn() {
-  		return activeStreamIn;
-  	}
-  	
-  	//Passive stream out
-  	public PrintWriter getPassiveStreamOut() {
-  		return passiveStreamOut;
-  	}
-
-  	//Passive steam in
-  	public BufferedReader getPassiveStreamIn() {
-  		return passiveStreamIn;
-  	}
 }

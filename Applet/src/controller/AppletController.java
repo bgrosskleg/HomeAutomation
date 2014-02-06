@@ -1,32 +1,33 @@
 package controller;
 
-import javax.swing.JApplet;
-
+import javax.swing.ImageIcon;
 import view.Canvas;
+import view.ClientApplet;
 
 public class AppletController extends GenericController
-{	
-	private static final long serialVersionUID = 1L;
+{		
+	private ClientApplet application;
 	
-	private JApplet application;
 	private Canvas canvas;
+	
 	private String currentTool;
 	
 	private boolean isFirstLoad;
 	
 	//CONSTRUCTOR***********************************************
-	public AppletController(JApplet app, Canvas canvas)
+	public AppletController(ClientApplet applet, Canvas canvas)
 	{
 		super();
 		
-		this.application = app;
+		this.application = applet;
+		
 		this.canvas = canvas;
 		
 		isFirstLoad = true;
 		
 		//Add this controller as subscriber
-		systemModel.addHouseModelSubscriber(this);
-		systemModel.addUserModelSubscriber(this);
+		addHouseModelSubscriber(this);
+		addUserModelSubscriber(this);
 
 		//Create communication thread
 		comThread = new AppletCommunicationThread(this);
@@ -34,17 +35,11 @@ public class AppletController extends GenericController
 	}
 	
 	//MUTATORS AND ACCESSORS*************************************
-	
-	public JApplet getApplication() 
+	public ClientApplet getClientApplet()
 	{
 		return application;
-	}	
-	
-	public Canvas getCanvas() 
-	{
-		return canvas;
 	}
-
+	
 	public String getCurrentTool() 
 	{
 		return currentTool;
@@ -67,7 +62,7 @@ public class AppletController extends GenericController
 		//Send model to Pi, if not initial loading
 		if(!isFirstLoad && comThread.isConnected())
 		{
-			getComThread().sendHouseObjectList();
+			comThread.sendModel(GenericCommunicationThread.HOUSEOBJECTS, systemModel);
 		}
 		
 		isFirstLoad = false;
@@ -78,5 +73,11 @@ public class AppletController extends GenericController
 	{
 		System.out.println("usersModelChanged()");
 		canvas.repaint();
+	}
+	
+	
+	public ImageIcon loadImageIconFromHost(String filepath)
+	{
+		return new ImageIcon(application.getImage(((AppletCommunicationThread)comThread).getCodebase(), filepath));
 	}
 }

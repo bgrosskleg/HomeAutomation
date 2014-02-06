@@ -8,7 +8,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
-import view.Applet;
+import view.ClientApplet;
 import view.Canvas;
 import model.HouseObject;
 import model.Light;
@@ -32,7 +32,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 		if(SwingUtilities.isLeftMouseButton(e))
 		{
 			//Add new objects
-			switch (Applet.getController().getCurrentTool())
+			switch (ClientApplet.getController().getCurrentTool())
 			{
 			case "Walls":			if(!canvas.isCurrentlyBuildingWall())
 									{
@@ -44,7 +44,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 										if(!canvas.getTempWall().getStartPoint().equals(canvas.getTempWall().getEndPoint()))
 										{
 											canvas.getTempWall().finalize();
-											Applet.getController().getSystemModel().addHouseObject(canvas.getTempWall().clone());
+											ClientApplet.getController().addHouseObject(canvas.getTempWall().clone());
 										}
 										
 										canvas.setTempWall(null);
@@ -73,7 +73,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 										{				
 											canvas.getTempRegion().setName(name);				
 								
-											Applet.getController().getSystemModel().addHouseObject(canvas.getTempRegion().clone());
+											ClientApplet.getController().addHouseObject(canvas.getTempRegion().clone());
 										}
 						
 										canvas.setTempRegion(null);
@@ -83,7 +83,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 									break;
 	
 			case "Lights":		//add light
-								Applet.getController().getSystemModel().addHouseObject(new Light((Point2D.Double)canvas.getCursorPoint().clone()));
+								ClientApplet.getController().addHouseObject(new Light((Point2D.Double)canvas.getCursorPoint().clone()));
 								break;
 	
 			case "Sensors":		//add sensor
@@ -92,7 +92,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 								{									
 									//Specify which region this sensor controls
 									ArrayList<String> possibilities = new ArrayList<String>();
-									for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
+									for(HouseObject object : ClientApplet.getController().getHouseObjectList())
 									{
 										if(object instanceof Region)
 										{
@@ -118,13 +118,13 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 									
 										
 										//Add sensor to the region
-										for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
+										for(HouseObject object : ClientApplet.getController().getHouseObjectList())
 										{
 											if(object instanceof Region && ((Region) object).getName().equals(selection))
 											{
 												Sensor newSensor = new Sensor(MACAddress, (Point2D.Double)canvas.getCursorPoint().clone());
 												((Region)object).addSensor(newSensor);
-												Applet.getController().getSystemModel().addHouseObject(newSensor);
+												ClientApplet.getController().addHouseObject(newSensor);
 											}
 										}
 									}
@@ -133,7 +133,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 				
 			case "Erase":		for(HouseObject object : canvas.getSelected())
 								{
-									Applet.getController().getSystemModel().removeHouseObject(object);
+									ClientApplet.getController().removeHouseObject(object);
 								}
 								break;
 				

@@ -10,7 +10,6 @@ import model.SystemModel;
 
 public class BaseStationController extends GenericController
 {		
-	private static final long serialVersionUID = 1L;
 	
 	private String modelPath;
 	
@@ -35,8 +34,8 @@ public class BaseStationController extends GenericController
 		
 		
 		//Add this controller as subscriber
-		systemModel.addHouseModelSubscriber(this);
-		systemModel.addUserModelSubscriber(this);
+		addHouseModelSubscriber(this);
+		addUserModelSubscriber(this);
 		
 		
 		//Create communication thread
@@ -58,15 +57,13 @@ public class BaseStationController extends GenericController
       		fos = new FileOutputStream(modelPath);
       		oos = new ObjectOutputStream(fos);
       		
-      		//Store model without any subscriber references
-      		SystemModel temp = getSystemModel();
-      		temp.removeAllSubscribers();
-      		oos.writeObject(temp);
+      		oos.writeObject(systemModel);
       		
       		oos.close();
       		oos = null;
       		fos.close();
       		fos = null;
+      		
       		System.out.println("Model saved to file!");
       	} 
       	catch(FileNotFoundException e)
@@ -115,18 +112,16 @@ public class BaseStationController extends GenericController
         {
           	fis = new FileInputStream(modelPath);
             ois = new ObjectInputStream (fis);
+            
             SystemModel read = (SystemModel) ois.readObject();
+            
   			ois.close();
   			ois = null;
   			fis.close();
   			fis = null;
+  			
   			System.out.println("Model loaded from file!");
-  			
-  			//Add this controller to subscriberList
-  			read.removeAllSubscribers();
-  			read.addHouseModelSubscriber(this);
-  			read.addUserModelSubscriber(this);
-  			
+   			
   			return read;
   		} 
         catch(FileNotFoundException e)
@@ -177,7 +172,7 @@ public class BaseStationController extends GenericController
 		System.out.println("userModelChanged()");
 		
 		//Send update to applet
-		if(comThread.isConnected())
-		{comThread.sendUserList();}
+		//if(comThread.isConnected())
+		//{comThread.sendUserList();}
 	}
 }

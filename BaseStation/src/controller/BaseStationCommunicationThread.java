@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,103 +12,126 @@ public class BaseStationCommunicationThread extends GenericCommunicationThread
 {    
 	private static final long serialVersionUID = 1L;
 	
-	private static ServerSocket objectServerSocket;
-	private static ServerSocket activeServerSocket;
-	private static ServerSocket passiveServerSocket;
+	private static ServerSocket activeObjectServerSocket;
+	private static ServerSocket passiveObjectServerSocket;
+	private static ServerSocket activeCommandServerSocket;
+	private static ServerSocket passiveCommandServerSocket;
     	
 	public BaseStationCommunicationThread(BaseStationController cntrl)
     {
-		super(cntrl, "ServerCommunicationThread");
+		super("BaseStationCommunicationThread", cntrl);
 			
 		//Set right port numbers
 		//Server
-		//objectPort = 65000
-		//activePort = 65001
-		//passivePort = 65002
+		//activeObjectPort = 65000
+		//passiveObjectPort 65001
+		//activePort = 65002
+		//passivePort = 65003
 
 		//Applet
-		//objectPort = 65000
-		//activePort = 65002
-		//passivePort = 65001
+		//activeObjectPort = 65001
+		//passiveObjectPort = 65000
+		//activeCommandPort = 65003
+		//passiveCommandPort = 65002
 		
 		//Active stream of one must be paired to the passive stream of the other to avoid readLine() collisions
 		
-		objectPort = 65000;
-		activePort = 65001;
-		passivePort = 65002;
+		activeObjectPort = 65000;
+		passiveObjectPort = 65001;
+		activeCommandPort = 65002;
+		passiveCommandPort = 65003;
     }
 	
-	public void initializeConnection()
+	public void initializeConnection() throws IOException
 	{ 
-		try 
-		{
-			connected = false;
-			
-			if(objectServerSocket == null)
-			{objectServerSocket = new ServerSocket(objectPort);}
-			if(activeServerSocket == null)
-			{activeServerSocket = new ServerSocket(activePort);}		
-			if(passiveServerSocket == null)
-			{passiveServerSocket = new ServerSocket(passivePort);}
+		connected = false;
 
-			System.out.println("Server object stream listening on port: " + objectPort);
-			System.out.println("Server active stream listening on port: " + activePort);
-			System.out.println("Server passive stream listening on port: " + passivePort);
+		//Create serverSockets
+		if(activeObjectServerSocket == null)
+		{activeObjectServerSocket = new ServerSocket(activeObjectPort);}
 
-			//Wait for applet connection
-			System.out.println("Initializing socket...");
-			System.out.println("Waiting for request from applet...");   	
+		if(passiveObjectServerSocket == null)
+		{passiveObjectServerSocket = new ServerSocket(passiveObjectPort);}	
 
-			//.accept() sits and waits for connection request on serverSocket then returns 
-			//the requesting socket to establish connection
-			objectSocket = objectServerSocket.accept();
-			activeSocket = activeServerSocket.accept();
-			passiveSocket = passiveServerSocket.accept();
+		if(activeCommandServerSocket == null)
+		{activeCommandServerSocket = new ServerSocket(activeCommandPort);}
 
-			//Initialize the object streams
-			objectStreamOut = new ObjectOutputStream(objectSocket.getOutputStream());
-			objectStreamIn = new ObjectInputStream(objectSocket.getInputStream());
+		if(passiveCommandServerSocket == null)
+		{passiveCommandServerSocket = new ServerSocket(passiveCommandPort);}
 
-			//Initialize the active stream writer and reader
-			activeStreamOut = new PrintWriter(activeSocket.getOutputStream(), true);
-			activeStreamIn = new BufferedReader(new InputStreamReader(activeSocket.getInputStream()));
-
-			//Initialize the passive stream writer and reader
-			passiveStreamOut = new PrintWriter(passiveSocket.getOutputStream(), true);
-			passiveStreamIn = new BufferedReader(new InputStreamReader(passiveSocket.getInputStream()));
+		System.out.println("Server active object stream listening on port: " + activeObjectPort);
+		System.out.println("Server passive object stream listening on port: " + passiveObjectPort);
+		System.out.println("Server active command stream listening on port: " + activeCommandPort);
+		System.out.println("Server passive command stream listening on port: " + passiveCommandPort);
 
 
-			connected = true;
-			System.out.println("Initializing sockets complete.");
-			
-			//Send model to applet on startup
-			sendHouseObjectList();
-			sendUserList();
-		} 
-		catch (Exception e) 
-		{
-			System.err.println("Failure initializing TCP socket and streams!");
-			closeStreams();
-			//e.printStackTrace();
-		}
+
+		//Wait for applet connection
+		System.out.println("Initializing socket...");
+		System.out.println("Waiting for request from applet...");   	
+
+		//.accept() sits and waits for connection request on serverSocket then returns 
+		//the requesting socket to establish connection
+		activeObjectSocket = activeObjectServerSocket.accept();
+		System.out.println("ActiveObject connection made!");
+
+		passiveObjectSocket = passiveObjectServerSocket.accept();
+		System.out.println("passiveObject connection made!");
+
+		activeCommandSocket = activeCommandServerSocket.accept();
+		System.out.println("activeCommand connection made!");
+
+		passiveCommandSocket = passiveCommandServerSocket.accept();
+		System.out.println("passiveCommand connection made!");
+
+		System.err.println("GETS HERE 1");
+
+		//Initialize the active object streams
+		activeObjectStreamOut = new ObjectOutputStream(activeObjectSocket.getOutputStream());
+		System.err.println("GETS HERE 2");
+		activeObjectStreamIn = new ObjectInputStream(activeObjectSocket.getInputStream());
+		System.out.println("ActiveObjectStream ready!");
+
+		//Initialize the passive object streams
+		passiveObjectStreamOut = new ObjectOutputStream(passiveObjectSocket.getOutputStream());
+		passiveObjectStreamIn = new ObjectInputStream(passiveObjectSocket.getInputStream());
+		System.out.println("PassiveObjectStream ready!");
+
+		//Initialize the active stream writer and reader
+		activeCommandStreamOut = new PrintWriter(activeCommandSocket.getOutputStream(), true);
+		activeCommandStreamIn = new BufferedReader(new InputStreamReader(activeCommandSocket.getInputStream()));
+		System.out.println("ActiveCommandStream ready!");
+
+		//Initialize the passive stream writer and reader
+		passiveCommandStreamOut = new PrintWriter(passiveCommandSocket.getOutputStream(), true);
+		passiveCommandStreamIn = new BufferedReader(new InputStreamReader(passiveCommandSocket.getInputStream()));
+		System.out.println("PassiveCommandStream ready!");
+
+		connected = true;
+		System.out.println("Initializing sockets complete.");
 	}
 	
 	//NETWORKING PARAMETERS*******************************************************
   	
 	//SERVER SOCKETS************************************************
   	
-  	//Object serverSocket
-  	public static ServerSocket getObjectServerSocket() {
-  	  	return objectServerSocket;
+  	//Active object serverSocket
+  	public static ServerSocket getActiveObjectServerSocket() {
+  	  	return activeObjectServerSocket;
+  	}
+  	
+  	//Passive object serverSocket
+  	public static ServerSocket getPassiveObjectServerSocket() {
+  	  	return passiveObjectServerSocket;
   	}
   	
   	//Active serverSocket
-  	public static ServerSocket getActiveServerSocket() {
-  		return activeServerSocket;
+  	public static ServerSocket getActiveCommandServerSocket() {
+  		return activeCommandServerSocket;
   	}
   	
   	//Passive serverSocket
-  	public static ServerSocket getPassiveServerSocket() {
-  		return passiveServerSocket;
+  	public static ServerSocket getPassiveCommandServerSocket() {
+  		return passiveCommandServerSocket;
   	}
 }

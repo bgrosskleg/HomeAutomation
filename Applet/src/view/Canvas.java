@@ -78,7 +78,7 @@ public class Canvas extends JPanel
 		selected.clear();
 						
 		//Select objects based on cursor position and paint to screen
-		for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
+		for(HouseObject object : ClientApplet.getController().getHouseObjectList())
 		{
 				if(object instanceof Region)
 				{
@@ -96,7 +96,7 @@ public class Canvas extends JPanel
 				}
 		}
 		
-		for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
+		for(HouseObject object : ClientApplet.getController().getHouseObjectList())
 		{
 				if(object instanceof Wall)
 				{
@@ -114,7 +114,7 @@ public class Canvas extends JPanel
 				}
 		}
 		
-		for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
+		for(HouseObject object : ClientApplet.getController().getHouseObjectList())
 		{
 				if(object instanceof Light)
 				{
@@ -131,7 +131,7 @@ public class Canvas extends JPanel
 				}
 		}
 		
-		for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
+		for(HouseObject object : ClientApplet.getController().getHouseObjectList())
 		{
 				if(object instanceof Sensor)
 				{
@@ -165,7 +165,7 @@ public class Canvas extends JPanel
 			
 			
 		//Paint users
-		for(User user : Applet.getController().getSystemModel().getUserList())
+		for(User user : ClientApplet.getController().getUserList())
 		{
 			g2.setColor(user.getUnselectedColor());
 			user.paintComponent(g2);

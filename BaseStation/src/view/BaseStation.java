@@ -10,13 +10,6 @@ import controller.BaseStationController;
 import model.HouseObject;
 import model.User;
 
-
-/* 
- * Java(TM) SE 6
- * Code is the same as 1.0.
- */
-
-
 class BaseStation 
 {	
 	private static BaseStationController controller;
@@ -32,13 +25,13 @@ class BaseStation
         int delay2 = 2000; //milliseconds
         
         User user = new User("Brian", "ABCDEDGH12345678", new Point2D.Double(25/2, 25/2), HouseObject.randomColor());
-    	BaseStation.getController().getSystemModel().addUser(user);
+    	BaseStation.getController().addUser(user);
     	       
         ActionListener taskPerformer2 = new ActionListener() 
         {
         	boolean moveRight = true;
         	int stepSize = 25;
-        	User temp = BaseStation.getController().getSystemModel().getUser("ABCDEDGH12345678");
+        	User temp = BaseStation.getController().getUser("ABCDEDGH12345678");
         	
         	@Override
         	public void actionPerformed(ActionEvent e) 
@@ -68,7 +61,7 @@ class BaseStation
 	        		}	
         		}
         		
-        		controller.getSystemModel().notifyUserModelSubscribers();
+        		controller.notifyUserModelSubscribers();
         	}	
         };
         
