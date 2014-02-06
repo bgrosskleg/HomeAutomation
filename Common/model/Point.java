@@ -7,7 +7,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 
-public class Point extends CanvasObject implements Serializable
+public class Point extends HouseObject implements Serializable
 {
 	//Static variables will be same for all wall objects
 	private static final long serialVersionUID = 1;
@@ -41,12 +41,19 @@ public class Point extends CanvasObject implements Serializable
 
 
 	@Override
-	public boolean equals(CanvasObject object) 
+	public boolean equals(HouseObject object) 
 	{
 		if(location.equals(((Point) object).location))
 		{
 			return true;
 		}
 		return false;
+	}
+
+
+	@Override
+	public HouseObject clone() 
+	{
+		return new Point((Point2D.Double)location.clone());
 	}
 }

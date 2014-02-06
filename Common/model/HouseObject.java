@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.io.Serializable;
 
-public abstract class CanvasObject  implements Serializable
+public abstract class HouseObject implements Serializable
 {
 	private static final long serialVersionUID = 1;
 	
@@ -19,7 +19,7 @@ public abstract class CanvasObject  implements Serializable
 	protected Color unselectedColor;
 	protected Color selectedColor;
 	
-	public CanvasObject(Color unselected, Color selected)
+	public HouseObject(Color unselected, Color selected)
 	{			
 		unselectedColor = unselected;
 		selectedColor = selected;
@@ -35,6 +35,9 @@ public abstract class CanvasObject  implements Serializable
 		return selectedColor;
 	}
 	
-	public abstract boolean equals(CanvasObject object);
+	public abstract boolean equals(HouseObject object);
+	
+	public abstract HouseObject clone();
+	
 	public abstract void paintComponent(Graphics g);
 }

@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
-public class User extends CanvasObject
+public class User extends HouseObject
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -17,15 +17,15 @@ public class User extends CanvasObject
 	//Member variables will be unique for each object
 	private Point2D.Double location;	
 	private String name;
-	private String identification;
+	private String MACAddress;
 	
 	
-	User(String name, String ID, Point2D.Double p)
+	public User(String name, String ID, Point2D.Double p)
 	{
 		super(Color.BLUE, Color.BLUE);
 		this.name = name;
 		this.location = p;
-		this.identification = ID;
+		this.MACAddress = ID;
 	}
 	
 	public void setLocation(Point2D.Double p)
@@ -51,20 +51,20 @@ public class User extends CanvasObject
 		return "User: " +  name;
 	}
 
-	public String getIdentification() {
-		return identification;
+	public String getMACAddress() {
+		return MACAddress;
 	}
 
-	public void setIdentification(String identification) {
-		this.identification = identification;
+	public void setMacAddress(String MAC) {
+		MACAddress = MAC;
 	}
 
 	@Override
-	public boolean equals(CanvasObject object)
+	public boolean equals(HouseObject object)
 	{
 		if(object instanceof User)
 		{
-			if(location.equals(((User) object).location) && identification.equals(((User) object).identification)
+			if(location.equals(((User) object).location) && MACAddress.equals(((User) object).MACAddress)
 				&& name.equals(((User) object).name))
 			{
 				return true;
@@ -72,6 +72,12 @@ public class User extends CanvasObject
 			return false;
 		}
 		return false;
+	}
+
+	@Override
+	public HouseObject clone() 
+	{	
+		return new User(name, MACAddress, (Point2D.Double)location.clone());
 	}
 
 }

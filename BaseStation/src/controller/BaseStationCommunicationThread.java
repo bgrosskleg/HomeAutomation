@@ -7,13 +7,15 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 
-public class BaseStationCommunicationThread extends CommunicationThread
+public class BaseStationCommunicationThread extends GenericCommunicationThread
 {    
-    private static ServerSocket objectServerSocket;
+	private static final long serialVersionUID = 1L;
+	
+	private static ServerSocket objectServerSocket;
 	private static ServerSocket activeServerSocket;
 	private static ServerSocket passiveServerSocket;
     	
-	public BaseStationCommunicationThread(BaseStationController cntrl) throws Exception 
+	public BaseStationCommunicationThread(BaseStationController cntrl)
     {
 		super(cntrl, "ServerCommunicationThread");
 			
@@ -79,7 +81,8 @@ public class BaseStationCommunicationThread extends CommunicationThread
 			System.out.println("Initializing sockets complete.");
 			
 			//Send model to applet on startup
-			Firmware.getComThread().sendModel();
+			sendHouseObjectList();
+			sendUserList();
 		} 
 		catch (Exception e) 
 		{

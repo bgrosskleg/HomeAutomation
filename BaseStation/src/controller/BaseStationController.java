@@ -5,12 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Observable;
 
-import model.CurrentModel;
+import model.SystemModel;
 
 public class BaseStationController extends GenericController
 {		
+	private static final long serialVersionUID = 1L;
+	
 	private String modelPath;
 	
 	public BaseStationController()
@@ -24,42 +25,25 @@ public class BaseStationController extends GenericController
 		//modelPath = "/var/www/model.ser";
 		
 		//Load model from file, create new one if failed
-		CurrentModel temp = readModelFromFile();
+		SystemModel temp = readModelFromFile();
 		if(temp == null)
 		{
 			System.err.println("Creating new model.");
-			temp = new CurrentModel();
+			temp = new SystemModel();
 		}
-		setCM(temp);
-	}
-	
-	//CURRENT MODEL*************************************************
-	
-	@Override
-	public void update(Observable o, Object arg) 
-	{
-		//Save model state to file
-		saveModelToFile();
-				
-		//Send entire model or just users depending on what was changed	
-		if(Firmware.getComThread() != null && Firmware.getComThread().isConnected())
-		{
-			if(((String) arg).equals("model"))
-			{
-				Firmware.getComThread().sendModel();
-			}
-			else if(((String) arg).equals("users"))
-			{
-				Firmware.getComThread().sendUsers();
-			}
-			else
-			{
-				System.err.println("Impossible parameter: " + arg.toString());
-			}
-		}		
+		systemModel = temp;
+		
+		
+		//Add this controller as subscriber
+		systemModel.addHouseModelSubscriber(this);
+		systemModel.addUsersModelSubscriber(this);
+		
+		
+		//Create communication thread
+		comThread = new BaseStationCommunicationThread(this);
+		comThread.start();
 	}
 		
-	
 	//MODEL FILE HANDLING*********************************************	
 	
   	//Save model
@@ -73,7 +57,7 @@ public class BaseStationController extends GenericController
       	{
       		fos = new FileOutputStream(modelPath);
       		oos = new ObjectOutputStream(fos);
-      		oos.writeObject(getCM());
+      		oos.writeObject(getSystemModel());
       		oos.close();
       		fos.close();
       		System.out.println("Model saved to file!");
@@ -109,7 +93,7 @@ public class BaseStationController extends GenericController
     }
   	
   	//Load model
-    public CurrentModel readModelFromFile() 
+    public SystemModel readModelFromFile() 
     {   
     	System.out.println("Loading model from file...");
     	    	
@@ -121,7 +105,7 @@ public class BaseStationController extends GenericController
         {
           	fis = new FileInputStream(modelPath);
             ois = new ObjectInputStream (fis);
-            CurrentModel read = (CurrentModel) ois.readObject();
+            SystemModel read = (SystemModel) ois.readObject();
   			ois.close();
   			fis.close();
   			System.out.println("Model loaded from file!");
@@ -153,7 +137,30 @@ public class BaseStationController extends GenericController
       		}
 
           	System.err.println("Loading from file failed.");
+          	e.printStackTrace();
           	return null;
   		}
   	}
+
+	@Override
+	public void houseModelChanged() 
+	{
+		System.out.println("houseModelChanged()");
+		
+		//Save model to file
+		saveModelToFile();
+	}
+
+	@Override
+	public void usersModelChanged() 
+	{
+		System.out.println("userModelChanged()");
+		
+		//Save model to file
+		saveModelToFile();
+		
+		//Send update to applet
+		if(comThread.isConnected())
+		{comThread.sendUserList();}
+	}
 }

@@ -10,11 +10,12 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.JPanel;
 
 import controller.CanvasMouseAdapter;
-import model.CanvasObject;
+import model.HouseObject;
 import model.Light;
 import model.Point;
 import model.Region;
@@ -45,7 +46,7 @@ public class Canvas extends JPanel
 	private Point2D.Double cursorPoint = new Point2D.Double(0, 0);
 	
 	//Selected objects
-	private ArrayList<CanvasObject> selected = new ArrayList<CanvasObject>();
+	private ArrayList<HouseObject> selected = new ArrayList<HouseObject>();
 	
 	public Canvas()
 	{
@@ -59,37 +60,17 @@ public class Canvas extends JPanel
 		addMouseMotionListener(CMA);
 	}
 	
-	public Point2D.Double getCursorPoint() {
-		return cursorPoint;
-	}
-	
-	public Wall getTempWall() {
-		return tempWall;
-	}
-	
-	public void setTempWall(Wall wall) {
-		tempWall = wall;
-	}
-	
-	
-	public Region getTempRegion() {
-		return tempRegion;
-	}
-	
-	public  void setTempRegion(Region region) {
-		tempRegion = region;
-	}
-	
 	
 	public void paintComponent(Graphics g)
 	{
 		Graphics2D g2 = (Graphics2D) g;
 		
 		//NOTE paint ordering is important for layering
+		//Painting one type of object then the next achieves layering	
 		
 		super.paintComponent(g);
 		
-		//Painting one type of object then the next achieves layering	
+		//Paint grid dots
 		g2.setColor(Color.WHITE);
 		for(Point point : points)
 		{
@@ -97,88 +78,104 @@ public class Canvas extends JPanel
 		}
 		
 		selected.clear();
-		
-		if(Applet.getController().getCM() != null)
+						
+		//Select objects based on cursor position and paint to screen
+		for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
 		{
-			//Paint regions
-			for(Region region : Applet.getController().getCM().getRegions())
-			{
-				if(region.getRegion().contains(cursorPoint))
+				if(object instanceof Region)
 				{
-					//Paint in selected color
-					g2.setColor(region.getSelectedColor());
-					selected.add(region);
-				}	
-				else
-				{
-					//Paint in unselected color
-					g2.setColor(region.getUnselectedColor());
+					//If cursor is within the region
+					if(((Region)object).getPath().contains(cursorPoint))
+					{
+						selected.add(object);					
+					}	
+					else
+					{
+						//Paint in unselected color
+						g2.setColor(object.getUnselectedColor());
+						object.paintComponent(g2);
+					}
 				}
-				region.paintComponent(g);
-			}
-			
-			//Paint walls
-			for(Wall wall : Applet.getController().getCM().getWalls())
-			{
-				if(wall.getLine().intersects(new Rectangle2D.Double(cursorPoint.getX() - gridSize/2, cursorPoint.getY() - gridSize/2, gridSize, gridSize)))
+		}
+		
+		for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
+		{
+				if(object instanceof Wall)
 				{
-					//Paint in selected color
-					g2.setColor(wall.getSelectedColor());
-					if(!selected.isEmpty())
-					{selected.clear();}
-					selected.add(wall);
-				}	
-				else
-				{
-					//Paint in unselected color
-					g2.setColor(wall.getUnselectedColor());
+					//Create bounding box for line selection
+					if(((Wall)object).getLine().intersects(new Rectangle2D.Double(cursorPoint.getX() - gridSize/2, cursorPoint.getY() - gridSize/2, gridSize, gridSize)))
+					{
+						selected.add(object);
+					}	
+					else
+					{
+						//Paint in unselected color
+						g2.setColor(object.getUnselectedColor());
+						object.paintComponent(g2);
+					}
 				}
-				wall.paintComponent(g);
-			}
-			
-			//Paint lights
-			for(Light light : Applet.getController().getCM().getLights())
-			{
-				if(light.location.equals(cursorPoint))
-				{	
-					//Paint in selected color
-					g2.setColor(light.getSelectedColor());
-					if(!selected.isEmpty())
-					{selected.clear();}
-					selected.add(light);
-				}	
-				else
+		}
+		
+		for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
+		{
+				if(object instanceof Light)
 				{
-					//Paint in unselected color
-					g2.setColor(light.getUnselectedColor());
+					if(((Light)object).getLocation().equals(cursorPoint))
+					{	
+						selected.add(object);
+					}	
+					else
+					{
+						//Paint in unselected color
+						g2.setColor(object.getUnselectedColor());
+						object.paintComponent(g2);
+					}
 				}
-				light.paintComponent(g);
-			}
-			
-			//Paint sensors
-			for(Sensor sensor : Applet.getController().getCM().getSensors())
-			{
-				if(sensor.getLocation().equals(cursorPoint))
-				{	
-					//Paint in selected color
-					g2.setColor(sensor.getSelectedColor());
-					if(!selected.isEmpty())
-					{selected.clear();}
-					selected.add(sensor);
-				}	
-				else
+		}
+		
+		for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
+		{
+				if(object instanceof Sensor)
 				{
-					//Paint in unselected color
-					g2.setColor(sensor.getUnselectedColor());
+					if(((Sensor)object).getLocation().equals(cursorPoint))
+					{	
+						selected.add(object);
+					}	
+					else
+					{
+						//Paint in unselected color
+						g2.setColor(object.getUnselectedColor());
+						object.paintComponent(g2);
+					}
 				}
-				sensor.paintComponent(g);
-			}
+		}
+		
+		//Now paint selected items in selected color
+		for(HouseObject object : selected)
+		{
+			g2.setColor(object.getSelectedColor());
+			object.paintComponent(g2);
 			
-			//Paint users
-			for(User user : Applet.getController().getCM().getUsers())
+			if(object instanceof Region || object instanceof Sensor)
 			{
-				user.paintComponent(g);
+				//Paint label
+				g2.setColor(Color.BLACK);
+				g2.setFont(new Font("default", Font.BOLD, 16));
+				g2.drawString(object.toString(),	(int) cursorPoint.x + 10, (int) cursorPoint.y - 1);
 			}
+		}
+			
+			
+		//Paint users
+		for(User user : Applet.getController().getSystemModel().getUserList())
+		{
+			g2.setColor(user.getUnselectedColor());
+			user.paintComponent(g2);
+			
+			//Paint label
+			g2.setColor(Color.BLACK);
+			g2.setFont(new Font("default", Font.BOLD, 16));
+			g2.drawString(user.toString(),	(int) user.getLocation().x + 10, (int) user.getLocation().y - 1);
 		}
 		
 				
@@ -202,40 +199,7 @@ public class Canvas extends JPanel
 			//Paint white dot
 			g2.setColor(Color.WHITE);
 			g2.fill(new Ellipse2D.Double((cursorPoint.x-5)-1, (cursorPoint.y-5)-1, 10, 10));
-
-			//Paint object label
-			if(Applet.getController().getCM() != null)
-			{
-				for(Sensor sensor : Applet.getController().getCM().getSensors())
-				{
-					if(sensor.getLocation().equals(cursorPoint))
-					{
-						g2.setColor(Color.BLACK);
-						g2.setFont(new Font("default", Font.BOLD, 16));
-						g2.drawString(sensor.toString(),	(int) cursorPoint.x + 10, (int) cursorPoint.y - 1);
-					}
-				}	
-				for(Region region : Applet.getController().getCM().getRegions())
-				{
-					if(region.getRegion().contains(cursorPoint))
-					{
-						g2.setColor(Color.BLACK);
-						g2.setFont(new Font("default", Font.BOLD, 16));
-						g2.drawString(region.toString(),	(int) cursorPoint.x + 10, (int) cursorPoint.y + 17);
-					}
-				}
-				for(User user : Applet.getController().getCM().getUsers())
-				{
-					if(user.getLocation().equals(cursorPoint))
-					{
-						g2.setColor(Color.BLACK);
-						g2.setFont(new Font("default", Font.BOLD, 16));
-						g2.drawString(user.toString(),	(int) cursorPoint.x + 10, (int) cursorPoint.y + 17);
-					}
-				}
-			}
-		}
-		
+		}		
 	}
 	
 	public void EraseTempObjects()
@@ -248,27 +212,7 @@ public class Canvas extends JPanel
 		currentlyBuildingRegion = false;
 		repaint();
 	}
-
-	public boolean isCurrentlyBuildingRegion() {
-		return currentlyBuildingRegion;
-	}
-
-	public void setCurrentlyBuildingRegion(boolean currentlyBuildingRegion) {
-		this.currentlyBuildingRegion = currentlyBuildingRegion;
-	}
 	
-	public boolean isCurrentlyBuildingWall() {
-		return currentlyBuildingWall;
-	}
-
-	public void setCurrentlyBuildingWall(boolean currentlyBuildingWall) {
-		this.currentlyBuildingWall = currentlyBuildingWall;
-	}
-
-	public ArrayList<CanvasObject> getSelected() {
-		return selected;
-	}
-
 	private  ArrayList<Point> createGrid()
 	{
 		ArrayList<Point> result = new ArrayList<Point>();
@@ -317,5 +261,81 @@ public class Canvas extends JPanel
 		cursorPoint.setLocation(finalx, finaly);
 		repaint();
 	}
+	
+	
+	public Color randomColor()
+	{
+		Random rand = new Random();
+		
+		/*
+		//Make a random pastel color
+		final float hue = rand.nextFloat();
+		// Saturation between 0.1 and 0.3
+		final float saturation = (rand.nextInt(2000) + 1000) / 10000f;
+		final float luminance = 0.9f;
+		final Color pastelColor = Color.getHSBColor(hue, saturation, luminance);
+		
+		//Create transparent color, red, green, blue, alpha, 0-255
+		int alpha = 100;
+		Color color = new Color(pastelColor.getRed(), pastelColor.getGreen(), pastelColor.getBlue(), alpha);
+		*/
+		
+		//Makes lighter colors (125 + random number 0-125)
+		final int r = rand.nextInt(126)+125;
+		final int g = rand.nextInt(126)+125;
+		final int b = rand.nextInt(126)+125;
+		
+		//Alpha 0-255 (transparent -> solid)
+		final int alpha = 200;
+		
+		final Color color = new Color(r,g,b,alpha);
+		
+		return color;
+	}
+	
+	//MUTATORS AND ACCESSORS***************************************************
+
+	public boolean isCurrentlyBuildingRegion() {
+		return currentlyBuildingRegion;
+	}
+
+	public void setCurrentlyBuildingRegion(boolean currentlyBuildingRegion) {
+		this.currentlyBuildingRegion = currentlyBuildingRegion;
+	}
+	
+	public boolean isCurrentlyBuildingWall() {
+		return currentlyBuildingWall;
+	}
+
+	public void setCurrentlyBuildingWall(boolean currentlyBuildingWall) {
+		this.currentlyBuildingWall = currentlyBuildingWall;
+	}
+
+	public ArrayList<HouseObject> getSelected() {
+		return selected;
+	}
+	
+	public Point2D.Double getCursorPoint() {
+		return cursorPoint;
+	}
+	
+	public Wall getTempWall() {
+		return tempWall;
+	}
+	
+	public void setTempWall(Wall wall) {
+		tempWall = wall;
+	}
+	
+	
+	public Region getTempRegion() {
+		return tempRegion;
+	}
+	
+	public  void setTempRegion(Region region) {
+		tempRegion = region;
+	}
+
+	
 	
 }

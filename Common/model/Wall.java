@@ -7,7 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
-public class Wall extends CanvasObject
+public class Wall extends HouseObject
 {
 	//Static variables will be same for all wall objects
 	private static final long serialVersionUID = 1;
@@ -15,8 +15,8 @@ public class Wall extends CanvasObject
 	//private static Image texture = MainController.getApplication().getImage(MainController.getCodebase(), "resources/chalkTexture.png");
 	
 	//Member variables will be unique for each object
-	private Point2D.Double startingPoint;
-	private Point2D.Double endingPoint;
+	private Point2D.Double startPoint;
+	private Point2D.Double endPoint;
 	private Line2D.Double line;
 		
 	
@@ -28,61 +28,60 @@ public class Wall extends CanvasObject
 	public Wall(Point2D.Double start, Point2D.Double tempEnd)
 	{
 		super(Color.BLACK, Color.RED);	
-		startingPoint = start;
-		endingPoint = tempEnd;	
+		startPoint = start;
+		endPoint = tempEnd;
+		line = new Line2D.Double(start, tempEnd);
 	}
 		
 	public void finalize()
 	{
-		endingPoint = (Point2D.Double) endingPoint.clone();
-		setLine(new Line2D.Double(startingPoint, endingPoint));
+		endPoint = (Point2D.Double) endPoint.clone();
+		setLine(new Line2D.Double(startPoint, endPoint));
 	}
 
 	@Override
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(strokeWidth));
-        g2.draw(new Line2D.Double(startingPoint, getEndingPoint()));
+        g2.draw(new Line2D.Double(startPoint, endPoint));
 	}
 
 	
 	//MUTATORS AND ACCESSORS*************************************************************
-	public Point2D.Double getStartingPoint() {
-		return startingPoint;
-	}
-
-	public void setStartingPoint(Point2D.Double startingPoint) {
-		this.startingPoint = startingPoint;
+	public Point2D.Double getStartPoint() {
+		return startPoint;
 	}
 	
-	public Point2D.Double getEndingPoint() {
-		return endingPoint;
-	}
-
-	public void setEndingPoint(Point2D.Double endingPoint) {
-		this.endingPoint = endingPoint;
+	public Point2D.Double getEndPoint() {
+		return endPoint;
 	}
 
 	public Line2D.Double getLine() {
 		return line;
 	}
 
-	public void setLine(Line2D.Double line) {
+	private void setLine(Line2D.Double line) {
 		this.line = line;
 	}
 
 	@Override
-	public boolean equals(CanvasObject object) 
+	public boolean equals(HouseObject object) 
 	{
 		if(object instanceof Wall)
 		{
 			Wall temp = (Wall) object;
-			if(startingPoint.equals(temp.startingPoint) && endingPoint.equals(temp.endingPoint))
+			if(startPoint.equals(temp.startPoint) && endPoint.equals(temp.endPoint))
 			{
 				return true;
 			}
 			return false;
 		}
 		return false;
+	}
+
+	@Override
+	public HouseObject clone()
+	{
+		return new Wall((Point2D.Double) startPoint.clone(), (Point2D.Double) endPoint.clone());
 	}
 }

@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
-public class Light extends CanvasObject
+public class Light extends HouseObject
 {
 	//Static variables will be same for all wall objects
 	private static final long serialVersionUID = 1;
@@ -14,7 +14,7 @@ public class Light extends CanvasObject
 	private static int size = 16;
 	
 	//Member variables will be unique for each object
-	public Point2D.Double location;	
+	private Point2D.Double location;	
 	
 	public Light(Point2D.Double p)
 	{
@@ -32,7 +32,7 @@ public class Light extends CanvasObject
 	}
 
 	@Override
-	public boolean equals(CanvasObject object) 
+	public boolean equals(HouseObject object) 
 	{
 		if(object instanceof Light)
 		{
@@ -44,5 +44,16 @@ public class Light extends CanvasObject
 			return false;
 		}
 		return false;
+	}
+	
+	public Point2D.Double getLocation()
+	{
+		return location;
+	}
+
+	@Override
+	public HouseObject clone() 
+	{
+		return new Light((Point2D.Double)location.clone());
 	}
 }

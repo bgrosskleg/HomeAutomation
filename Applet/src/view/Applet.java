@@ -39,7 +39,6 @@ package view;
 
 import javax.swing.*;
 
-import controller.AppletCommunicationThread;
 import controller.AppletController;
 
 import java.awt.*;
@@ -50,26 +49,12 @@ public class Applet extends JApplet
 	private static final long serialVersionUID = 1L;
 	
 	private static AppletController controller;
-	private static AppletCommunicationThread appComThread;
  
     public void init() 
     {
     	//Create applet controller and canvas
     	controller = new AppletController(this, new Canvas());
-    	
-    	//Start communication thread
-    	try 
-    	{
-    		appComThread = new AppletCommunicationThread(controller);
-    		appComThread.start();
-		}
-    	catch (Exception e1) 
-    	{
-    		System.err.println("Error creating AppletCommunicationThread!");
-			System.err.println("Running locally!");
-			e1.printStackTrace();
-		}  	
-    	
+
         //Set up the user interface.
         //Execute a job on the event-dispatching thread:
         //creating this applet's GUI.
@@ -111,12 +96,7 @@ public class Applet extends JApplet
     public static AppletController getController()
     {
     	return controller;
-    }
-    
-    public static AppletCommunicationThread getComThread()
-    {
-    	return appComThread;
-    }
+    } 
 }
 
 

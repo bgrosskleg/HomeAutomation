@@ -1,33 +1,31 @@
 package controller;
 
-import java.util.Observer;
+import java.io.Serializable;
 
-import model.CurrentModel;
+import subscribers.HouseModelSubscriber;
+import subscribers.UsersModelSubscriber;
+import model.SystemModel;
 
-public abstract class GenericController implements Observer
+public abstract class GenericController implements Serializable, HouseModelSubscriber, UsersModelSubscriber
 {	
-	protected CurrentModel CM;
+	private static final long serialVersionUID = 1L;
+	
+	protected SystemModel systemModel;
+	protected GenericCommunicationThread comThread;
+	
 	
 	public GenericController()
 	{
-		CM = new CurrentModel();
-		CM.addObserver(this);
+		systemModel = new SystemModel();	
 	}
 	
-	public CurrentModel getCM()
+	public SystemModel getSystemModel()
 	{
-		return CM;
+		return systemModel;
 	}
-
-	public void setCM(CurrentModel cM)
+		
+	public GenericCommunicationThread getComThread() 
 	{
-		//Replace entire model
-		CM = cM;
-	
-		//Add this BaseStationController to model's observer list
-		CM.addObserver(this);	
-			
-		//Notify observers model has changed
-		CM.currentModelChanged();
+		return comThread;
 	}
 }

@@ -10,8 +10,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import view.Applet;
 import view.Canvas;
-import view.JSliderPane;
-import model.CanvasObject;
+import model.HouseObject;
 import model.Light;
 import model.Region;
 import model.Sensor;
@@ -42,10 +41,10 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 									}
 									else
 									{
-										if(!canvas.getTempWall().getStartingPoint().equals(canvas.getTempWall().getEndingPoint()))
+										if(!canvas.getTempWall().getStartPoint().equals(canvas.getTempWall().getEndPoint()))
 										{
 											canvas.getTempWall().finalize();
-											Applet.getComThread().addObject(canvas.getTempWall());
+											Applet.getController().getSystemModel().addHouseObject(canvas.getTempWall().clone());
 										}
 										
 										canvas.setTempWall(null);
@@ -56,7 +55,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 			case "Regions":			if(!canvas.isCurrentlyBuildingRegion())
 									{
 										//Create region
-										canvas.setTempRegion(new Region((Point2D.Double)canvas.getCursorPoint().clone(),canvas.getCursorPoint()));
+										canvas.setTempRegion(new Region((Point2D.Double)canvas.getCursorPoint().clone(),canvas.getCursorPoint(), canvas.randomColor()));
 										canvas.setCurrentlyBuildingRegion(true);
 									}
 									else if(!canvas.getTempRegion().getStartPoint().equals(canvas.getCursorPoint()))
@@ -74,7 +73,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 										{				
 											canvas.getTempRegion().setName(name);				
 								
-											Applet.getComThread().addObject(canvas.getTempRegion());
+											Applet.getController().getSystemModel().addHouseObject(canvas.getTempRegion().clone());
 										}
 						
 										canvas.setTempRegion(null);
@@ -84,29 +83,30 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 									break;
 	
 			case "Lights":		//add light
-								Applet.getComThread().addObject(new Light(canvas.getCursorPoint()));	
+								Applet.getController().getSystemModel().addHouseObject(new Light((Point2D.Double)canvas.getCursorPoint().clone()));
 								break;
 	
 			case "Sensors":		//add sensor
-								//Specify which region this sensor controls
-								ArrayList<String> possibilities = new ArrayList<String>();
-								for(Region region : Applet.getController().getCM().getRegions())
-								{
-									possibilities.add(region.getName());
-								}
-								
-								if(possibilities.isEmpty())
-								{
-									JOptionPane.showMessageDialog(null, "Please create a region for this sensor to control first!", "Add Sensor", JOptionPane.PLAIN_MESSAGE);
-									System.out.println("Please create a region for this sensor to control first!");
-								}
-								else
-								{
-									String ID = JOptionPane.showInputDialog(null, "Please enter the sensor ID number:", "Add Sensor", JOptionPane.INFORMATION_MESSAGE);
-									if(ID != null && ID.length() > 0)
+								String MACAddress = JOptionPane.showInputDialog(null, "Please enter the sensor's MAC address:", "Add Sensor", JOptionPane.INFORMATION_MESSAGE);
+								if(MACAddress != null && MACAddress.length() > 0)
+								{									
+									//Specify which region this sensor controls
+									ArrayList<String> possibilities = new ArrayList<String>();
+									for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
 									{
+										if(object instanceof Region)
+										{
+											possibilities.add(((Region)object).getName());
+										}
+									}
 									
-									
+									if(possibilities.isEmpty())
+									{
+										JOptionPane.showMessageDialog(null, "Please create a region for this sensor to control first!", "Add Sensor", JOptionPane.PLAIN_MESSAGE);
+										System.out.println("Please create a region for this sensor to control first!");
+									}
+									else
+									{
 										String selection = (String) JOptionPane.showInputDialog(
 												null, 
 												"Please select which region this sensor is controlling\n",
@@ -116,30 +116,24 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 												possibilities.toArray(),
 												possibilities.get(0));
 									
+										
 										//Add sensor to the region
-										Region region = null;
-										for(Region temp : Applet.getController().getCM().getRegions())
+										for(HouseObject object : Applet.getController().getSystemModel().getHouseObjectList())
 										{
-											if(temp.getName().equals(selection))
+											if(object instanceof Region && ((Region) object).getName().equals(selection))
 											{
-												region = temp;
-					
+												Sensor newSensor = new Sensor(MACAddress, (Point2D.Double)canvas.getCursorPoint().clone());
+												((Region)object).addSensor(newSensor);
+												Applet.getController().getSystemModel().addHouseObject(newSensor);
 											}
 										}
-										
-										if(region != null)
-										{
-											Sensor newSensor = new Sensor(canvas.getCursorPoint(), ID);
-											Applet.getComThread().addObject(newSensor);
-											region.addSensor(newSensor);
-										}
-									}				
+									}
 								}
 								break;
 				
-			case "Erase":		for(CanvasObject object : canvas.getSelected())
+			case "Erase":		for(HouseObject object : canvas.getSelected())
 								{
-									Applet.getComThread().removeObject(object);
+									Applet.getController().getSystemModel().removeHouseObject(object);
 								}
 								break;
 				
@@ -151,25 +145,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 		{
 			//Check for regions under right click, open object editor
 			
-			if(Applet.getController().getCM() != null && Applet.getController().getCM().getRegions() != null)
-			{
-				for(Region region : Applet.getController().getCM().getRegions())
-				{
-					if(region.getRegion().contains(canvas.getCursorPoint()))
-					{
-						JSliderPane slider = new JSliderPane(region);
-						if(slider.getInputValue() == null)
-						{
-							region.setLightingValue(100);
-						}
-						else
-						{
-							region.setLightingValue((Integer)slider.getInputValue());
-						}
-						Applet.getComThread().modifyObject(region);
-					}
-				}	
-			}
+		
 		}
 	}
 

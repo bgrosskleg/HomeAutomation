@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
-public class Sensor extends CanvasObject
+public class Sensor extends HouseObject
 {
 	//Static variables will be same for all wall objects
 	private static final long serialVersionUID = 1;
@@ -16,7 +16,7 @@ public class Sensor extends CanvasObject
 	
 	//Member variables will be unique for each object
 	private Point2D.Double location;
-	private String identification;
+	private String MACAddress;
 	private int RSSI;
 
 	
@@ -24,12 +24,12 @@ public class Sensor extends CanvasObject
 	 * creates a new sensor at point p
 	 * @param p the new point
 	 */
-	public Sensor(Point2D.Double p, String ID)
+	public Sensor(String ID, Point2D.Double p)
 	{
 		//Super(unselectedColor, selectedColor)
 		super(new Color(200,0,235), Color.RED);	
-		setLocation(p);
-		identification = ID;
+		location = p;
+		MACAddress = ID;
 		RSSI = 75;
 	}
 
@@ -50,7 +50,7 @@ public class Sensor extends CanvasObject
 	
 	public String toString()
 	{
-		return "Sensor ID: " + identification;
+		return "Sensor ID: " + MACAddress;
 	}
 
 	public Point2D.Double getLocation() {
@@ -62,7 +62,7 @@ public class Sensor extends CanvasObject
 	}
 
 	@Override
-	public boolean equals(CanvasObject object) 
+	public boolean equals(HouseObject object) 
 	{
 		if(object instanceof Sensor)
 		{
@@ -74,5 +74,13 @@ public class Sensor extends CanvasObject
 			return false;
 		}
 		return false;
+	}
+
+	@Override
+	public HouseObject clone() 
+	{
+		Sensor result = new Sensor(MACAddress, (Point2D.Double)location.clone());
+		result.RSSI = this.RSSI;
+		return result;
 	}
 }
