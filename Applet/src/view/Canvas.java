@@ -173,7 +173,7 @@ public class Canvas extends JPanel
 			//Paint label
 			g2.setColor(Color.BLACK);
 			g2.setFont(new Font("default", Font.BOLD, 16));
-			g2.drawString(user.toString(),	(int) user.getLocation().x + 10, (int) user.getLocation().y - 1);
+			g2.drawString(user.toString(),	(int) user.getLocation().x + 10, (int) user.getLocation().y + 5);
 		}
 		
 				

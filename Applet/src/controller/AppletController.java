@@ -54,9 +54,7 @@ public class AppletController extends GenericController
 
 	@Override
 	public void houseModelChanged() 
-	{
-		System.out.println("houseModelChanged()");
-		
+	{		
 		canvas.repaint();
 		
 		//Send model to Pi, if not initial loading
@@ -71,7 +69,6 @@ public class AppletController extends GenericController
 	@Override
 	public void userModelChanged() 
 	{
-		System.out.println("usersModelChanged()");
 		canvas.repaint();
 	}
 	
