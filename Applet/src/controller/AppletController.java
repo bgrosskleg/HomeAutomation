@@ -26,7 +26,7 @@ public class AppletController extends GenericController
 		
 		//Add this controller as subscriber
 		systemModel.addHouseModelSubscriber(this);
-		systemModel.addUsersModelSubscriber(this);
+		systemModel.addUserModelSubscriber(this);
 
 		//Create communication thread
 		comThread = new AppletCommunicationThread(this);
@@ -74,7 +74,7 @@ public class AppletController extends GenericController
 	}
 
 	@Override
-	public void usersModelChanged() 
+	public void userModelChanged() 
 	{
 		System.out.println("usersModelChanged()");
 		canvas.repaint();

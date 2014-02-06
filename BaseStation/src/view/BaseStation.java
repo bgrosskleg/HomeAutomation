@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 import javax.swing.Timer;
 
 import controller.BaseStationController;
+import model.HouseObject;
 import model.User;
 
 
@@ -28,9 +29,9 @@ class BaseStation
         
         //Creates a timer to simulate moving user position 
         
-        int delay2 = 500; //milliseconds
+        int delay2 = 2000; //milliseconds
         
-        User user = new User("Brian", "ABCDEDGH12345678", new Point2D.Double(25/2, 25/2));
+        User user = new User("Brian", "ABCDEDGH12345678", new Point2D.Double(25/2, 25/2), HouseObject.randomColor());
     	BaseStation.getController().getSystemModel().addUser(user);
     	       
         ActionListener taskPerformer2 = new ActionListener() 
@@ -67,7 +68,7 @@ class BaseStation
 	        		}	
         		}
         		
-        		controller.getSystemModel().notifyUsersModelSubscribers();
+        		controller.getSystemModel().notifyUserModelSubscribers();
         	}	
         };
         

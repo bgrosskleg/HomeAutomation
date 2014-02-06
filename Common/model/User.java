@@ -20,9 +20,9 @@ public class User extends HouseObject
 	private String MACAddress;
 	
 	
-	public User(String name, String ID, Point2D.Double p)
+	public User(String name, String ID, Point2D.Double p, Color color)
 	{
-		super(Color.BLUE, Color.BLUE);
+		super(color, color);
 		this.name = name;
 		this.location = p;
 		this.MACAddress = ID;
@@ -77,7 +77,7 @@ public class User extends HouseObject
 	@Override
 	public HouseObject clone() 
 	{	
-		return new User(name, MACAddress, (Point2D.Double)location.clone());
+		return new User(name, MACAddress, (Point2D.Double)location.clone(), unselectedColor);
 	}
 
 }

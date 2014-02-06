@@ -3,10 +3,10 @@ package controller;
 import java.io.Serializable;
 
 import subscribers.HouseModelSubscriber;
-import subscribers.UsersModelSubscriber;
+import subscribers.UserModelSubscriber;
 import model.SystemModel;
 
-public abstract class GenericController implements Serializable, HouseModelSubscriber, UsersModelSubscriber
+public abstract class GenericController implements Serializable, HouseModelSubscriber, UserModelSubscriber
 {	
 	private static final long serialVersionUID = 1L;
 	

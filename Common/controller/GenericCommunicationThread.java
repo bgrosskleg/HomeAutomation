@@ -210,7 +210,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
    		catch (Exception e) 
    		{
    			System.err.println("Failure sending users.");
-   			e.printStackTrace();
+   			//e.printStackTrace();
    		}
    	}
     
@@ -250,7 +250,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
 		{
 			passiveStreamOut.println("FAIL");
 			System.err.println("Failure receiving house object list.");
-			e.printStackTrace();
+			//e.printStackTrace();
 			return null;
 		}
 	} 

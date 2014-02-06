@@ -36,7 +36,7 @@ public class BaseStationController extends GenericController
 		
 		//Add this controller as subscriber
 		systemModel.addHouseModelSubscriber(this);
-		systemModel.addUsersModelSubscriber(this);
+		systemModel.addUserModelSubscriber(this);
 		
 		
 		//Create communication thread
@@ -57,9 +57,16 @@ public class BaseStationController extends GenericController
       	{
       		fos = new FileOutputStream(modelPath);
       		oos = new ObjectOutputStream(fos);
-      		oos.writeObject(getSystemModel());
+      		
+      		//Store model without any subscriber references
+      		SystemModel temp = getSystemModel();
+      		temp.removeAllSubscribers();
+      		oos.writeObject(temp);
+      		
       		oos.close();
+      		oos = null;
       		fos.close();
+      		fos = null;
       		System.out.println("Model saved to file!");
       	} 
       	catch(FileNotFoundException e)
@@ -74,11 +81,13 @@ public class BaseStationController extends GenericController
   	    		if(fos != null)
   	    		{
   	    			fos.close();
+  	    			fos = null;
   	    		}
   	    		
   	    		if(oos != null)
   	    		{
   	    			oos.close();
+  	    			oos = null;
   	    		}
   			} 
       		catch (Exception e1) 
@@ -87,6 +96,7 @@ public class BaseStationController extends GenericController
       		}
           	finally
           	{
+          		e.printStackTrace();
           		System.err.println("Saving model to file failed, model not saved.");
           	}
       	}	
@@ -107,8 +117,16 @@ public class BaseStationController extends GenericController
             ois = new ObjectInputStream (fis);
             SystemModel read = (SystemModel) ois.readObject();
   			ois.close();
+  			ois = null;
   			fis.close();
+  			fis = null;
   			System.out.println("Model loaded from file!");
+  			
+  			//Add this controller to subscriberList
+  			read.removeAllSubscribers();
+  			read.addHouseModelSubscriber(this);
+  			read.addUserModelSubscriber(this);
+  			
   			return read;
   		} 
         catch(FileNotFoundException e)
@@ -124,11 +142,13 @@ public class BaseStationController extends GenericController
           		if(ois != null)
           		{
           			ois.close();
+          			ois = null;
           		}
       		
           		if(fis != null)
           		{
           			fis.close();
+          			fis = null;
           		}
   			} 
       		catch (Exception e1) 
@@ -152,12 +172,9 @@ public class BaseStationController extends GenericController
 	}
 
 	@Override
-	public void usersModelChanged() 
+	public void userModelChanged() 
 	{
 		System.out.println("userModelChanged()");
-		
-		//Save model to file
-		saveModelToFile();
 		
 		//Send update to applet
 		if(comThread.isConnected())

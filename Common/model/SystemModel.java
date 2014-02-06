@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import subscribers.HouseModelSubscriber;
-import subscribers.UsersModelSubscriber;
+import subscribers.UserModelSubscriber;
 
 public class SystemModel implements Serializable
 {
@@ -12,7 +12,7 @@ public class SystemModel implements Serializable
 	
 	//List of subscribers
 	protected ArrayList<HouseModelSubscriber> houseModelSubscriberList;
-	protected ArrayList<UsersModelSubscriber> usersModelSubscriberList;
+	protected ArrayList<UserModelSubscriber> usersModelSubscriberList;
 	
 	private ArrayList<HouseObject> houseModelObjects;
 	private ArrayList<User>	users;
@@ -21,7 +21,7 @@ public class SystemModel implements Serializable
 	public SystemModel()
 	{
 		houseModelSubscriberList = new ArrayList<HouseModelSubscriber>();
-		usersModelSubscriberList = new ArrayList<UsersModelSubscriber>(); 
+		usersModelSubscriberList = new ArrayList<UserModelSubscriber>(); 
 		
 		houseModelObjects = new ArrayList<HouseObject>();
 		users = new ArrayList<User>();
@@ -57,12 +57,12 @@ public class SystemModel implements Serializable
 	public void addUser(User user)
 	{
 		users.add(user);
-		notifyUsersModelSubscribers();
+		notifyUserModelSubscribers();
 	}
 	public void removeUser(User user)
 	{
 		users.remove(user);
-		notifyUsersModelSubscribers();
+		notifyUserModelSubscribers();
 	}
 	
 	public ArrayList<User> getUserList()
@@ -73,7 +73,7 @@ public class SystemModel implements Serializable
 	public void setUserList(ArrayList<User> newUsers)
 	{
 		users = newUsers;
-		notifyUsersModelSubscribers();
+		notifyUserModelSubscribers();
 	}
 	
 	public User getUser(String MACAddress)
@@ -112,22 +112,29 @@ public class SystemModel implements Serializable
 	
 	
 	//usersModel subscribers
-	public void addUsersModelSubscriber(UsersModelSubscriber subscriber) 
+	public void addUserModelSubscriber(UserModelSubscriber subscriber) 
 	{
 		usersModelSubscriberList.add(subscriber);		
 	}
 
-	public void removeUsersModelSubscriber(UsersModelSubscriber subscriber) 
+	public void removeUserModelSubscriber(UserModelSubscriber subscriber) 
 	{
 		usersModelSubscriberList.remove(subscriber);
 	}
 
-	public void notifyUsersModelSubscribers() 
+	public void notifyUserModelSubscribers() 
 	{
-		for(UsersModelSubscriber subscriber : usersModelSubscriberList)
+		for(UserModelSubscriber subscriber : usersModelSubscriberList)
 		{
-			subscriber.usersModelChanged();
+			subscriber.userModelChanged();
 		}
+	}
+	
+	//Necessary for storing model without reference to subscribers
+	public void removeAllSubscribers()
+	{
+		houseModelSubscriberList.clear();
+		usersModelSubscriberList.clear();
 	}
 
 }

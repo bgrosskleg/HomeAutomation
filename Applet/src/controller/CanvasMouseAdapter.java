@@ -55,7 +55,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 			case "Regions":			if(!canvas.isCurrentlyBuildingRegion())
 									{
 										//Create region
-										canvas.setTempRegion(new Region((Point2D.Double)canvas.getCursorPoint().clone(),canvas.getCursorPoint(), canvas.randomColor()));
+										canvas.setTempRegion(new Region((Point2D.Double)canvas.getCursorPoint().clone(),canvas.getCursorPoint(), HouseObject.randomColor()));
 										canvas.setCurrentlyBuildingRegion(true);
 									}
 									else if(!canvas.getTempRegion().getStartPoint().equals(canvas.getCursorPoint()))
