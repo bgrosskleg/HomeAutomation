@@ -14,7 +14,7 @@ class BaseStation
 {	
 	private static BaseStationController controller;
 	
-    public static void main(String[] args) 
+    public static synchronized void main(String[] args) 
     {
     	//Create base station controller
     	controller = new BaseStationController();           

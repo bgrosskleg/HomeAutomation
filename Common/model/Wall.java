@@ -20,6 +20,7 @@ public class Wall extends HouseObject
 	private Line2D.Double line;
 		
 	
+	//CONSTRUCTOR***********************************************************************
 	/**
 	 * Creates a wall with a start and an end point
 	 * @param start
@@ -32,38 +33,47 @@ public class Wall extends HouseObject
 		endPoint = tempEnd;
 		line = new Line2D.Double(start, tempEnd);
 	}
-		
+	
+	
+	//CONSTRUCTING METHODS**************************************************************
+	
 	public void finalize()
 	{
 		endPoint = (Point2D.Double) endPoint.clone();
 		setLine(new Line2D.Double(startPoint, endPoint));
 	}
-
-	@Override
-	public void paintComponent(Graphics g) {
-		Graphics2D g2 = (Graphics2D) g;
-        g2.setStroke(new BasicStroke(strokeWidth));
-        g2.draw(new Line2D.Double(startPoint, endPoint));
-	}
-
+	
 	
 	//MUTATORS AND ACCESSORS*************************************************************
-	public Point2D.Double getStartPoint() {
+	public Point2D.Double getStartPoint() 
+	{
 		return startPoint;
 	}
 	
-	public Point2D.Double getEndPoint() {
+	public Point2D.Double getEndPoint() 
+	{
 		return endPoint;
 	}
 
-	public Line2D.Double getLine() {
+	public Line2D.Double getLine() 
+	{
 		return line;
 	}
 
-	private void setLine(Line2D.Double line) {
+	private void setLine(Line2D.Double line) 
+	{
 		this.line = line;
 	}
 
+	
+	//INTERFACE METHODS******************************************************************
+	
+	@Override
+	public HouseObject clone()
+	{
+		return new Wall((Point2D.Double) startPoint.clone(), (Point2D.Double) endPoint.clone());
+	}
+	
 	@Override
 	public boolean equals(HouseObject object) 
 	{
@@ -80,8 +90,18 @@ public class Wall extends HouseObject
 	}
 
 	@Override
-	public HouseObject clone()
+	public boolean edit(String... args) 
 	{
-		return new Wall((Point2D.Double) startPoint.clone(), (Point2D.Double) endPoint.clone());
+		return false;
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void paintComponent(Graphics g) 
+	{
+		Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(strokeWidth));
+        g2.draw(new Line2D.Double(startPoint, endPoint));
 	}
 }

@@ -28,10 +28,11 @@ public class Region extends HouseObject
 	//List of all sensors tied to the region
 	private ArrayList<Sensor> sensors;
 	
-	//Lighting value 0-255
+	//Lighting value 0-100%
 	private int lightingValue;
 	
 	
+	//CONSTRUCTOR*************************************************************************
 	/**
 	 * Creates a region with no objects
 	 */
@@ -49,10 +50,10 @@ public class Region extends HouseObject
 		
 		//Region features
 		sensors = new ArrayList<Sensor>();
-		lightingValue = 0;
+		lightingValue = 50;
 	}
 	
-	
+	//CONSTRUCTING METHODS*****************************************************************
 	
 	public void addPointToRegion()
 	{
@@ -71,26 +72,7 @@ public class Region extends HouseObject
 		sensors.add(s);
 	}
 	
-	public void paintComponent(Graphics g)
-	{
-		Graphics2D g2 = (Graphics2D) g;
-        g2.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-             
-        if(!finalized)
-        {
-        	//Draw region boundary
-        	g2.fill(new Ellipse2D.Double((getStartPoint().x-5)-1, (getStartPoint().y-5)-1, 10, 10));
-        	g2.draw(path);
-        	
-        	g2.draw(new Line2D.Double(path.getCurrentPoint().getX(), path.getCurrentPoint().getY(), nextPoint.getX(), nextPoint.getY()));
-        }
-        else
-        {
-        	//Set region fill color and transparency
-        	g2.fill(path);       		
-        }
-        
-	}
+	//MUTATORS AND ACCESSORS***************************************************************
 	
 	public boolean isFinalized()
 	{
@@ -114,44 +96,30 @@ public class Region extends HouseObject
 		this.name = name;
 	}
 
-	public Point2D.Double getStartPoint() {
+	public Point2D.Double getStartPoint() 
+	{
 		return startPoint;
 	}
 
 
-	public GeneralPath getPath() {
+	public GeneralPath getPath() 
+	{
 		return path;
 	}
-
-
-	@Override
-	public boolean equals(HouseObject object) 
+	
+	public int getLightingValue() 
 	{
-		if(object instanceof Region)
-		{
-			Region temp = (Region) object;
-			if(name.equals(temp.name))
-			{
-				System.out.println("TRUE");
-				return true;
-			}
-			return false;
-		}
-		return false;
-	}
-
-	public int getLightingValue() {
 		return lightingValue;
 	}
 
 	public void setLightingValue(int lightingValue) 
 	{
-		this.lightingValue = lightingValue;
-		
-		//Send command to Pi to update model
-		
+		this.lightingValue = lightingValue;		
 	}
-
+	
+	
+	//INTERFACE METHODS********************************************************************
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public HouseObject clone() 
@@ -168,5 +136,48 @@ public class Region extends HouseObject
 		result.sensors = (ArrayList<Sensor>) this.sensors.clone();
 		
 		return result;
+	}
+	
+	@Override
+	public boolean equals(HouseObject object) 
+	{
+		if(object instanceof Region)
+		{
+			Region temp = (Region) object;
+			if(name.equals(temp.name))
+			{
+				System.out.println("TRUE");
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean edit(String... args) {
+		return finalized;
+		// TODO Auto-generated method stub
+		
 	}	
+	
+	public void paintComponent(Graphics g)
+	{
+		Graphics2D g2 = (Graphics2D) g;
+        g2.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+             
+        if(!finalized)
+        {
+        	//Draw region boundary
+        	g2.fill(new Ellipse2D.Double((getStartPoint().x-5)-1, (getStartPoint().y-5)-1, 10, 10));
+        	g2.draw(path);
+        	
+        	g2.draw(new Line2D.Double(path.getCurrentPoint().getX(), path.getCurrentPoint().getY(), nextPoint.getX(), nextPoint.getY()));
+        }
+        else
+        {
+        	//Set region fill color and transparency
+        	g2.fill(path);       		
+        }
+	}
 }

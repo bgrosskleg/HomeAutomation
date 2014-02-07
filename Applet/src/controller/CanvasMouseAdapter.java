@@ -10,6 +10,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import view.ClientApplet;
 import view.Canvas;
+import view.ObjectEditor;
 import model.HouseObject;
 import model.Light;
 import model.Region;
@@ -125,6 +126,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 												Sensor newSensor = new Sensor(MACAddress, (Point2D.Double)canvas.getCursorPoint().clone());
 												((Region)object).addSensor(newSensor);
 												ClientApplet.getController().addHouseObject(newSensor);
+												break;
 											}
 										}
 									}
@@ -143,9 +145,31 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 		}
 		else if(SwingUtilities.isRightMouseButton(e))
 		{
-			//Check for regions under right click, open object editor
+			//Check for edittable objects under right click, open object editor
+			boolean displayed = false;
 			
-		
+			//Edit sensor
+			for(HouseObject object : canvas.getSelected())
+			{
+				if(object instanceof Sensor)
+				{
+					new ObjectEditor(object);
+					displayed = true;
+				}
+				break;
+			}
+			
+			//Edit region
+			if(!displayed)
+			{
+				for(HouseObject object : canvas.getSelected())
+				{
+					//Get the first selected region or sensor
+					if(object instanceof Region)
+					{new ObjectEditor(object);}
+					break;
+				}
+			}
 		}
 	}
 

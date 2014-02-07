@@ -1,11 +1,13 @@
 package model;
 
+import interfaces.HouseObjectInterface;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.io.Serializable;
 import java.util.Random;
 
-public abstract class HouseObject implements Serializable
+public abstract class HouseObject implements Serializable, HouseObjectInterface
 {
 	private static final long serialVersionUID = 1;
 	
@@ -39,6 +41,8 @@ public abstract class HouseObject implements Serializable
 	public abstract boolean equals(HouseObject object);
 	
 	public abstract HouseObject clone();
+	
+	public abstract boolean edit(String... args);
 	
 	public abstract void paintComponent(Graphics g);
 	

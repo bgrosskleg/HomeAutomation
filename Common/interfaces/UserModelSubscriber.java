@@ -1,4 +1,4 @@
-package subscribers;
+package interfaces;
 
 public interface UserModelSubscriber
 {

@@ -16,21 +16,23 @@ public class Light extends HouseObject
 	//Member variables will be unique for each object
 	private Point2D.Double location;	
 	
+	//CONSTRUCTOR**********************************************************************
+	
 	public Light(Point2D.Double p)
 	{
 		super(Color.YELLOW, Color.RED);	
 		location = p;
 	}
 
-	@Override
-	public void paintComponent(Graphics g) 
-	{
-		//Paint circle at location
-		Graphics2D g2 = (Graphics2D) g;
-        Ellipse2D.Double light = new Ellipse2D.Double((location.x-size/2)-1, (location.y-size/2)-1, size , size);
-        g2.fill(light);
-	}
 
+	//INTERFACE METHODS****************************************************************
+	
+	@Override
+	public HouseObject clone() 
+	{
+		return new Light((Point2D.Double)location.clone());
+	}
+	
 	@Override
 	public boolean equals(HouseObject object) 
 	{
@@ -46,14 +48,26 @@ public class Light extends HouseObject
 		return false;
 	}
 	
+	@Override
+	public boolean edit(String... args) 
+	{
+		return false;
+		// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public void paintComponent(Graphics g) 
+	{
+		//Paint circle at location
+		Graphics2D g2 = (Graphics2D) g;
+        Ellipse2D.Double light = new Ellipse2D.Double((location.x-size/2)-1, (location.y-size/2)-1, size , size);
+        g2.fill(light);
+	}
+	
+	//MUTATORS AND ACCESSORS***********************************************************
+	
 	public Point2D.Double getLocation()
 	{
 		return location;
-	}
-
-	@Override
-	public HouseObject clone() 
-	{
-		return new Light((Point2D.Double)location.clone());
 	}
 }

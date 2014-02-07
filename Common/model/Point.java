@@ -5,9 +5,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.io.Serializable;
 
-public class Point extends HouseObject implements Serializable
+public class Point extends HouseObject
 {
 	//Static variables will be same for all wall objects
 	private static final long serialVersionUID = 1;
@@ -19,6 +18,7 @@ public class Point extends HouseObject implements Serializable
 	public int weight;
 	
 	
+	//CONSTRUCTOR*********************************************************************
 	/**
 	 * Create a point on the Grid with an x and y value
 	 * @param x the x axis value
@@ -32,14 +32,15 @@ public class Point extends HouseObject implements Serializable
 	}
 	
 	
-	public void paintComponent(Graphics g)
+	//INTERFACE METHODS***************************************************************
+	
+	@Override
+	public HouseObject clone() 
 	{
-		Graphics2D g2 = (Graphics2D) g;
-        Ellipse2D.Double point = new Ellipse2D.Double((location.x-size/2)-1, (location.y-size/2)-1, size , size);
-        g2.fill(point);
+		// TODO Auto-generated method stub
+		return null;
 	}
-
-
+	
 	@Override
 	public boolean equals(HouseObject object) 
 	{
@@ -50,10 +51,18 @@ public class Point extends HouseObject implements Serializable
 		return false;
 	}
 
-
 	@Override
-	public HouseObject clone() 
+	public boolean edit(String... args)
 	{
-		return new Point((Point2D.Double)location.clone());
+		return false;
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public void paintComponent(Graphics g)
+	{
+		Graphics2D g2 = (Graphics2D) g;
+        Ellipse2D.Double point = new Ellipse2D.Double((location.x-size/2)-1, (location.y-size/2)-1, size , size);
+        g2.fill(point);
 	}
 }

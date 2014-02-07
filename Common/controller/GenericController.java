@@ -1,9 +1,10 @@
 package controller;
 
+import interfaces.HouseModelSubscriber;
+import interfaces.UserModelSubscriber;
+
 import java.util.ArrayList;
 
-import subscribers.HouseModelSubscriber;
-import subscribers.UserModelSubscriber;
 import model.HouseObject;
 import model.SystemModel;
 import model.User;
@@ -30,6 +31,9 @@ public abstract class GenericController implements HouseModelSubscriber, UserMod
 	//MODIFY MODEL - HOUSE OBJECTS****************************************************
 	public void addHouseObject(HouseObject object)
 	{
+		//Add this controller as subscriber to the object
+		
+		
 		systemModel.getHouseObjectList().add(object);
 		notifyHouseModelSubscribers();
 	}
@@ -38,6 +42,12 @@ public abstract class GenericController implements HouseModelSubscriber, UserMod
 	{
 		systemModel.getHouseObjectList().remove(object);
 		notifyHouseModelSubscribers();
+	}
+	
+	public boolean modifyObject(HouseObject object)
+	{
+		return false;
+		
 	}
 
 	public ArrayList<HouseObject>  getHouseObjectList()

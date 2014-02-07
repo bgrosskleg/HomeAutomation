@@ -50,7 +50,7 @@ public class ClientApplet extends JApplet
 	
 	private static AppletController controller;
  
-    public void init() 
+    public synchronized void init() 
     {
         try 
         {

@@ -17,6 +17,8 @@ public class SystemModel implements Serializable
 		setUserList(new ArrayList<User>());
 	}
 
+	
+	//MUTATORS AND ACCESSORS**************************************************
 	public ArrayList<HouseObject> getHouseObjectList() {
 		return houseObjectList;
 	}
