@@ -10,7 +10,8 @@ public interface HouseObjectInterface
 	
 	public boolean equals(HouseObject object);
 	
-	public boolean edit(String... args);
+	//Parameters follow "parameter1=value1", "parameter2=value2",...
+	public boolean edit(String [] parameters, Object [] values) throws Exception;
 	
 	public void paintComponent(Graphics g);
 }

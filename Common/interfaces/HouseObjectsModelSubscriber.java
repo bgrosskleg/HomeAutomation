@@ -1,6 +1,6 @@
 package interfaces;
 
-public interface HouseModelSubscriber
+public interface HouseObjectsModelSubscriber
 {
 	public void houseModelChanged();
 }

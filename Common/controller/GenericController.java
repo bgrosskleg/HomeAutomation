@@ -1,7 +1,7 @@
 package controller;
 
-import interfaces.HouseModelSubscriber;
-import interfaces.UserModelSubscriber;
+import interfaces.HouseObjectsModelSubscriber;
+import interfaces.UsersModelSubscriber;
 
 import java.util.ArrayList;
 
@@ -9,11 +9,11 @@ import model.HouseObject;
 import model.SystemModel;
 import model.User;
 
-public abstract class GenericController implements HouseModelSubscriber, UserModelSubscriber
+public abstract class GenericController implements HouseObjectsModelSubscriber, UsersModelSubscriber
 {		
 	//List of subscribers
-	protected ArrayList<HouseModelSubscriber> houseModelSubscriberList;
-	protected ArrayList<UserModelSubscriber> usersModelSubscriberList;
+	protected ArrayList<HouseObjectsModelSubscriber> houseModelSubscriberList;
+	protected ArrayList<UsersModelSubscriber> usersModelSubscriberList;
 	
 	//Controller objects
 	protected SystemModel systemModel;
@@ -22,8 +22,8 @@ public abstract class GenericController implements HouseModelSubscriber, UserMod
 	//CONSTRUCTOR************************************************************
 	public GenericController()
 	{
-		houseModelSubscriberList = new ArrayList<HouseModelSubscriber>();
-		usersModelSubscriberList = new ArrayList<UserModelSubscriber>();
+		houseModelSubscriberList = new ArrayList<HouseObjectsModelSubscriber>();
+		usersModelSubscriberList = new ArrayList<UsersModelSubscriber>();
 		systemModel = new SystemModel();	
 	}
 		
@@ -32,21 +32,36 @@ public abstract class GenericController implements HouseModelSubscriber, UserMod
 	public void addHouseObject(HouseObject object)
 	{
 		systemModel.getHouseObjectList().add(object);
-		notifyHouseModelSubscribers();
+		notifyHouseObjectsModelSubscribers();
 	}
 
 	public void removeHouseObject(HouseObject object)
 	{
 		systemModel.getHouseObjectList().remove(object);
-		notifyHouseModelSubscribers();
+		notifyHouseObjectsModelSubscribers();
 	}
 	
-	public boolean modifyObject(HouseObject object)
+	public boolean modifyObject(HouseObject object, String [] parameters, Object [] values)
 	{
-		
-		
-		return false;
-		
+		if(systemModel.getHouseObjectList().contains(object))
+		{
+			try 
+			{
+				object.edit(parameters, values);
+				notifyHouseObjectsModelSubscribers();
+				return true;
+			} 
+			catch (Exception e) 
+			{
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	public ArrayList<HouseObject>  getHouseObjectList()
@@ -57,7 +72,7 @@ public abstract class GenericController implements HouseModelSubscriber, UserMod
 	public void setHouseObjectList(ArrayList<HouseObject> newObjects)
 	{
 		systemModel.setHouseObjectList(newObjects);
-		notifyHouseModelSubscribers();
+		notifyHouseObjectsModelSubscribers();
 	}
 
 
@@ -65,12 +80,12 @@ public abstract class GenericController implements HouseModelSubscriber, UserMod
 	public void addUser(User user)
 	{
 		systemModel.getUserList().add(user);
-		notifyUserModelSubscribers();
+		notifyUsersModelSubscribers();
 	}
 	public void removeUser(User user)
 	{
 		systemModel.getUserList().remove(user);
-		notifyUserModelSubscribers();
+		notifyUsersModelSubscribers();
 	}
 
 	public ArrayList<User> getUserList()
@@ -81,7 +96,7 @@ public abstract class GenericController implements HouseModelSubscriber, UserMod
 	public void setUserList(ArrayList<User> newUsers)
 	{
 		systemModel.setUserList(newUsers);
-		notifyUserModelSubscribers();
+		notifyUsersModelSubscribers();
 	}
 
 	public User getUser(String MACAddress)
@@ -100,19 +115,19 @@ public abstract class GenericController implements HouseModelSubscriber, UserMod
 	//SUBSCRIBERS/OBSERVERS****************************************************************
 
 	//houseModel subscribers
-	public void addHouseModelSubscriber(HouseModelSubscriber subscriber) 
+	public void addHouseObjectsModelSubscriber(HouseObjectsModelSubscriber subscriber) 
 	{
 		houseModelSubscriberList.add(subscriber);		
 	}
 
-	public void removeHouseModelSubscriber(HouseModelSubscriber subscriber) 
+	public void removeHouseObjectsModelSubscriber(HouseObjectsModelSubscriber subscriber) 
 	{
 		houseModelSubscriberList.remove(subscriber);
 	}
 
-	public void notifyHouseModelSubscribers() 
+	public void notifyHouseObjectsModelSubscribers() 
 	{
-		for(HouseModelSubscriber subscriber : houseModelSubscriberList)
+		for(HouseObjectsModelSubscriber subscriber : houseModelSubscriberList)
 		{
 			subscriber.houseModelChanged();
 		}
@@ -120,19 +135,19 @@ public abstract class GenericController implements HouseModelSubscriber, UserMod
 
 
 	//usersModel subscribers
-	public void addUserModelSubscriber(UserModelSubscriber subscriber) 
+	public void addUsersModelSubscriber(UsersModelSubscriber subscriber) 
 	{
 		usersModelSubscriberList.add(subscriber);		
 	}
 
-	public void removeUserModelSubscriber(UserModelSubscriber subscriber) 
+	public void removeUsersModelSubscriber(UsersModelSubscriber subscriber) 
 	{
 		usersModelSubscriberList.remove(subscriber);
 	}
 
-	public void notifyUserModelSubscribers() 
+	public void notifyUsersModelSubscribers() 
 	{
-		for(UserModelSubscriber subscriber : usersModelSubscriberList)
+		for(UsersModelSubscriber subscriber : usersModelSubscriberList)
 		{
 			subscriber.userModelChanged();
 		}

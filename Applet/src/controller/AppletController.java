@@ -26,8 +26,8 @@ public class AppletController extends GenericController
 		isFirstLoad = true;
 		
 		//Add this controller as subscriber
-		addHouseModelSubscriber(this);
-		addUserModelSubscriber(this);
+		addHouseObjectsModelSubscriber(this);
+		addUsersModelSubscriber(this);
 
 		//Create communication thread
 		comThread = new AppletCommunicationThread(this);

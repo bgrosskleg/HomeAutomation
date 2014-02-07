@@ -42,9 +42,35 @@ public abstract class HouseObject implements Serializable, HouseObjectInterface
 	
 	public abstract HouseObject clone();
 	
-	public abstract boolean edit(String... args);
+	public abstract boolean edit(String [] parameters, Object [] values) throws Exception;
 	
 	public abstract void paintComponent(Graphics g);
+	
+	protected String getParameterFromArg(String arg)
+	{		
+		int equalPoint = arg.indexOf('=');
+		if(equalPoint == -1)
+		{
+			return null;
+		}
+		else
+		{
+			return arg.substring(0, equalPoint);
+		}		
+	}
+	
+	protected String getValueFromArg(String arg)
+	{
+		int equalPoint = arg.indexOf('=');
+		if(equalPoint == -1)
+		{
+			return null;
+		}
+		else
+		{
+			return arg.substring(equalPoint+1, arg.length());
+		}		
+	}
 	
 	public static Color randomColor()
 	{

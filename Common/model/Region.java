@@ -155,7 +155,8 @@ public class Region extends HouseObject
 	}
 	
 	@Override
-	public boolean edit(String... args) {
+	public boolean edit(String [] parameters, Object [] values) 
+	{
 		return finalized;
 		// TODO Auto-generated method stub
 		

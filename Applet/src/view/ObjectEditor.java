@@ -1,11 +1,12 @@
 package view;
 
-import interfaces.UserModelSubscriber;
+import interfaces.UsersModelSubscriber;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -32,7 +33,7 @@ public class ObjectEditor extends JFrame
 		this.setVisible(true);
 	}
 	
-	private class ObjectEditorPane extends JPanel implements UserModelSubscriber
+	private class ObjectEditorPane extends JPanel implements UsersModelSubscriber
 	{
 		private static final long serialVersionUID = 1L;
 
@@ -83,7 +84,9 @@ public class ObjectEditor extends JFrame
 					public void actionPerformed(ActionEvent e) 
 					{
 						//Submit values to model and close dialog box
-						sensor.setMACAddress(MACAddress.getText());
+						
+						
+						
 						frame.dispose();
 					}
 					
@@ -95,11 +98,15 @@ public class ObjectEditor extends JFrame
 				JButton CancelButton = new JButton("CANCEL");
 				CancelButton.addActionListener(new ActionListener()
 				{
-
 					@Override
 					public void actionPerformed(ActionEvent e) 
 					{
 						//Close dialog box without saving changes
+						
+						String [] parameters = new String[]{"location"};
+						Object [] values = new Object[]{new Point2D.Double(200,400)};
+						
+						ClientApplet.getController().modifyObject(sensor, parameters, values);
 						frame.dispose();
 					}
 					

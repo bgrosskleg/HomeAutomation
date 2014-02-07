@@ -64,7 +64,7 @@ class BaseStation
 	        		}	
         		}
         		
-        		controller.notifyUserModelSubscribers();
+        		controller.notifyUsersModelSubscribers();
         	}	
         };
         

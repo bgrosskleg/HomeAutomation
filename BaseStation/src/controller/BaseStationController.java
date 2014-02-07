@@ -34,8 +34,8 @@ public class BaseStationController extends GenericController
 		
 		
 		//Add this controller as subscriber
-		addHouseModelSubscriber(this);
-		addUserModelSubscriber(this);
+		addHouseObjectsModelSubscriber(this);
+		addUsersModelSubscriber(this);
 		
 		
 		//Create communication thread

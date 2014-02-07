@@ -1,6 +1,6 @@
 package interfaces;
 
-public interface UserModelSubscriber
+public interface UsersModelSubscriber
 {
 	public void userModelChanged();
 }
