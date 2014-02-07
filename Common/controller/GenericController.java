@@ -31,9 +31,6 @@ public abstract class GenericController implements HouseModelSubscriber, UserMod
 	//MODIFY MODEL - HOUSE OBJECTS****************************************************
 	public void addHouseObject(HouseObject object)
 	{
-		//Add this controller as subscriber to the object
-		
-		
 		systemModel.getHouseObjectList().add(object);
 		notifyHouseModelSubscribers();
 	}
@@ -46,6 +43,8 @@ public abstract class GenericController implements HouseModelSubscriber, UserMod
 	
 	public boolean modifyObject(HouseObject object)
 	{
+		
+		
 		return false;
 		
 	}
