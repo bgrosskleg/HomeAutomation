@@ -6,7 +6,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -49,6 +48,7 @@ public class ObjectEditor extends JFrame
 				final Sensor sensor = (Sensor) object;
 				
 				//Create JDialog to edit sensor...
+				
 				gbc.gridx = 0;
 				gbc.gridy = 0;
 				gbc.fill = GridBagConstraints.BOTH;
@@ -63,14 +63,14 @@ public class ObjectEditor extends JFrame
 				
 				gbc.gridy = 2;
 				gbc.gridx = 0;
-				add(new JLabel("Sensors: "), gbc);
+				add(new JLabel("Regions: "), gbc);
 				gbc.gridx = 1;
 				ComparisonBoxes compBox = new ComparisonBoxes();
 				this.add(compBox , gbc);
 				
 				gbc.gridy = 3;
 				gbc.gridx = 0;
-				this.add(new JLabel("Sensors: "), gbc);
+				this.add(new JLabel("Lighting Value: "), gbc);
 				gbc.gridx = 1;
 				JLabel status = new JLabel("Status...");
 				this.add(status, gbc);
@@ -85,7 +85,11 @@ public class ObjectEditor extends JFrame
 					{
 						//Submit values to model and close dialog box
 						
+						//Testing changing parameters
+						String [] parameters = new String[]{"MACAddress"};
+						Object [] values = new Object[]{MACAddress.getText()};
 						
+						ClientApplet.getController().modifyObject(sensor, parameters, values);	
 						
 						frame.dispose();
 					}
@@ -102,11 +106,6 @@ public class ObjectEditor extends JFrame
 					public void actionPerformed(ActionEvent e) 
 					{
 						//Close dialog box without saving changes
-						
-						String [] parameters = new String[]{"location"};
-						Object [] values = new Object[]{new Point2D.Double(200,400)};
-						
-						ClientApplet.getController().modifyObject(sensor, parameters, values);
 						frame.dispose();
 					}
 					
@@ -118,12 +117,73 @@ public class ObjectEditor extends JFrame
 			}
 			else if(object instanceof Region)
 			{
-				Region region = (Region) object;
+				final Region region = (Region) object;
 				
 				//Create JDialog to edit region...
-				this.add(new JLabel("Edit Region"));
+				
+				gbc.gridx = 0;
+				gbc.gridy = 0;
+				gbc.fill = GridBagConstraints.BOTH;
+				gbc.anchor = GridBagConstraints.LINE_START;
+				this.add(new JLabel("Edit Region"), gbc);
+			
+				gbc.gridy = 1;
+				add(new JLabel("Name: "), gbc);
+				final JTextField name = new JTextField(region.getName(), 15);
+				gbc.gridx = 1;
+				this.add(name, gbc);
+				
+				gbc.gridy = 2;
+				gbc.gridx = 0;
+				add(new JLabel("Sensors: "), gbc);
+				gbc.gridx = 1;
+				ComparisonBoxes compBox = new ComparisonBoxes();
+				this.add(compBox , gbc);
+				
+				gbc.gridy = 3;
+				gbc.gridx = 0;
+				this.add(new JLabel("Region: "), gbc);
+				gbc.gridx = 1;
+				JLabel status = new JLabel("Status...");
+				this.add(status, gbc);
 				
 				
+				JButton OKButton = new JButton("OK");
+				OKButton.addActionListener(new ActionListener()
+				{
+
+					@Override
+					public void actionPerformed(ActionEvent e) 
+					{
+						//Submit values to model and close dialog box
+						
+						//Testing changing parameters
+						String [] parameters = new String[]{"name"};
+						Object [] values = new Object[]{name.getText()};
+						
+						ClientApplet.getController().modifyObject(region, parameters, values);	
+						
+						frame.dispose();
+					}
+					
+				});
+				gbc.gridy = 4;
+				gbc.gridx = 3;
+				this.add(OKButton, gbc);
+				
+				JButton CancelButton = new JButton("CANCEL");
+				CancelButton.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent e) 
+					{
+						//Close dialog box without saving changes
+						frame.dispose();
+					}
+					
+				});
+				gbc.gridx = 5;
+				this.add(CancelButton, gbc);
 				
 			}
 

@@ -154,12 +154,53 @@ public class Region extends HouseObject
 		return false;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public boolean edit(String [] parameters, Object [] values) 
+	public boolean edit(String [] parameters, Object [] values) throws Exception 
 	{
-		return finalized;
-		// TODO Auto-generated method stub
+		if(parameters.length != values.length)
+		{
+			throw new Exception("Parameter list not the same length as value list!");
+		}
 		
+		for(int iter = 0; iter < parameters.length; iter++)
+		{
+			if(parameters[iter].equals("name"))
+			{
+				if(values[iter] instanceof String)
+				{
+					name = (String)values[iter];
+					return true;
+				}
+				else
+				{
+					throw new Exception("Value " + iter + " is not of type String!");
+				}
+			}
+			else if(parameters[iter].equals("sensors"))
+			{
+				if(values[iter] instanceof ArrayList)
+				{
+					sensors = (ArrayList<Sensor>) values[iter];
+				}
+				else
+				{
+					throw new Exception("Value " + iter + " is not of type ArrayList!");
+				}
+			}
+			else if(parameters[iter].equals("lightingValue"))
+			{
+				if(values[iter] instanceof Integer)
+				{
+					lightingValue = (Integer) values[iter];
+				}
+				else
+				{
+					throw new Exception("Value " + iter + " is not of type integer!");
+				}
+			}
+		}
+		throw new Exception("No parameters editted!");
 	}	
 	
 	public void paintComponent(Graphics g)

@@ -17,7 +17,7 @@ public class Sensor extends HouseObject
 	//Member variables will be unique for each object
 	private Point2D.Double location;
 	private String MACAddress;
-	private int currentLightingValue;
+	private int lightingValue;
 	private int RSSI;
 
 	
@@ -62,14 +62,14 @@ public class Sensor extends HouseObject
 		this.location = location;
 	}
 	
-	public int getCurrentLightingValue() 
+	public int getLightingValue() 
 	{
-		return currentLightingValue;
+		return lightingValue;
 	}
 
-	public void setcurrentLightingValue(int lightingValue) 
+	public void setLightingValue(int lightingValue) 
 	{
-		currentLightingValue = lightingValue;
+		this.lightingValue = lightingValue;
 	}
 	
 	
@@ -89,7 +89,7 @@ public class Sensor extends HouseObject
 		if(object instanceof Sensor)
 		{
 			Sensor temp = (Sensor) object;
-			if(this.location.equals(temp.location))
+			if(this.location.equals(temp.location) && this.MACAddress.equals(temp.MACAddress))
 			{
 				return true;
 			}
@@ -117,12 +117,22 @@ public class Sensor extends HouseObject
 				}
 				else
 				{
-					throw new Exception("Object " + iter + "is not of type Point2D.Double!");
+					throw new Exception("Value " + iter + " is not of type Point2D.Double!");
+				}
+			}
+			else if(parameters[iter].equals("MACAddress"))
+			{
+				if(values[iter] instanceof String)
+				{
+					MACAddress = (String) values[iter];
+				}
+				else
+				{
+					throw new Exception("Value " + iter + " is not of type String!");
 				}
 			}
 		}
 		throw new Exception("No parameters editted!");
-		
 	}
 	
 	@Override
