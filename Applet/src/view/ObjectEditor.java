@@ -90,7 +90,7 @@ public class ObjectEditor extends JFrame
 						Object [] values = new Object[]{MACAddress.getText()};
 						
 						ClientApplet.getController().modifyObject(sensor, parameters, values);	
-						//sdgsdfgdfgdsfsehsdfhsdfhdfh
+						
 						frame.dispose();
 					}
 					
