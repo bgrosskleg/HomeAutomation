@@ -167,13 +167,14 @@ public class Canvas extends JPanel
 		//Paint users
 		for(User user : ClientApplet.getController().getUserList())
 		{
+			//Paint in unselected color
 			g2.setColor(user.getUnselectedColor());
 			user.paintComponent(g2);
-			
+
 			//Paint label
 			g2.setColor(Color.BLACK);
 			g2.setFont(new Font("default", Font.BOLD, 16));
-			g2.drawString(user.toString(),	(int) user.getLocation().x + 10, (int) user.getLocation().y + 5);
+			g2.drawString(user.toString(),	(int)user.getLocation().x + 10, (int)user.getLocation().y + 5);
 		}
 		
 				

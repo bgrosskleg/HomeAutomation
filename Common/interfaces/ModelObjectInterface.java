@@ -4,7 +4,7 @@ import java.awt.Graphics;
 
 import model.HouseObject;
 
-public interface HouseObjectInterface 
+public interface ModelObjectInterface 
 {
 	public HouseObject clone();
 	

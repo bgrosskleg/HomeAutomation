@@ -1,6 +1,6 @@
 package view;
 
-import interfaces.UsersModelSubscriber;
+import interfaces.ModelSubscriber;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,7 +32,7 @@ public class ObjectEditor extends JFrame
 		this.setVisible(true);
 	}
 	
-	private class ObjectEditorPane extends JPanel implements UsersModelSubscriber
+	private class ObjectEditorPane extends JPanel implements ModelSubscriber
 	{
 		private static final long serialVersionUID = 1L;
 
@@ -40,7 +40,7 @@ public class ObjectEditor extends JFrame
 		{
 			super();
 			
-			
+			ClientApplet.getController().addModelSubscriber(this);
 			
 			this.setLayout(new GridBagLayout());
 			GridBagConstraints gbc = new GridBagConstraints();
@@ -202,7 +202,7 @@ public class ObjectEditor extends JFrame
 		}
 
 		@Override
-		public void userModelChanged() 
+		public void modelChanged() 
 		{
 			// TODO Auto-generated method stub
 			

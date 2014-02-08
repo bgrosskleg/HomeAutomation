@@ -22,12 +22,12 @@ public class User extends HouseObject
 	
 	
 	//CONSTRUCTOR*********************************************************
-	public User(String name, String ID, Point2D.Double p, Color color)
+	public User(String name, String ID, Color color)
 	{
 		super(color, color);
 		this.name = name;
-		this.location = p;
 		this.MACAddress = ID;
+		this.location = new Point2D.Double(50,50);
 	}
 	
 	
@@ -75,7 +75,7 @@ public class User extends HouseObject
 	@Override
 	public HouseObject clone() 
 	{	
-		return new User(name, MACAddress, (Point2D.Double)location.clone(), unselectedColor);
+		return new User(name, MACAddress, unselectedColor);
 	}
 	
 	@Override
@@ -94,17 +94,36 @@ public class User extends HouseObject
 	}
 	
 	@Override
-	public boolean edit(String [] parameters, Object [] values) 
+	public boolean edit(String [] parameters, Object [] values) throws Exception 
 	{
-		return false;
-		// TODO Auto-generated method stub
+		if(parameters.length != values.length)
+		{
+			throw new Exception("Parameter list not the same length as value list!");
+		}
 		
+		for(int iter = 0; iter < parameters.length; iter++)
+		{
+			if(parameters[iter].equals("location"))
+			{
+				if(values[iter] instanceof Point2D.Double)
+				{
+					location = (Point2D.Double)values[iter];
+					return true;
+				}
+				else
+				{
+					throw new Exception("Object " + iter + "is not of type Point2D.Double!");
+				}
+			}
+		}
+		throw new Exception("No parameters editted!");
 	}
 	
-	public void paintComponent(Graphics g) {
+	public void paintComponent(Graphics g) 
+	{
 		Graphics2D g2 = (Graphics2D) g;
-        g2.setColor(Color.BLUE);
-        Ellipse2D.Double light = new Ellipse2D.Double((location.x-size/2)-1, (location.y-size/2)-1, size , size);
-        g2.fill(light);
+        g2.setColor(getUnselectedColor());
+        Ellipse2D.Double user = new Ellipse2D.Double((location.x-size/2)-1, (location.y-size/2)-1, size , size);
+        g2.fill(user);
 	}
 }

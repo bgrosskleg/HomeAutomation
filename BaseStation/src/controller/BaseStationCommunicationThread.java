@@ -121,7 +121,7 @@ public class BaseStationCommunicationThread extends GenericCommunicationThread
 		System.out.println("Initializing sockets complete.");
 		
 		//Send model to ClientApplet
-		sendModel(GenericCommunicationThread.HOUSEOBJECTS);
+		sendModel();
 	}
 	
 	//NETWORKING PARAMETERS*******************************************************

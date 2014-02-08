@@ -34,8 +34,7 @@ public class BaseStationController extends GenericController
 		
 		
 		//Add this controller as subscriber
-		addHouseObjectsModelSubscriber(this);
-		addUsersModelSubscriber(this);
+		addModelSubscriber(this);
 		
 		
 		//Create communication thread
@@ -44,18 +43,10 @@ public class BaseStationController extends GenericController
 	}
 	
 	@Override
-	public void houseModelChanged() 
+	public void modelChanged() 
 	{		
 		//Save model to file
 		saveModelToFile();
-	}
-
-	@Override
-	public void userModelChanged() 
-	{	
-		//Send update to applet
-		if(comThread.isConnected())
-		{comThread.sendModel(GenericCommunicationThread.USERS);}
 	}
 	
 		

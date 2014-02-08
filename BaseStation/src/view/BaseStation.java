@@ -7,7 +7,6 @@ import java.awt.geom.Point2D;
 import javax.swing.Timer;
 
 import controller.BaseStationController;
-import model.HouseObject;
 import model.User;
 
 class BaseStation 
@@ -22,53 +21,58 @@ class BaseStation
         
         //Creates a timer to simulate moving user position 
         
-        int delay2 = 500; //milliseconds
-        
-        if(controller.getUser("ABCDEDGH12345678") == null)
-        {
-        	User user = new User("Brian", "ABCDEDGH12345678", new Point2D.Double(25/2, 25/2), HouseObject.randomColor());
-        	controller.addUser(user);
-    	}
+        int delay = 500; //milliseconds
     	       
-        ActionListener taskPerformer2 = new ActionListener() 
+        ActionListener taskPerformer = new ActionListener() 
         {
         	boolean moveRight = true;
         	int stepSize = 25;
-        	User temp = BaseStation.getController().getUser("ABCDEDGH12345678");
         	
         	@Override
         	public void actionPerformed(ActionEvent e) 
-        	{        		
-        		double LocX = temp.getLocation().getX();
-        		double LocY = temp.getLocation().getY();
-        		//Move userA
+        	{        	
+        		Point2D.Double newLocation = null;
+        		User temp = controller.getUser("ABCDEDGH12345678");
+        		
         		if(temp != null)
-        		{	
+        		{
+        			double LocX = temp.getLocation().getX();
+        		
+	        		double LocY = temp.getLocation().getY();
+	        		
+	        		//Move user
 	        		if(moveRight && LocX < 175)
 	        		{
-	        			temp.setLocation(new Point2D.Double(LocX += stepSize, LocY));
+	        			newLocation = new Point2D.Double(LocX += stepSize, LocY);
 	        		}
 	        		else if(moveRight && LocX >= 175)
 	        		{
 	        			moveRight = false;
-	        			temp.setLocation(new Point2D.Double(LocX -= stepSize, LocY));
+	        			newLocation = new Point2D.Double(LocX -= stepSize, LocY);
 	        		}
 	        		else if(!moveRight && LocX > 25)
 	        		{
-	        			temp.setLocation(new Point2D.Double(LocX -= stepSize, LocY));
+	        			newLocation = new Point2D.Double(LocX -= stepSize, LocY);
 	        		}
 	        		else if(!moveRight && LocX <= 25)
 	        		{
 	        			moveRight = true;
-	        			temp.setLocation(new Point2D.Double(LocX += stepSize, LocY));
-	        		}	
+	        			newLocation = new Point2D.Double(LocX += stepSize, LocY);
+	        		}
+	        		
+	        		String [] parameters = new String [] {"location"};
+	        		Object [] values = new Object [] {newLocation};
+	        		
+	        		controller.modifyObject(temp, parameters, values);
         		}
-        		
-        		controller.notifyUsersModelSubscribers();
+        		else
+        		{
+        			System.err.println("User ABCDEDGH12345678 is null!");
+        		}
         	}	
         };
         
-        new Timer(delay2, taskPerformer2).start(); 
+        new Timer(delay, taskPerformer).start(); 
     }
     
     public static BaseStationController getController()

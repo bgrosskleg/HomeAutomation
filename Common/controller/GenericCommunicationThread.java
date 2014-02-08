@@ -46,9 +46,6 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     
     protected boolean connected;
     
-    public final static String HOUSEOBJECTS = "HOUSEOBJECTS";
-    public final static String USERS = "USERS";
-    
     public GenericCommunicationThread(String name, GenericController cntrl)
     {
     	super(name);
@@ -108,12 +105,8 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     				//Process command
     				switch(recieved)
     				{	
-	    				case HOUSEOBJECTS:							//Update just the house objects
-												    				controller.setHouseObjectList(receiveModel().getHouseObjectList());;
-												    				break;
-	
-	    				case USERS:									//Update just the users
-												    				controller.setUserList(receiveModel().getUserList());
+	    				case "MODEL":							//Update just the house objects
+												    				controller.setModel(receiveModel());
 												    				break;
 	
 	    				default:									System.out.println("DEFAULT BEHAVIOUR");
@@ -134,7 +127,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     
   //OBJECT TRANSMISSION*****************************************************************
 
-  	public void sendModel(String type)
+  	public void sendModel()
   	{		
   		//Send object
   		try 
@@ -142,7 +135,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
   			System.out.println("Sending model...");
 
   			//Notify on command stream
-  			activeCommandStreamOut.println(type);
+  			activeCommandStreamOut.println("MODEL");
 
   			//Analyze command stream response
   			if(activeCommandStreamIn.readLine().equals("OKAY"))

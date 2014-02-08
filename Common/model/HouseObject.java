@@ -1,13 +1,13 @@
 package model;
 
-import interfaces.HouseObjectInterface;
+import interfaces.ModelObjectInterface;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.io.Serializable;
 import java.util.Random;
 
-public abstract class HouseObject implements Serializable, HouseObjectInterface
+public abstract class HouseObject implements Serializable, ModelObjectInterface
 {
 	private static final long serialVersionUID = 1;
 	

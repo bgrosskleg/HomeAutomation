@@ -1,7 +1,6 @@
 package controller;
 
-import interfaces.HouseObjectsModelSubscriber;
-import interfaces.UsersModelSubscriber;
+import interfaces.ModelSubscriber;
 
 import java.util.ArrayList;
 
@@ -9,11 +8,10 @@ import model.HouseObject;
 import model.SystemModel;
 import model.User;
 
-public abstract class GenericController implements HouseObjectsModelSubscriber, UsersModelSubscriber
+public abstract class GenericController implements ModelSubscriber
 {		
 	//List of subscribers
-	protected ArrayList<HouseObjectsModelSubscriber> houseModelSubscriberList;
-	protected ArrayList<UsersModelSubscriber> usersModelSubscriberList;
+	protected ArrayList<ModelSubscriber> modelSubscriberList;
 	
 	//Controller objects
 	protected SystemModel systemModel;
@@ -22,33 +20,31 @@ public abstract class GenericController implements HouseObjectsModelSubscriber, 
 	//CONSTRUCTOR************************************************************
 	public GenericController()
 	{
-		houseModelSubscriberList = new ArrayList<HouseObjectsModelSubscriber>();
-		usersModelSubscriberList = new ArrayList<UsersModelSubscriber>();
+		modelSubscriberList = new ArrayList<ModelSubscriber>();
 		systemModel = new SystemModel();	
+	}
+	
+	protected void setModel(SystemModel newModel)
+	{
+		systemModel = newModel;
+		notifyModelSubscribers();
 	}
 		
 	
-	//MODIFY MODEL - HOUSE OBJECTS****************************************************
-	public void addHouseObject(HouseObject object)
-	{
-		systemModel.getHouseObjectList().add(object);
-		notifyHouseObjectsModelSubscribers();
-	}
-
-	public void removeHouseObject(HouseObject object)
-	{
-		systemModel.getHouseObjectList().remove(object);
-		notifyHouseObjectsModelSubscribers();
-	}
+	//MODIFY MODEL***********************************************************
 	
 	public boolean modifyObject(HouseObject object, String [] parameters, Object [] values)
 	{
-		if(systemModel.getHouseObjectList().contains(object))
+		if(systemModel.getHouseObjectList().contains(object) || systemModel.getUserList().contains(object))
 		{
 			try 
 			{
 				object.edit(parameters, values);
-				notifyHouseObjectsModelSubscribers();
+				notifyModelSubscribers();
+				
+				//Send model to other end
+				comThread.sendModel();
+				
 				return true;
 			} 
 			catch (Exception e) 
@@ -63,40 +59,19 @@ public abstract class GenericController implements HouseObjectsModelSubscriber, 
 			return false;
 		}
 	}
-
+	
+	//MODEL - HOUSE OBJECTS****************************************************
+	
 	public ArrayList<HouseObject>  getHouseObjectList()
 	{
 		return systemModel.getHouseObjectList();
 	}
 
-	public void setHouseObjectList(ArrayList<HouseObject> newObjects)
-	{
-		systemModel.setHouseObjectList(newObjects);
-		notifyHouseObjectsModelSubscribers();
-	}
-
-
-	//MODIFY MODEL -  USERS*************************************************************
-	public void addUser(User user)
-	{
-		systemModel.getUserList().add(user);
-		notifyUsersModelSubscribers();
-	}
-	public void removeUser(User user)
-	{
-		systemModel.getUserList().remove(user);
-		notifyUsersModelSubscribers();
-	}
+	//MODEL -  USERS*************************************************************
 
 	public ArrayList<User> getUserList()
 	{
 		return systemModel.getUserList();
-	}
-
-	public void setUserList(ArrayList<User> newUsers)
-	{
-		systemModel.setUserList(newUsers);
-		notifyUsersModelSubscribers();
 	}
 
 	public User getUser(String MACAddress)
@@ -110,46 +85,26 @@ public abstract class GenericController implements HouseObjectsModelSubscriber, 
 		}
 		return null;
 	}
-
+	
 
 	//SUBSCRIBERS/OBSERVERS****************************************************************
 
 	//houseModel subscribers
-	public void addHouseObjectsModelSubscriber(HouseObjectsModelSubscriber subscriber) 
+	public void addModelSubscriber(ModelSubscriber subscriber) 
 	{
-		houseModelSubscriberList.add(subscriber);		
+		modelSubscriberList.add(subscriber);		
 	}
 
-	public void removeHouseObjectsModelSubscriber(HouseObjectsModelSubscriber subscriber) 
+	public void removeModelSubscriber(ModelSubscriber subscriber) 
 	{
-		houseModelSubscriberList.remove(subscriber);
+		modelSubscriberList.remove(subscriber);
 	}
 
-	public void notifyHouseObjectsModelSubscribers() 
+	public void notifyModelSubscribers() 
 	{
-		for(HouseObjectsModelSubscriber subscriber : houseModelSubscriberList)
+		for(ModelSubscriber subscriber : modelSubscriberList)
 		{
-			subscriber.houseModelChanged();
-		}
-	}
-
-
-	//usersModel subscribers
-	public void addUsersModelSubscriber(UsersModelSubscriber subscriber) 
-	{
-		usersModelSubscriberList.add(subscriber);		
-	}
-
-	public void removeUsersModelSubscriber(UsersModelSubscriber subscriber) 
-	{
-		usersModelSubscriberList.remove(subscriber);
-	}
-
-	public void notifyUsersModelSubscribers() 
-	{
-		for(UsersModelSubscriber subscriber : usersModelSubscriberList)
-		{
-			subscriber.userModelChanged();
+			subscriber.modelChanged();
 		}
 	}
 }
