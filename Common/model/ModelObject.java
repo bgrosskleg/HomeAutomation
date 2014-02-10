@@ -4,25 +4,16 @@ import interfaces.ModelObjectInterface;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.io.Serializable;
 import java.util.Random;
 
-public abstract class HouseObject implements Serializable, ModelObjectInterface
+public abstract class ModelObject implements ModelObjectInterface
 {
 	private static final long serialVersionUID = 1;
 	
-	/**
-	 * color will be different depending on what the object is
-	 * sensor = pink
-	 * wall = black
-	 * selected = red
-	 * light = yellow
-	 * region = random
-	 */
 	protected Color unselectedColor;
 	protected Color selectedColor;
 	
-	public HouseObject(Color unselected, Color selected)
+	public ModelObject(Color unselected, Color selected)
 	{			
 		unselectedColor = unselected;
 		selectedColor = selected;
@@ -38,39 +29,20 @@ public abstract class HouseObject implements Serializable, ModelObjectInterface
 		return selectedColor;
 	}
 	
-	public abstract boolean equals(HouseObject object);
+	@Override
+	public abstract boolean equals(Object other);
 	
-	public abstract HouseObject clone();
+	@Override
+	public abstract String toString();
+	
+	public abstract String [] getParameters();
+	
+	public abstract Object [] getValues();
 	
 	public abstract boolean edit(String [] parameters, Object [] values) throws Exception;
 	
-	public abstract void paintComponent(Graphics g);
+	public abstract void paintComponent(Graphics g);	
 	
-	protected String getParameterFromArg(String arg)
-	{		
-		int equalPoint = arg.indexOf('=');
-		if(equalPoint == -1)
-		{
-			return null;
-		}
-		else
-		{
-			return arg.substring(0, equalPoint);
-		}		
-	}
-	
-	protected String getValueFromArg(String arg)
-	{
-		int equalPoint = arg.indexOf('=');
-		if(equalPoint == -1)
-		{
-			return null;
-		}
-		else
-		{
-			return arg.substring(equalPoint+1, arg.length());
-		}		
-	}
 	
 	public static Color randomColor()
 	{

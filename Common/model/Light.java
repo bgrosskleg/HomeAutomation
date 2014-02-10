@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
-public class Light extends HouseObject
+public class Light extends ModelObject
 {
 	//Static variables will be same for all wall objects
 	private static final long serialVersionUID = 1;
@@ -25,27 +25,45 @@ public class Light extends HouseObject
 	}
 
 
-	//INTERFACE METHODS****************************************************************
-	
+	//INTERFACE METHODS****************************************************************	
 	@Override
-	public HouseObject clone() 
+	public boolean equals(Object other) 
 	{
-		return new Light((Point2D.Double)location.clone());
+		if (other == null) 
+		{return false;}
+		
+	    if (other == this) 
+	    {return true;}
+	    
+	    if (!(other instanceof Light))
+	    {return false;}
+	    
+	    //Class specific comparison
+	    Light light = (Light) other;
+	    if(this.location.equals(light.location))
+	    {return true;}
+	    else
+	    {return false;}    
+	}
+
+
+	@Override
+	public String toString() 
+	{
+		return ("Type: Light Location: " + location);
 	}
 	
 	@Override
-	public boolean equals(HouseObject object) 
+	public String[] getParameters() 
 	{
-		if(object instanceof Light)
-		{
-			Light temp = (Light) object;
-			if(this.location.equals(temp.location))
-			{
-				return true;
-			}
-			return false;
-		}
-		return false;
+		return new String [] {"location"};
+	}
+
+
+	@Override
+	public Object[] getValues() 
+	{
+		return new Object [] {location};
 	}
 	
 	@Override
@@ -89,4 +107,8 @@ public class Light extends HouseObject
 	{
 		return location;
 	}
+
+
+	
+
 }

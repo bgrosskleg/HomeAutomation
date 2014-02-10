@@ -105,12 +105,12 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     				//Process command
     				switch(recieved)
     				{	
-	    				case "MODEL":							//Update just the house objects
-												    				controller.setModel(receiveModel());
-												    				break;
+	    				case "MODEL":			//Update just the house objects
+	    										controller.updateSystemModel(receiveModel());
+												break;
 	
-	    				default:									System.out.println("DEFAULT BEHAVIOUR");
-	    															break;
+	    				default:				System.out.println("DEFAULT BEHAVIOUR");
+	    										break;
 	    			}
     			} 
     		}
@@ -191,7 +191,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
 
   			System.out.println("Model recieved successfully.");
 
-  			return (SystemModel) received;
+  			return received;
   		} 
   		catch (Exception e) 
   		{
@@ -228,7 +228,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
 		catch(Exception e)
 		{
 			System.err.println("Failure closing activeObjectStreamIn (object input stream).");
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 		
 		try

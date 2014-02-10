@@ -10,12 +10,12 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+
 import javax.swing.JPanel;
 
 import controller.CanvasMouseAdapter;
-import model.HouseObject;
+import model.ModelObject;
 import model.Light;
-import model.Point;
 import model.Region;
 import model.Sensor;
 import model.User;
@@ -44,7 +44,7 @@ public class Canvas extends JPanel
 	private Point2D.Double cursorPoint = new Point2D.Double(0, 0);
 	
 	//Selected objects
-	private ArrayList<HouseObject> selected = new ArrayList<HouseObject>();
+	private ArrayList<ModelObject> selected = new ArrayList<ModelObject>();
 	
 	public Canvas()
 	{
@@ -78,7 +78,7 @@ public class Canvas extends JPanel
 		selected.clear();
 						
 		//Select objects based on cursor position and paint to screen
-		for(HouseObject object : ClientApplet.getController().getHouseObjectList())
+		for(ModelObject object : ClientApplet.getController().getModelObjects())
 		{
 				if(object instanceof Region)
 				{
@@ -96,7 +96,7 @@ public class Canvas extends JPanel
 				}
 		}
 		
-		for(HouseObject object : ClientApplet.getController().getHouseObjectList())
+		for(ModelObject object : ClientApplet.getController().getModelObjects())
 		{
 				if(object instanceof Wall)
 				{
@@ -114,7 +114,7 @@ public class Canvas extends JPanel
 				}
 		}
 		
-		for(HouseObject object : ClientApplet.getController().getHouseObjectList())
+		for(ModelObject object : ClientApplet.getController().getModelObjects())
 		{
 				if(object instanceof Light)
 				{
@@ -131,7 +131,7 @@ public class Canvas extends JPanel
 				}
 		}
 		
-		for(HouseObject object : ClientApplet.getController().getHouseObjectList())
+		for(ModelObject object : ClientApplet.getController().getModelObjects())
 		{
 				if(object instanceof Sensor)
 				{
@@ -149,7 +149,7 @@ public class Canvas extends JPanel
 		}
 		
 		//Now paint selected items in selected color
-		for(HouseObject object : selected)
+		for(ModelObject object : selected)
 		{
 			g2.setColor(object.getSelectedColor());
 			object.paintComponent(g2);
@@ -165,16 +165,21 @@ public class Canvas extends JPanel
 			
 			
 		//Paint users
-		for(User user : ClientApplet.getController().getUserList())
+		for(ModelObject object : ClientApplet.getController().getModelObjects())
 		{
-			//Paint in unselected color
-			g2.setColor(user.getUnselectedColor());
-			user.paintComponent(g2);
-
-			//Paint label
-			g2.setColor(Color.BLACK);
-			g2.setFont(new Font("default", Font.BOLD, 16));
-			g2.drawString(user.toString(),	(int)user.getLocation().x + 10, (int)user.getLocation().y + 5);
+			if(object instanceof User)
+			{
+				User temp = (User) object;
+				
+				//Paint in unselected color
+				g2.setColor(temp.getUnselectedColor());
+				temp.paintComponent(g2);
+	
+				//Paint label
+				g2.setColor(Color.BLACK);
+				g2.setFont(new Font("default", Font.BOLD, 16));
+				g2.drawString(temp.getName(),	(int)temp.getLocation().x + 10, (int)temp.getLocation().y + 5);
+			}
 		}
 		
 				
@@ -280,7 +285,7 @@ public class Canvas extends JPanel
 		this.currentlyBuildingWall = currentlyBuildingWall;
 	}
 
-	public ArrayList<HouseObject> getSelected() {
+	public ArrayList<ModelObject> getSelected() {
 		return selected;
 	}
 	
@@ -305,6 +310,40 @@ public class Canvas extends JPanel
 		tempRegion = region;
 	}
 
+	
+	private class Point
+	{
+		//Static variables will be same for all wall objects
+		//Size must be even
+		private static final int size = 4;
+			
+		//Member variables will be unique for each object
+		private Color color;
+		private Point2D.Double location;	
+		
+		//CONSTRUCTOR*********************************************************************
+		/**
+		 * Create a point on the Grid with an x and y value
+		 * @param x the x axis value
+		 * @param y the y axis value
+		 */
+		public Point(Point2D.Double p)
+		{
+			color = Color.WHITE;
+			location = p;
+		}
+		
+		
+		//INTERFACE METHODS***************************************************************
+			
+		public void paintComponent(Graphics g)
+		{
+			Graphics2D g2 = (Graphics2D) g;
+			g2.setColor(color);
+	        Ellipse2D.Double point = new Ellipse2D.Double((location.x-size/2)-1, (location.y-size/2)-1, size , size);
+	        g2.fill(point);
+		}
+	}
 	
 	
 }

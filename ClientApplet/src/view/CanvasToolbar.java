@@ -4,11 +4,14 @@ package view;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
@@ -21,7 +24,7 @@ public class CanvasToolbar extends JPanel
 		
 	public CanvasToolbar()
 	{
-		//Create buttons
+		//Create drawing buttons
 		buttons = new JToggleButton[5];
 		
 		buttons[0] = new JToggleButton("Walls", ClientApplet.getController().loadImageIconFromHost("resources/wallsIcon.png"), true);
@@ -47,6 +50,17 @@ public class CanvasToolbar extends JPanel
 			});
 		}
 		
+		//Create Edit Users Button
+		JButton users = new JButton("Users");
+		users.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				new UsersEditor();
+			}
+		});
+		
 		
 		//Create look and feel, layout
 		this.setPreferredSize(new Dimension(200,800));
@@ -68,5 +82,7 @@ public class CanvasToolbar extends JPanel
 		this.add(buttons[3], gbc);
 		gbc.gridy++;
 		this.add(buttons[4], gbc);		
+		gbc.gridy++;
+		this.add(users, gbc);	
 	}
 }

@@ -1,17 +1,21 @@
 package interfaces;
 
 import java.awt.Graphics;
+import java.io.Serializable;
 
-import model.HouseObject;
-
-public interface ModelObjectInterface 
+public interface ModelObjectInterface extends Serializable, Cloneable
 {
-	public HouseObject clone();
+	@Override
+	public abstract boolean equals(Object other);
 	
-	public boolean equals(HouseObject object);
+	@Override
+	public abstract String toString();
 	
-	//Parameters follow "parameter1=value1", "parameter2=value2",...
-	public boolean edit(String [] parameters, Object [] values) throws Exception;
+	public abstract String [] getParameters();
 	
-	public void paintComponent(Graphics g);
+	public abstract Object [] getValues();
+	
+	public abstract boolean edit(String [] parameters, Object [] values) throws Exception;
+	
+	public abstract void paintComponent(Graphics g);	
 }

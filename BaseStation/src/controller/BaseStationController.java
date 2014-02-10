@@ -30,7 +30,7 @@ public class BaseStationController extends GenericController
 			System.err.println("Creating new model.");
 			temp = new SystemModel();
 		}
-		systemModel = temp;
+		updateSystemModel(temp);
 		
 		
 		//Add this controller as subscriber

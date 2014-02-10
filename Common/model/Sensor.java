@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
-public class Sensor extends HouseObject
+public class Sensor extends ModelObject
 {
 	//Static variables will be same for all wall objects
 	private static final long serialVersionUID = 1;
@@ -18,7 +18,7 @@ public class Sensor extends HouseObject
 	private Point2D.Double location;
 	private String MACAddress;
 	private int lightingValue;
-	private int RSSI;
+	private int radius;
 
 	
 	//CONSTRUCTOR*****************************************************************
@@ -32,7 +32,7 @@ public class Sensor extends HouseObject
 		super(new Color(200,0,235), Color.RED);	
 		location = p;
 		MACAddress = ID;
-		RSSI = 75;
+		radius = 75;
 	}
 
 	//MUTATORS AND ACCESSORS*******************************************************
@@ -76,26 +76,15 @@ public class Sensor extends HouseObject
 	//INTERFACE METHODS************************************************************
 	
 	@Override
-	public HouseObject clone() 
+	public String[] getParameters() 
 	{
-		Sensor result = new Sensor(MACAddress, (Point2D.Double)location.clone());
-		result.RSSI = this.RSSI;
-		return result;
+		return new String [] {"location", "MACAddress", "lightValue", "radius"};
 	}
-	
+
 	@Override
-	public boolean equals(HouseObject object) 
+	public Object[] getValues() 
 	{
-		if(object instanceof Sensor)
-		{
-			Sensor temp = (Sensor) object;
-			if(this.location.equals(temp.location) && this.MACAddress.equals(temp.MACAddress))
-			{
-				return true;
-			}
-			return false;
-		}
-		return false;
+		return new Object [] {location, MACAddress, lightingValue, radius};
 	}
 	
 	@Override
@@ -146,7 +135,14 @@ public class Sensor extends HouseObject
         g2.fill(sensor);
         
         //Draw RSSI radius
-        Ellipse2D.Double RSSICircle = new Ellipse2D.Double((getLocation().x-RSSI), (getLocation().y-RSSI), RSSI*2 , RSSI*2);
+        Ellipse2D.Double RSSICircle = new Ellipse2D.Double((getLocation().x-radius), (getLocation().y-radius), radius*2 , radius*2);
         g2.draw(RSSICircle);
+	}
+
+	@Override
+	public boolean equals(Object other) 
+	{
+		// TODO Auto-generated method stub
+		return false;
 	}	
 }

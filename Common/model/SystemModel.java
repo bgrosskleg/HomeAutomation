@@ -6,32 +6,30 @@ import java.util.ArrayList;
 public class SystemModel implements Serializable
 {
 	private static final long serialVersionUID = 1L;
-	
-	private ArrayList<HouseObject> houseObjectList;
-	private ArrayList<User>	userList;
+			
+	private ArrayList<ModelObject> modelObjectList;
 	
 	//CONSTRUCTOR*************************************************************
 	public SystemModel()
 	{		
-		setHouseObjectList(new ArrayList<HouseObject>());
-		setUserList(new ArrayList<User>());
+		modelObjectList = new ArrayList<ModelObject>();
 	}
 
+	//MUTATORS AND ACCESSORS**************************************************	
+	public ArrayList<ModelObject> getModelObjectList()
+	{
+		return modelObjectList;
+	}	
 	
-	//MUTATORS AND ACCESSORS**************************************************
-	public ArrayList<HouseObject> getHouseObjectList() {
-		return houseObjectList;
-	}
-
-	public void setHouseObjectList(ArrayList<HouseObject> houseObjectList) {
-		this.houseObjectList = houseObjectList;
-	}
-
-	public ArrayList<User> getUserList() {
-		return userList;
-	}
-
-	public void setUserList(ArrayList<User> userList) {
-		this.userList = userList;
+	public String toString()
+	{
+		String result = "System Model\n";
+		
+		for(ModelObject object : modelObjectList)
+		{
+			result += ("HouseObject: " + object.toString() + "\n");
+		}
+				
+		return result;
 	}
 }

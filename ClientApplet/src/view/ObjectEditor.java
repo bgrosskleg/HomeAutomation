@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import model.HouseObject;
+import model.ModelObject;
 import model.Region;
 import model.Sensor;
 
@@ -21,7 +21,7 @@ public class ObjectEditor extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 
-	public ObjectEditor(HouseObject object)
+	public ObjectEditor(ModelObject object)
 	{ 
 		super("Object Editor");
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -36,7 +36,7 @@ public class ObjectEditor extends JFrame
 	{
 		private static final long serialVersionUID = 1L;
 
-		private ObjectEditorPane(final JFrame frame, HouseObject object)
+		private ObjectEditorPane(final JFrame frame, ModelObject object)
 		{
 			super();
 			

@@ -21,7 +21,7 @@ class BaseStation
         
         //Creates a timer to simulate moving user position 
         
-        int delay = 500; //milliseconds
+        int delay = 3000; //milliseconds
     	       
         ActionListener taskPerformer = new ActionListener() 
         {
@@ -32,7 +32,7 @@ class BaseStation
         	public void actionPerformed(ActionEvent e) 
         	{        	
         		Point2D.Double newLocation = null;
-        		User temp = controller.getUser("ABCDEDGH12345678");
+        		User temp = controller.getUser("ABCDEFGH12345678");
         		
         		if(temp != null)
         		{
@@ -67,7 +67,7 @@ class BaseStation
         		}
         		else
         		{
-        			System.err.println("User ABCDEDGH12345678 is null!");
+        			System.err.println("User ABCDEFGH12345678 is null!");
         		}
         	}	
         };

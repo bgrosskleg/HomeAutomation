@@ -11,7 +11,7 @@ import javax.swing.event.MouseInputAdapter;
 import view.ClientApplet;
 import view.Canvas;
 import view.ObjectEditor;
-import model.HouseObject;
+import model.ModelObject;
 import model.Light;
 import model.Region;
 import model.Sensor;
@@ -45,7 +45,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 										if(!canvas.getTempWall().getStartPoint().equals(canvas.getTempWall().getEndPoint()))
 										{
 											canvas.getTempWall().finalize();
-											ClientApplet.getController().addHouseObject(canvas.getTempWall().clone());
+											ClientApplet.getController().addModelObject(canvas.getTempWall().clone());
 										}
 										
 										canvas.setTempWall(null);
@@ -56,7 +56,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 			case "Regions":			if(!canvas.isCurrentlyBuildingRegion())
 									{
 										//Create region
-										canvas.setTempRegion(new Region((Point2D.Double)canvas.getCursorPoint().clone(),canvas.getCursorPoint(), HouseObject.randomColor()));
+										canvas.setTempRegion(new Region((Point2D.Double)canvas.getCursorPoint().clone(),canvas.getCursorPoint(), ModelObject.randomColor()));
 										canvas.setCurrentlyBuildingRegion(true);
 									}
 									else if(!canvas.getTempRegion().getStartPoint().equals(canvas.getCursorPoint()))
@@ -74,7 +74,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 										{				
 											canvas.getTempRegion().setName(name);				
 								
-											ClientApplet.getController().addHouseObject(canvas.getTempRegion().clone());
+											ClientApplet.getController().addModelObject(canvas.getTempRegion().clone());
 										}
 						
 										canvas.setTempRegion(null);
@@ -84,7 +84,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 									break;
 	
 			case "Lights":		//add light
-								ClientApplet.getController().addHouseObject(new Light((Point2D.Double)canvas.getCursorPoint().clone()));
+								ClientApplet.getController().addModelObject(new Light((Point2D.Double)canvas.getCursorPoint().clone()));
 								break;
 	
 			case "Sensors":		//add sensor
@@ -93,7 +93,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 								{									
 									//Specify which region this sensor controls
 									ArrayList<String> possibilities = new ArrayList<String>();
-									for(HouseObject object : ClientApplet.getController().getHouseObjectList())
+									for(ModelObject object : ClientApplet.getController().getModelObjects())
 									{
 										if(object instanceof Region)
 										{
@@ -119,13 +119,13 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 									
 										
 										//Add sensor to the region
-										for(HouseObject object : ClientApplet.getController().getHouseObjectList())
+										for(ModelObject object : ClientApplet.getController().getModelObjects())
 										{
 											if(object instanceof Region && ((Region) object).getName().equals(selection))
 											{
 												Sensor newSensor = new Sensor(MACAddress, (Point2D.Double)canvas.getCursorPoint().clone());
 												((Region)object).addSensor(newSensor);
-												ClientApplet.getController().addHouseObject(newSensor);
+												ClientApplet.getController().addModelObject(newSensor);
 												break;
 											}
 										}
@@ -133,9 +133,9 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 								}
 								break;
 				
-			case "Erase":		for(HouseObject object : canvas.getSelected())
+			case "Erase":		for(ModelObject object : canvas.getSelected())
 								{
-									ClientApplet.getController().removeHouseObject(object);
+									ClientApplet.getController().removeModelObject(object);
 								}
 								break;
 				
@@ -146,23 +146,23 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 		else if(SwingUtilities.isRightMouseButton(e))
 		{
 			//Check for edittable objects under right click, open object editor
-			boolean displayed = false;
+			boolean editSensor = false;
 			
 			//Edit sensor
-			for(HouseObject object : canvas.getSelected())
+			for(ModelObject object : canvas.getSelected())
 			{
 				if(object instanceof Sensor)
 				{
 					new ObjectEditor(object);
-					displayed = true;
+					editSensor = true;
 				}
 				break;
 			}
 			
-			//Edit region
-			if(!displayed)
+			//if no sensor at location, Edit region
+			if(!editSensor)
 			{
-				for(HouseObject object : canvas.getSelected())
+				for(ModelObject object : canvas.getSelected())
 				{
 					//Get the first selected region or sensor
 					if(object instanceof Region)

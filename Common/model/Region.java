@@ -10,7 +10,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-public class Region extends HouseObject
+public class Region extends ModelObject
 {
 	//Static variables will be same for all wall objects
 	private static final long serialVersionUID = 1;
@@ -122,7 +122,7 @@ public class Region extends HouseObject
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public HouseObject clone() 
+	public Region clone() 
 	{
 		Region result = new Region((Point2D.Double)startPoint.clone(), (Point2D.Double)nextPoint.clone(), unselectedColor);
 		
@@ -139,20 +139,17 @@ public class Region extends HouseObject
 	}
 	
 	@Override
-	public boolean equals(HouseObject object) 
+	public String[] getParameters() 
 	{
-		if(object instanceof Region)
-		{
-			Region temp = (Region) object;
-			if(name.equals(temp.name))
-			{
-				System.out.println("TRUE");
-				return true;
-			}
-			return false;
-		}
-		return false;
+		return new String [] {"startPoint", "nextPoint", "path", "finalized", "name", "sensors", "lightingValue"};
 	}
+
+	@Override
+	public Object[] getValues() 
+	{
+		return new Object [] {startPoint, nextPoint, path, finalized, name, sensors, lightingValue};
+	}
+	
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -221,5 +218,25 @@ public class Region extends HouseObject
         	//Set region fill color and transparency
         	g2.fill(path);       		
         }
+	}
+
+	@Override
+	public boolean equals(Object other) 
+	{
+		if (other == null) 
+		{return false;}
+		
+	    if (other == this) 
+	    {return true;}
+	    
+	    if (!(other instanceof Region))
+	    {return false;}
+	    
+	    //Class specific comparison
+	    Region region = (Region) other;
+	    if(this.path.equals(region.path))
+	    {return true;}
+	    else
+	    {return false;}  
 	}
 }

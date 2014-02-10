@@ -7,7 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
-public class Wall extends HouseObject
+public class Wall extends ModelObject
 {
 	//Static variables will be same for all wall objects
 	private static final long serialVersionUID = 1;
@@ -69,26 +69,23 @@ public class Wall extends HouseObject
 	//INTERFACE METHODS******************************************************************
 	
 	@Override
-	public HouseObject clone()
+	public Wall clone()
 	{
 		return new Wall((Point2D.Double) startPoint.clone(), (Point2D.Double) endPoint.clone());
 	}
-	
+
 	@Override
-	public boolean equals(HouseObject object) 
+	public String[] getParameters() 
 	{
-		if(object instanceof Wall)
-		{
-			Wall temp = (Wall) object;
-			if(startPoint.equals(temp.startPoint) && endPoint.equals(temp.endPoint))
-			{
-				return true;
-			}
-			return false;
-		}
-		return false;
+		return new String [] {"startPoint", "endPoint", "line"};
 	}
 
+	@Override
+	public Object[] getValues() 
+	{
+		return new Object [] {startPoint, endPoint, line};
+	}
+	
 	@Override
 	public boolean edit(String [] parameters, Object [] values) 
 	{
@@ -104,4 +101,34 @@ public class Wall extends HouseObject
         g2.setStroke(new BasicStroke(strokeWidth));
         g2.draw(new Line2D.Double(startPoint, endPoint));
 	}
+	
+	@Override
+	public String toString()
+	{
+		return ("Type: Wall StartPoint: " + startPoint + " EndPoint " + endPoint);
+	}
+
+
+	@Override
+	public boolean equals(Object other) 
+	{
+		if (other == null) 
+		{return false;}
+		
+	    if (other == this) 
+	    {return true;}
+	    
+	    if (!(other instanceof Wall))
+	    {return false;}
+	    
+	    //Class specific comparison
+	    Wall wall = (Wall) other;
+	    if(this.startPoint.equals(wall.startPoint) && this.endPoint.equals(wall.endPoint))
+	    {return true;}
+	    else
+	    {return false;}    
+	}
+
+
+	
 }

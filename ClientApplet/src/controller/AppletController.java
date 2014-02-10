@@ -2,8 +2,7 @@ package controller;
 
 import javax.swing.ImageIcon;
 
-import model.HouseObject;
-import model.User;
+import model.ModelObject;
 import view.Canvas;
 import view.ClientApplet;
 
@@ -54,14 +53,13 @@ public class AppletController extends GenericController
 		canvas.repaint();
 	}
 	
-	//MODIFY MODEL - HOUSE OBJECTS****************************************************
+	//MODIFY MODEL ***********************************************************
 	
-	public void addHouseObject(HouseObject object)
+	public void addModelObject(ModelObject object)
 	{
-		if(systemModel.getHouseObjectList().add(object));
+		if(systemModel.getModelObjectList().add(object));
 		{
-			//TEST
-			systemModel.getUserList().add(new User("Brian", "ABCDEDGH12345678", HouseObject.randomColor()));
+			//Notify local subscribers
 			notifyModelSubscribers();
 			
 			//Send to baseStation
@@ -69,28 +67,17 @@ public class AppletController extends GenericController
 		}
 	}
 
-	public void removeHouseObject(HouseObject object)
+	public void removeModelObject(ModelObject object)
 	{
-		if(systemModel.getHouseObjectList().remove(object));
-		{notifyModelSubscribers();}
+		if(systemModel.getModelObjectList().remove(object));
+		{
+			notifyModelSubscribers();
 		
-		//Send to baseStation
-		comThread.sendModel();
+			//Send to baseStation
+			comThread.sendModel();
+		}
 	}
-	
-	
-	//MODIFY MODEL -  USERS*************************************************************
-	/*public void addUser(User user)
-	{
-		systemModel.getUserList().add(user);
-		notifyModelSubscribers();
-	}
-	public void removeUser(User user)
-	{
-		systemModel.getUserList().remove(user);
-		notifyModelSubscribers();
-	}*/
-	
+		
 	
 	//LOAD IMAGE FROM HOST************************************************************
 	
