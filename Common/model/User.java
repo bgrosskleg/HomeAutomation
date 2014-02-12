@@ -84,13 +84,13 @@ public class User extends ModelObject
 	@Override
 	public String[] getParameters() 
 	{
-		return new String [] {"location", "name", "MACAddress", "preferredLightingValue"};
+		return new String [] {"location", "name", "MACAddress", "preferredLightingValue", "color"};
 	}
 
 	@Override
 	public Object[] getValues() 
 	{
-		return new Object [] {location, name, MACAddress, preferredLightingValue};
+		return new Object [] {location, name, MACAddress, preferredLightingValue, unselectedColor};
 	}
 	
 	@Override
@@ -142,6 +142,21 @@ public class User extends ModelObject
 					if(!MACAddress.equals((String)values[iter]))
 					{
 						MACAddress = (String)values[iter];
+						objectEditted = true;
+					}
+				}
+				else
+				{
+					throw new Exception("Object " + iter + "is not of type String!");
+				}
+			}
+			else if(parameters[iter].equals("preferredLightingValue"))
+			{
+				if(values[iter] instanceof Integer)
+				{
+					if(preferredLightingValue != ((Integer)values[iter]))
+					{
+						preferredLightingValue = (Integer)values[iter];
 						objectEditted = true;
 					}
 				}

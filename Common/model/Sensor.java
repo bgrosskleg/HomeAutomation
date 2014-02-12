@@ -19,6 +19,7 @@ public class Sensor extends ModelObject
 	private String MACAddress;
 	private int lightingValue;
 	private int radius;
+	private Region pairedRegion;
 
 	
 	//CONSTRUCTOR*****************************************************************
@@ -26,13 +27,14 @@ public class Sensor extends ModelObject
 	 * creates a new sensor at point p
 	 * @param p the new point
 	 */
-	public Sensor(String ID, Point2D.Double p)
+	public Sensor(String ID, Region region, Point2D.Double p)
 	{
 		//Super(unselectedColor, selectedColor)
 		super(new Color(200,0,235), Color.RED);	
 		location = p;
 		MACAddress = ID;
 		radius = 75;
+		setPairedRegion(region);
 	}
 
 	//MUTATORS AND ACCESSORS*******************************************************
@@ -72,8 +74,38 @@ public class Sensor extends ModelObject
 		this.lightingValue = lightingValue;
 	}
 	
+	public Region getPairedRegion() 
+	{
+		return pairedRegion;
+	}
+
+	public void setPairedRegion(Region pairedRegion) 
+	{
+		this.pairedRegion = pairedRegion;
+	}
+	
 	
 	//INTERFACE METHODS************************************************************
+	
+	@Override
+	public boolean equals(Object other) 
+	{
+		if (other == null) 
+		{return false;}
+		
+	    if (other == this) 
+	    {return true;}
+	    
+	    if (!(other instanceof Light))
+	    {return false;}
+	    
+	    //Class specific comparison
+	    Sensor sensor = (Sensor) other;
+	    if(this.location.equals(sensor.location))
+	    {return true;}
+	    else
+	    {return false;}    
+	}
 	
 	@Override
 	public String[] getParameters() 
@@ -138,11 +170,4 @@ public class Sensor extends ModelObject
         Ellipse2D.Double RSSICircle = new Ellipse2D.Double((getLocation().x-radius), (getLocation().y-radius), radius*2 , radius*2);
         g2.draw(RSSICircle);
 	}
-
-	@Override
-	public boolean equals(Object other) 
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}	
 }

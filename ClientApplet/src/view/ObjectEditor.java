@@ -6,8 +6,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -65,17 +68,41 @@ public class ObjectEditor extends JFrame
 				
 				gbc.gridy = 2;
 				gbc.gridx = 0;
-				add(new JLabel("Regions: "), gbc);
+				add(new JLabel("Paired Region: "), gbc);
 				gbc.gridx = 1;
-				ComparisonBoxes compBox = new ComparisonBoxes();
-				this.add(compBox , gbc);
+				ArrayList<String> possibilities = new ArrayList<String>();
+				String defaultOption = "None - Must be paired to a region later";
+				possibilities.add(defaultOption);
+				
+				DefaultComboBoxModel<Region> regionListModel = new DefaultComboBoxModel<Region>();
+				for(ModelObject object2 : ClientApplet.getController().getModelObjects())
+				{
+					if(object2 instanceof Region)
+					{
+						Region region = (Region) object2;
+						regionListModel.addElement(region);
+					}
+				}
+				
+				JComboBox<Region> regionList = new JComboBox<Region>(regionListModel);
+				if(sensor.getPairedRegion() != null)
+				{
+					regionList.setSelectedItem(sensor.getPairedRegion());
+				}
+				else
+				{
+					regionList.setSelectedIndex(0);
+				}
+				regionList.addActionListener(regionList);
+				
+				this.add(regionList , gbc);
+				
 				
 				gbc.gridy = 3;
 				gbc.gridx = 0;
 				this.add(new JLabel("Lighting Value: "), gbc);
 				gbc.gridx = 1;
-				JLabel status = new JLabel("Status...");
-				this.add(status, gbc);
+				this.add(new JLabel(String.valueOf(sensor.getLightingValue())), gbc);
 				
 				
 				JButton OKButton = new JButton("OK");
@@ -137,17 +164,11 @@ public class ObjectEditor extends JFrame
 				
 				gbc.gridy = 2;
 				gbc.gridx = 0;
-				add(new JLabel("Sensors: "), gbc);
+				add(new JLabel("Occupied by: "), gbc);
 				gbc.gridx = 1;
-				ComparisonBoxes compBox = new ComparisonBoxes();
-				this.add(compBox , gbc);
 				
-				gbc.gridy = 3;
-				gbc.gridx = 0;
-				this.add(new JLabel("Region: "), gbc);
-				gbc.gridx = 1;
-				JLabel status = new JLabel("Status...");
-				this.add(status, gbc);
+				//Add list box of current users occupying region
+				
 				
 				
 				JButton OKButton = new JButton("OK");
@@ -191,15 +212,6 @@ public class ObjectEditor extends JFrame
 
 		}
 	
-		private class ComparisonBoxes extends JPanel
-		{
-			private static final long serialVersionUID = 1L;
-
-			private ComparisonBoxes()
-			{
-				//To complete...
-			}
-		}
 
 		@Override
 		public void modelChanged() 

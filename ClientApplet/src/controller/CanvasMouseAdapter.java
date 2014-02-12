@@ -93,6 +93,8 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 								{									
 									//Specify which region this sensor controls
 									ArrayList<String> possibilities = new ArrayList<String>();
+									String defaultOption = "None - Must be paired to a region later";
+									possibilities.add(defaultOption);
 									for(ModelObject object : ClientApplet.getController().getModelObjects())
 									{
 										if(object instanceof Region)
@@ -101,29 +103,28 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 										}
 									}
 									
-									if(possibilities.isEmpty())
+									String selection = (String) JOptionPane.showInputDialog(
+											null, 
+											"Please select which region this sensor is controlling\n",
+											"Add Sensor",
+											JOptionPane.PLAIN_MESSAGE,
+											null, 
+											possibilities.toArray(),
+											possibilities.get(0));
+
+
+									//Add sensor to the region
+									if(selection == defaultOption)
 									{
-										JOptionPane.showMessageDialog(null, "Please create a region for this sensor to control first!", "Add Sensor", JOptionPane.PLAIN_MESSAGE);
-										System.out.println("Please create a region for this sensor to control first!");
+										ClientApplet.getController().addModelObject(new Sensor(MACAddress, null, (Point2D.Double)canvas.getCursorPoint().clone()));
 									}
 									else
 									{
-										String selection = (String) JOptionPane.showInputDialog(
-												null, 
-												"Please select which region this sensor is controlling\n",
-												"Add Sensor",
-												JOptionPane.PLAIN_MESSAGE,
-												null, 
-												possibilities.toArray(),
-												possibilities.get(0));
-									
-										
-										//Add sensor to the region
 										for(ModelObject object : ClientApplet.getController().getModelObjects())
 										{
 											if(object instanceof Region && ((Region) object).getName().equals(selection))
 											{
-												Sensor newSensor = new Sensor(MACAddress, (Point2D.Double)canvas.getCursorPoint().clone());
+												Sensor newSensor = new Sensor(MACAddress, (Region)object, (Point2D.Double)canvas.getCursorPoint().clone());
 												((Region)object).addSensor(newSensor);
 												ClientApplet.getController().addModelObject(newSensor);
 												break;

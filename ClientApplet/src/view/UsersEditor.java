@@ -22,9 +22,13 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -53,7 +57,7 @@ public class UsersEditor extends JFrame
 	{
 		private static final long serialVersionUID = 1L;
 		
-		private DefaultListModel<User> listModel;
+		private DefaultListModel<User> userListModel;
 		private JList<User> userList;
 		
 		JButton newUser;
@@ -76,18 +80,18 @@ public class UsersEditor extends JFrame
 			add(new JLabel("Users"), gbc);
 			
 			//Create and populate the list model
-			listModel = new DefaultListModel<User>();
+			userListModel = new DefaultListModel<User>();
 			for(ModelObject object : ClientApplet.getController().getModelObjects())
 			{
 				if(object instanceof User)
 				{
 					User user = (User) object;
-					listModel.addElement(user);
+					userListModel.addElement(user);
 				}
 			}
 			
 			//Create the list from the model and set rendering style
-			userList = new JList<User>(listModel); 
+			userList = new JList<User>(userListModel); 
 			UserCellRenderer renderer = new UserCellRenderer(null);
 			userList.setCellRenderer(renderer);
 			userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -192,33 +196,33 @@ public class UsersEditor extends JFrame
 				if(object instanceof User)
 				{
 					User user = (User) object;
-					if(!listModel.contains(user))
+					if(!userListModel.contains(user))
 					{
-						listModel.addElement(user);
+						userListModel.addElement(user);
 					}
 				}
 			}
 
 			//Remove a user from listModel that should no longer be in it
-			for(int iter = 0; iter < listModel.getSize(); iter++)
+			for(int iter = 0; iter < userListModel.getSize(); iter++)
 			{
-				if(!ClientApplet.getController().getModelObjects().contains(listModel.get(iter)))
+				if(!ClientApplet.getController().getModelObjects().contains(userListModel.get(iter)))
 				{
-					listModel.remove(iter);
+					userListModel.remove(iter);
 				}
 			}
 			
 			//Update list links to any existing objects
-			for(int iter = 0; iter < listModel.getSize(); iter++)
+			for(int iter = 0; iter < userListModel.getSize(); iter++)
 			{
 				for(ModelObject object : ClientApplet.getController().getModelObjects())
 				{
 					if(object instanceof User)
 					{
 						User user = (User) object;
-						if(listModel.get(iter).equals(user))
+						if(userListModel.get(iter).equals(user))
 						{
-							listModel.setElementAt(user, iter);
+							userListModel.setElementAt(user, iter);
 						}
 					}
 				}
@@ -251,6 +255,11 @@ public class UsersEditor extends JFrame
 	{
 		private static final long serialVersionUID = 1L;
 		
+		private JTextField name;
+		private JTextField MACAddress;
+		private JSlider slider;
+		private JLabel value;
+		
 		UserEditorPane(final JFrame frame, final User user)
 		{
 			super();
@@ -269,8 +278,7 @@ public class UsersEditor extends JFrame
 			add(new JLabel("MAC Address: "),gbc);
 			
 			
-			final JTextField name;
-			final JTextField MACAddress;
+			//Set name and user
 			if(user != null)
 			{
 				name = new JTextField(user.getName(),15);
@@ -310,6 +318,48 @@ public class UsersEditor extends JFrame
 			add(colorChooser, gbc);
 			
 			
+			//Add lighting value slider
+			if(user != null)
+			{
+				slider = new JSlider(SwingConstants.VERTICAL, 0, 100, user.getPreferredLightingValue());
+			}
+			else
+			{
+				slider = new JSlider(SwingConstants.VERTICAL, 0, 100, 100);	
+			}
+			slider.setMajorTickSpacing(10);
+			slider.setPaintTicks(true);
+			slider.setPaintLabels(true);
+			
+			//Sync slider and JTextField
+			slider.addChangeListener(new ChangeListener() 
+			{
+				public void stateChanged(ChangeEvent changeEvent) 
+				{
+					JSlider theSlider = (JSlider) changeEvent.getSource();
+					value.setText(String.valueOf(theSlider.getValue()+"%"));
+				}
+			});
+			
+			value = new JLabel(String.valueOf(slider.getValue()+"%"));
+			
+			gbc.gridx = 2;
+			gbc.gridy = 1;
+			gbc.weightx = 0.25;
+			gbc.gridwidth = 2;
+			gbc.gridheight = 1;
+			gbc.fill = GridBagConstraints.NONE;
+			add(new JLabel("Lighting Value"), gbc);
+			
+			gbc.gridy = 2;
+			gbc.gridheight = 2;
+			add(slider, gbc);
+			
+			gbc.gridy = 4;
+			gbc.gridheight = 1;
+			add(value, gbc);
+						
+			
 			JButton OK = new JButton("OK");
 			OK.addActionListener(new ActionListener()
 			{
@@ -319,15 +369,13 @@ public class UsersEditor extends JFrame
 					//Grab new data and either create or modify user
 					if(user == null)
 					{
-						System.err.println("Create new object");
-						ClientApplet.getController().addModelObject(new User(name.getText(), MACAddress.getText(), 100, colorChooser.getCurrentColor()));
+						ClientApplet.getController().addModelObject(new User(name.getText(), MACAddress.getText(), slider.getValue(), colorChooser.getCurrentColor()));
 					}
 					else
 					{
-						System.err.println("Modifying object");
 						//Modify existing user
-						String [] parameters = new String [] {"name", "MACAddress", "color"};
-						Object [] values = new Object [] {name.getText(), MACAddress.getText(), colorChooser.getCurrentColor()};
+						String [] parameters = new String [] {"name", "MACAddress", "preferredLightingValue", "color"};
+						Object [] values = new Object [] {name.getText(), MACAddress.getText(), slider.getValue(), colorChooser.getCurrentColor()};
 						ClientApplet.getController().modifyObject(user, parameters, values);				
 					}
 					frame.dispose();
@@ -337,7 +385,6 @@ public class UsersEditor extends JFrame
 			gbc.gridwidth = 1;
 			gbc.gridheight = 1;
 			gbc.weightx = 0.125;
-			gbc.fill = GridBagConstraints.NONE;
 			gbc.gridy = 5;
 			gbc.gridx = 2;
 			add(OK, gbc);
