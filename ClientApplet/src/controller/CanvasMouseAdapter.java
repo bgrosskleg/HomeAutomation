@@ -10,7 +10,8 @@ import javax.swing.event.MouseInputAdapter;
 
 import view.ClientApplet;
 import view.Canvas;
-import view.ObjectEditor;
+import view.RegionEditor;
+import view.StaticNodeEditor;
 import model.ModelObject;
 import model.Light;
 import model.Region;
@@ -154,7 +155,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 			{
 				if(object instanceof StaticNode)
 				{
-					new ObjectEditor(object);
+					new StaticNodeEditor((StaticNode)object);
 					editSensor = true;
 				}
 				break;
@@ -167,7 +168,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 				{
 					//Get the first selected region or sensor
 					if(object instanceof Region)
-					{new ObjectEditor(object);}
+					{new RegionEditor((Region)object);}
 					break;
 				}
 			}

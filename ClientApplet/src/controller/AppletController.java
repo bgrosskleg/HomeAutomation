@@ -3,6 +3,8 @@ package controller;
 import javax.swing.ImageIcon;
 
 import model.ModelObject;
+import model.Region;
+import model.StaticNode;
 import view.Canvas;
 import view.ClientApplet;
 
@@ -71,6 +73,26 @@ public class AppletController extends GenericController
 	{
 		if(systemModel.getModelObjectList().remove(object));
 		{
+			//Remove links from static nodes and regions
+			if(object instanceof StaticNode)
+			{
+				StaticNode staticNode = (StaticNode) object;
+				if(staticNode.getPairedRegion() != null)
+				{staticNode.getPairedRegion().removeStaticNode(staticNode);}
+			}
+			
+			if(object instanceof Region)
+			{
+				Region region = (Region) object;
+				for(StaticNode staticNode : region.getStaticNodes())
+				{
+					staticNode.setPairedRegion(null);
+				}
+			}
+			
+			
+			
+			//Notify local subscribers
 			notifyModelSubscribers();
 		
 			//Send to baseStation
