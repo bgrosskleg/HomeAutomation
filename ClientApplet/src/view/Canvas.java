@@ -17,7 +17,7 @@ import controller.CanvasMouseAdapter;
 import model.ModelObject;
 import model.Light;
 import model.Region;
-import model.Sensor;
+import model.StaticNode;
 import model.User;
 import model.Wall;
 
@@ -133,9 +133,9 @@ public class Canvas extends JPanel
 		
 		for(ModelObject object : ClientApplet.getController().getModelObjects())
 		{
-				if(object instanceof Sensor)
+				if(object instanceof StaticNode)
 				{
-					if(((Sensor)object).getLocation().equals(cursorPoint))
+					if(((StaticNode)object).getLocation().equals(cursorPoint))
 					{	
 						selected.add(object);
 					}	
@@ -154,7 +154,7 @@ public class Canvas extends JPanel
 			g2.setColor(object.getSelectedColor());
 			object.paintComponent(g2);
 			
-			if(object instanceof Region || object instanceof Sensor)
+			if(object instanceof Region || object instanceof StaticNode)
 			{
 				//Paint label
 				g2.setColor(Color.BLACK);

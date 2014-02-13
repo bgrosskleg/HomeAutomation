@@ -1,12 +1,13 @@
 package model;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
-public class Sensor extends ModelObject
+public class StaticNode extends ModelObject
 {
 	//Static variables will be same for all wall objects
 	private static final long serialVersionUID = 1;
@@ -27,7 +28,7 @@ public class Sensor extends ModelObject
 	 * creates a new sensor at point p
 	 * @param p the new point
 	 */
-	public Sensor(String ID, Region region, Point2D.Double p)
+	public StaticNode(String ID, Region region, Point2D.Double p)
 	{
 		//Super(unselectedColor, selectedColor)
 		super(new Color(200,0,235), Color.RED);	
@@ -100,7 +101,7 @@ public class Sensor extends ModelObject
 	    {return false;}
 	    
 	    //Class specific comparison
-	    Sensor sensor = (Sensor) other;
+	    StaticNode sensor = (StaticNode) other;
 	    if(this.location.equals(sensor.location))
 	    {return true;}
 	    else
@@ -152,8 +153,20 @@ public class Sensor extends ModelObject
 					throw new Exception("Value " + iter + " is not of type String!");
 				}
 			}
+			else if(parameters[iter].equals("pairedRegion"))
+			{
+				if(values[iter] instanceof Region || values[iter] == null)
+				{
+					pairedRegion = (Region) values[iter];
+				}
+				else
+				{
+					throw new Exception("Value " + iter + " is not of type Region!");
+				}
+			}
+			
 		}
-		throw new Exception("No parameters editted!");
+		return false;
 	}
 	
 	@Override
@@ -168,6 +181,7 @@ public class Sensor extends ModelObject
         
         //Draw RSSI radius
         Ellipse2D.Double RSSICircle = new Ellipse2D.Double((getLocation().x-radius), (getLocation().y-radius), radius*2 , radius*2);
+        g2.setStroke(new BasicStroke(4));
         g2.draw(RSSICircle);
 	}
 }

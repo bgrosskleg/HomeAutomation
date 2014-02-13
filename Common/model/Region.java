@@ -26,7 +26,10 @@ public class Region extends ModelObject
 	private String name;
 	
 	//List of all sensors tied to the region
-	private ArrayList<Sensor> sensors;
+	private ArrayList<StaticNode> staticNodes;
+	
+	//List of all users occupying the region
+	private ArrayList<User> users;
 	
 	//Lighting value 0-100%
 	private int lightingValue;
@@ -49,8 +52,9 @@ public class Region extends ModelObject
 		finalized = false;
 		
 		//Region features
-		sensors = new ArrayList<Sensor>();
-		lightingValue = 50;
+		staticNodes = new ArrayList<StaticNode>();
+		users = new ArrayList<User>();
+		lightingValue = 0;
 	}
 	
 	//CONSTRUCTING METHODS*****************************************************************
@@ -67,9 +71,28 @@ public class Region extends ModelObject
 		finalized = true;
 	}
 	
-	public void addSensor(Sensor s)
+	public void addStaticNode(StaticNode s)
 	{
-		sensors.add(s);
+		staticNodes.add(s);
+	}
+	
+	public void removeStaticNode(StaticNode s)
+	{
+		staticNodes.remove(s);
+	}
+	
+	//XBEE COMMUNICATION*******************************************************************
+	
+	public void notifyStaticNodes()
+	{
+		for(StaticNode staticNode : staticNodes)
+		{
+			//Send lighting command
+			//TO BE DONE
+			System.out.println("SEND XBEE COMMAND TO:");
+			System.out.println("STATIC NODE: " + staticNode.getMACAddress());
+			System.out.println("LIGHTING VALUE: " + lightingValue);
+		}
 	}
 	
 	//MUTATORS AND ACCESSORS***************************************************************
@@ -101,6 +124,15 @@ public class Region extends ModelObject
 		return startPoint;
 	}
 
+	public ArrayList<StaticNode> getStaticNodes()
+	{
+		return staticNodes;
+	}
+	
+	public ArrayList<User> getUsers()
+	{
+		return users;
+	}
 
 	public GeneralPath getPath() 
 	{
@@ -133,7 +165,7 @@ public class Region extends ModelObject
 		
 		//Clone objects that are references
 		result.path = (GeneralPath) this.path.clone();
-		result.sensors = (ArrayList<Sensor>) this.sensors.clone();
+		result.staticNodes = (ArrayList<StaticNode>) this.staticNodes.clone();
 		
 		return result;
 	}
@@ -141,13 +173,13 @@ public class Region extends ModelObject
 	@Override
 	public String[] getParameters() 
 	{
-		return new String [] {"startPoint", "nextPoint", "path", "finalized", "name", "sensors", "lightingValue"};
+		return new String [] {"startPoint", "nextPoint", "path", "finalized", "name", "staticNodes", "users", "lightingValue"};
 	}
 
 	@Override
 	public Object[] getValues() 
 	{
-		return new Object [] {startPoint, nextPoint, path, finalized, name, sensors, lightingValue};
+		return new Object [] {startPoint, nextPoint, path, finalized, name, staticNodes, users, lightingValue};
 	}
 	
 	
@@ -174,11 +206,22 @@ public class Region extends ModelObject
 					throw new Exception("Value " + iter + " is not of type String!");
 				}
 			}
-			else if(parameters[iter].equals("sensors"))
+			else if(parameters[iter].equals("staticNodes"))
 			{
 				if(values[iter] instanceof ArrayList)
 				{
-					sensors = (ArrayList<Sensor>) values[iter];
+					staticNodes = (ArrayList<StaticNode>) values[iter];
+				}
+				else
+				{
+					throw new Exception("Value " + iter + " is not of type ArrayList!");
+				}
+			}
+			else if(parameters[iter].equals("users"))
+			{
+				if(values[iter] instanceof ArrayList)
+				{
+					users = (ArrayList<User>) values[iter];
 				}
 				else
 				{
@@ -197,7 +240,7 @@ public class Region extends ModelObject
 				}
 			}
 		}
-		throw new Exception("No parameters editted!");
+		return false;
 	}	
 	
 	public void paintComponent(Graphics g)

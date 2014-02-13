@@ -5,7 +5,8 @@ import interfaces.ModelSubscriber;
 import java.util.ArrayList;
 
 import model.ModelObject;
-import model.Sensor;
+import model.Region;
+import model.StaticNode;
 import model.SystemModel;
 import model.User;
 
@@ -97,7 +98,12 @@ public abstract class GenericController implements ModelSubscriber
 			try 
 			{
 				if(object.edit(parameters, values))
-				{
+				{					
+					//Redetermine occupied regions
+					if(object instanceof User)
+					{updateStaticNodes();}
+					
+					//Notify local subscribers
 					notifyModelSubscribers();
 					
 					//Send model to other end
@@ -108,6 +114,72 @@ public abstract class GenericController implements ModelSubscriber
 			{
 				System.err.println(e.getMessage());
 				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void updateStaticNodes()
+	{
+		//O(n^2)
+		
+		for(ModelObject object1 : systemModel.getModelObjectList())
+		{
+			if(object1 instanceof Region)
+			{
+				Region region = (Region) object1;
+				
+				for(ModelObject object2 : systemModel.getModelObjectList())
+				{
+					if(object2 instanceof User)
+					{
+						User user = (User) object2;
+						
+						if(region.getPath().contains(user.getLocation()))
+						{
+							//Add user to region
+							if(!region.getUsers().contains(user))
+							{
+								region.getUsers().add(user);
+								
+								//Set region lighting value to highest user
+								if(region.getLightingValue() < user.getPreferredLightingValue())
+								{
+									region.setLightingValue(user.getPreferredLightingValue());
+								}
+								
+								//Notify all regions static nodes
+								region.notifyStaticNodes();
+							}
+						}
+						else
+						{
+							//Remove user from region
+							if(region.getUsers().contains(user))
+							{
+								region.getUsers().remove(user);
+								
+								//Set region lighting to next highest value, off if empty
+								if(region.getUsers().isEmpty())
+								{
+									region.setLightingValue(0);
+								}
+								else
+								{
+									for(User user2 : region.getUsers())
+									{
+										if(region.getLightingValue() < user2.getPreferredLightingValue())
+										{
+											region.setLightingValue(user2.getPreferredLightingValue());
+										}
+									}
+								}
+								
+								//Notify all regions static nodes
+								region.notifyStaticNodes();
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -133,13 +205,13 @@ public abstract class GenericController implements ModelSubscriber
 		 return null;
 	}
 	
-	public Sensor getSensor(String MACAddress)
+	public StaticNode getSensor(String MACAddress)
 	{
 		 for(ModelObject object : getModelObjects())
 		 {
-			 if(object instanceof Sensor)
+			 if(object instanceof StaticNode)
 			 {
-				 Sensor sensor = (Sensor) object;
+				 StaticNode sensor = (StaticNode) object;
 				 if(sensor.getMACAddress().equals(MACAddress))
 				 {
 					 return sensor;

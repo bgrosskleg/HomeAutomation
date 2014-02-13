@@ -14,7 +14,7 @@ import view.ObjectEditor;
 import model.ModelObject;
 import model.Light;
 import model.Region;
-import model.Sensor;
+import model.StaticNode;
 import model.Wall;
 
 public class CanvasMouseAdapter extends MouseInputAdapter
@@ -87,7 +87,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 								ClientApplet.getController().addModelObject(new Light((Point2D.Double)canvas.getCursorPoint().clone()));
 								break;
 	
-			case "Sensors":		//add sensor
+			case "Static Node":	//add static node
 								String MACAddress = JOptionPane.showInputDialog(null, "Please enter the sensor's MAC address:", "Add Sensor", JOptionPane.INFORMATION_MESSAGE);
 								if(MACAddress != null && MACAddress.length() > 0)
 								{									
@@ -116,7 +116,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 									//Add sensor to the region
 									if(selection == defaultOption)
 									{
-										ClientApplet.getController().addModelObject(new Sensor(MACAddress, null, (Point2D.Double)canvas.getCursorPoint().clone()));
+										ClientApplet.getController().addModelObject(new StaticNode(MACAddress, null, (Point2D.Double)canvas.getCursorPoint().clone()));
 									}
 									else
 									{
@@ -124,9 +124,9 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 										{
 											if(object instanceof Region && ((Region) object).getName().equals(selection))
 											{
-												Sensor newSensor = new Sensor(MACAddress, (Region)object, (Point2D.Double)canvas.getCursorPoint().clone());
-												((Region)object).addSensor(newSensor);
-												ClientApplet.getController().addModelObject(newSensor);
+												StaticNode newStaticNode = new StaticNode(MACAddress, (Region)object, (Point2D.Double)canvas.getCursorPoint().clone());
+												((Region)object).addStaticNode(newStaticNode);
+												ClientApplet.getController().addModelObject(newStaticNode);
 												break;
 											}
 										}
@@ -152,7 +152,7 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 			//Edit sensor
 			for(ModelObject object : canvas.getSelected())
 			{
-				if(object instanceof Sensor)
+				if(object instanceof StaticNode)
 				{
 					new ObjectEditor(object);
 					editSensor = true;
