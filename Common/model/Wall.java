@@ -89,9 +89,8 @@ public class Wall extends ModelObject
 	@Override
 	public boolean edit(String [] parameters, Object [] values) 
 	{
-		return false;
-		// TODO Auto-generated method stub
-		
+		//Walls are not edittable
+		return false;	
 	}
 	
 	@Override

@@ -69,27 +69,8 @@ public class Light extends ModelObject
 	@Override
 	public boolean edit(String [] parameters, Object [] values) throws Exception 
 	{
-		if(parameters.length != values.length)
-		{
-			throw new Exception("Parameter list not the same length as value list!");
-		}
-		
-		for(int iter = 0; iter < parameters.length; iter++)
-		{
-			if(parameters[iter].equals("location"))
-			{
-				if(values[iter] instanceof Point2D.Double)
-				{
-					location = (Point2D.Double)values[iter];
-					return true;
-				}
-				else
-				{
-					throw new Exception("Object " + iter + "is not of type Point2D.Double!");
-				}
-			}
-		}
-		throw new Exception("No parameters editted!");
+		//Lights are unedittable
+		return false;
 	}
 	
 	@Override

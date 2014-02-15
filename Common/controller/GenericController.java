@@ -12,6 +12,8 @@ import model.User;
 
 public abstract class GenericController implements ModelSubscriber
 {			
+	public static final boolean VERBOSE = false;
+	
 	//List of subscribers
 	protected ArrayList<ModelSubscriber> modelSubscriberList;
 	
@@ -26,7 +28,7 @@ public abstract class GenericController implements ModelSubscriber
 		systemModel = new SystemModel();	
 	}
 	
-	protected void updateSystemModel(SystemModel newModel)
+	protected synchronized void updateSystemModel(SystemModel newModel)
 	{
 		//Perform a diff function on the local model and new model and update local rather than overwrite to 
 		//keep local model links etc intact
@@ -37,6 +39,8 @@ public abstract class GenericController implements ModelSubscriber
 		//Therefore, adding or removing items is fine, but UPDATING objects should be done by exchanging paramters and values, not 
 		//overwriting
 		
+		if(GenericController.VERBOSE)
+		{System.out.println("OLD: " + systemModel.toString());}
 		
 		//Add missing objects
 		for(ModelObject newObject : newModel.getModelObjectList())
@@ -85,13 +89,16 @@ public abstract class GenericController implements ModelSubscriber
 				}
 			}
 		
+		if(GenericController.VERBOSE)
+		{System.out.println("NEW: " + systemModel.toString());}
+		
 		notifyModelSubscribers();
 	}
 		
 	
 	//MODIFY MODEL***********************************************************
 	
-	public void modifyObject(ModelObject object, String [] parameters, Object [] values)
+	public synchronized void modifyObject(ModelObject object, String [] parameters, Object [] values)
 	{
 		if(systemModel.getModelObjectList().contains(object))
 		{
@@ -99,7 +106,7 @@ public abstract class GenericController implements ModelSubscriber
 			{
 				if(object.edit(parameters, values))
 				{					
-					//Redetermine occupied regions
+					//Re-determine occupied regions
 					if(object instanceof User)
 					{updateStaticNodes();}
 					
@@ -116,9 +123,13 @@ public abstract class GenericController implements ModelSubscriber
 				e.printStackTrace();
 			}
 		}
+		else
+		{
+			System.err.println("Object not part of systemModel list!");
+		}
 	}
 	
-	private void updateStaticNodes()
+	private synchronized void updateStaticNodes()
 	{
 		//O(n^2)
 		
@@ -148,7 +159,16 @@ public abstract class GenericController implements ModelSubscriber
 								}
 								
 								//Notify all regions static nodes
-								region.notifyStaticNodes();
+								for(StaticNode staticNode : region.getStaticNodes())
+								{
+									staticNode.setLightingValue(region.getLightingValue());
+									
+									//Send lighting command
+									//TO BE DONE
+									System.out.println("SEND XBEE COMMAND TO:");
+									System.out.println("STATIC NODE: " + staticNode.getMACAddress());
+									System.out.println("LIGHTING VALUE: " + region.getLightingValue());
+								}
 							}
 						}
 						else
@@ -175,7 +195,16 @@ public abstract class GenericController implements ModelSubscriber
 								}
 								
 								//Notify all regions static nodes
-								region.notifyStaticNodes();
+								for(StaticNode staticNode : region.getStaticNodes())
+								{
+									staticNode.setLightingValue(region.getLightingValue());
+									
+									//Send lighting command
+									//TO BE DONE
+									System.out.println("SEND XBEE COMMAND TO:");
+									System.out.println("STATIC NODE: " + staticNode.getMACAddress());
+									System.out.println("LIGHTING VALUE: " + region.getLightingValue());
+								}
 							}
 						}
 					}

@@ -80,21 +80,7 @@ public class Region extends ModelObject
 	{
 		staticNodes.remove(s);
 	}
-	
-	//XBEE COMMUNICATION*******************************************************************
-	
-	public void notifyStaticNodes()
-	{
-		for(StaticNode staticNode : staticNodes)
-		{
-			//Send lighting command
-			//TO BE DONE
-			System.out.println("SEND XBEE COMMAND TO:");
-			System.out.println("STATIC NODE: " + staticNode.getMACAddress());
-			System.out.println("LIGHTING VALUE: " + lightingValue);
-		}
-	}
-	
+		
 	//MUTATORS AND ACCESSORS***************************************************************
 	
 	public boolean isFinalized()
@@ -148,8 +134,7 @@ public class Region extends ModelObject
 	{
 		this.lightingValue = lightingValue;		
 	}
-	
-	
+		
 	//INTERFACE METHODS********************************************************************
 	
 	@SuppressWarnings("unchecked")
@@ -166,6 +151,7 @@ public class Region extends ModelObject
 		//Clone objects that are references
 		result.path = (GeneralPath) this.path.clone();
 		result.staticNodes = (ArrayList<StaticNode>) this.staticNodes.clone();
+		result.users = (ArrayList<User>) this.users.clone();
 		
 		return result;
 	}
@@ -187,6 +173,8 @@ public class Region extends ModelObject
 	@Override
 	public boolean edit(String [] parameters, Object [] values) throws Exception 
 	{
+		boolean objectEditted = false;
+		
 		if(parameters.length != values.length)
 		{
 			throw new Exception("Parameter list not the same length as value list!");
@@ -198,8 +186,11 @@ public class Region extends ModelObject
 			{
 				if(values[iter] instanceof String)
 				{
-					name = (String)values[iter];
-					return true;
+					if(!name.equals((String)values[iter]))
+					{
+						name = (String)values[iter];
+						objectEditted = true;
+					}
 				}
 				else
 				{
@@ -210,7 +201,11 @@ public class Region extends ModelObject
 			{
 				if(values[iter] instanceof ArrayList)
 				{
-					staticNodes = (ArrayList<StaticNode>) values[iter];
+					if(!staticNodes.equals((ArrayList<StaticNode>)values[iter]))
+					{
+						staticNodes = (ArrayList<StaticNode>) values[iter];
+						objectEditted = true;
+					}
 				}
 				else
 				{
@@ -221,7 +216,11 @@ public class Region extends ModelObject
 			{
 				if(values[iter] instanceof ArrayList)
 				{
-					users = (ArrayList<User>) values[iter];
+					if(!users.equals((ArrayList<User>)values[iter]))
+					{
+						users = (ArrayList<User>) values[iter];
+						objectEditted = true;
+					}
 				}
 				else
 				{
@@ -232,7 +231,11 @@ public class Region extends ModelObject
 			{
 				if(values[iter] instanceof Integer)
 				{
-					lightingValue = (Integer) values[iter];
+					if(lightingValue != (Integer) values[iter])
+					{
+						lightingValue = (Integer) values[iter];
+						objectEditted = true;
+					}
 				}
 				else
 				{
@@ -240,7 +243,7 @@ public class Region extends ModelObject
 				}
 			}
 		}
-		return false;
+		return objectEditted;
 	}	
 	
 	public void paintComponent(Graphics g)
@@ -276,8 +279,10 @@ public class Region extends ModelObject
 	    {return false;}
 	    
 	    //Class specific comparison
-	    Region region = (Region) other;
-	    if(this.path.equals(region.path))
+	    //When modifying name, first call in modifyObject is contains which uses equals
+	    //at this point names are the same, then modifyObject changes name but reference is already established
+	    Region region = (Region) other;	    
+	    if(this.name.equals(region.name))
 	    {return true;}
 	    else
 	    {return false;}  

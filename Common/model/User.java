@@ -183,14 +183,7 @@ public class User extends ModelObject
 			}
 		}
 		
-		if(objectEditted)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return objectEditted;
 	}
 	
 	public void paintComponent(Graphics g) 

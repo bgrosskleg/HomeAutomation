@@ -47,9 +47,11 @@ public class RegionEditor extends JFrame
 		
 		private Region region;
 		
+		private JLabel staticNodeLabel;
+		
 		private JLabel usersLabel;
-		private String users;
-		private String staticNodes;
+		
+		private JLabel lightingValueLabel;
 
 		private RegionEditorPane(final JFrame frame, final Region region)
 		{
@@ -75,9 +77,9 @@ public class RegionEditor extends JFrame
 			//Add list of paired sensors
 			gbc.gridy = 2;
 			gbc.gridx = 0;
-			add(new JLabel("Paired Sensors: "), gbc);
+			add(new JLabel("Paired Static Nodes: "), gbc);
 			gbc.gridx = 1;
-			staticNodes = "N/A";
+			String staticNodes = "N/A";
 			if(!region.getStaticNodes().isEmpty())
 			{
 				staticNodes = "<html>";
@@ -87,25 +89,34 @@ public class RegionEditor extends JFrame
 				}
 				staticNodes += "</html>";
 			}
-			add(new JLabel(staticNodes), gbc);
+			staticNodeLabel = new JLabel(staticNodes);
+			add(staticNodeLabel, gbc);
 
 			//Add list of current users occupying region
 			gbc.gridy = 3;
 			gbc.gridx = 0;
 			add(new JLabel("Occupied by: "), gbc);
 			gbc.gridx = 1;
-			users = "N/A";
+			String users = "N/A";
 			if(!region.getUsers().isEmpty())
 			{
 				users = "<html>";
 				for(User user : region.getUsers())
 				{
-					users += (user.getName() + "<br>");
+					users += (user.getName()  + " (" + user.getPreferredLightingValue() + "%)" + "<br>");
 				}
 				users += "</html>";
 			}
 			usersLabel = new JLabel(users);
 			add(usersLabel, gbc);
+			
+			//Add lightingValue indication
+			gbc.gridy = 4;
+			gbc.gridx = 0;
+			add(new JLabel("Lighting Value: "), gbc);
+			lightingValueLabel = new JLabel(String.valueOf(region.getLightingValue()) + "%");
+			gbc.gridx = 1;
+			add(lightingValueLabel, gbc);
 
 
 			JButton OKButton = new JButton("OK");
@@ -120,6 +131,8 @@ public class RegionEditor extends JFrame
 					//Testing changing parameters
 					String [] parameters = new String[]{"name"};
 					Object [] values = new Object[]{name.getText()};
+					
+					System.err.println("MODIFY REGION!");
 
 					ClientApplet.getController().modifyObject(region, parameters, values);	
 
@@ -150,21 +163,34 @@ public class RegionEditor extends JFrame
 		@Override
 		public void modelChanged() 
 		{			
-			//System.err.println("GETS HERE!");
-
-			users = "N/A";
+			//Update staticNode label
+			String staticNodes = "N/A";
+			if(!region.getStaticNodes().isEmpty())
+			{
+				staticNodes = "<html>";
+				for(StaticNode sensor : region.getStaticNodes())
+				{
+					staticNodes += (sensor.getMACAddress() + "<br>");
+				}
+				staticNodes += "</html>";
+			}
+			staticNodeLabel.setText(staticNodes);
+			
+			//Update users label
+			String users = "N/A";
 			if(!region.getUsers().isEmpty())
 			{
 				users = "<html>";
 				for(User user : region.getUsers())
 				{
-					users += (user.getName() + "<br>");
+					users += (user.getName() + " (" + user.getPreferredLightingValue() + "%)" + "<br>");
 				}
 				users += "</html>";
 			}
 			usersLabel.setText(users);
-
-			System.err.print(users);
+			
+			//Update lightingValue label
+			lightingValueLabel.setText(String.valueOf(region.getLightingValue()) + "%");
 		}
 	}
 	

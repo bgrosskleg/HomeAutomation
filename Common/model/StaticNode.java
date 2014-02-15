@@ -42,7 +42,7 @@ public class StaticNode extends ModelObject
 	
 	public String toString()
 	{
-		return "Sensor ID: " + MACAddress;
+		return "MAC Address: " + MACAddress;
 	}
 	
 	public String getMACAddress()
@@ -97,7 +97,7 @@ public class StaticNode extends ModelObject
 	    if (other == this) 
 	    {return true;}
 	    
-	    if (!(other instanceof Light))
+	    if (!(other instanceof StaticNode))
 	    {return false;}
 	    
 	    //Class specific comparison
@@ -111,18 +111,20 @@ public class StaticNode extends ModelObject
 	@Override
 	public String[] getParameters() 
 	{
-		return new String [] {"location", "MACAddress", "lightValue", "radius"};
+		return new String [] {"location", "MACAddress", "lightingValue", "radius", "pairedRegion"};
 	}
 
 	@Override
 	public Object[] getValues() 
 	{
-		return new Object [] {location, MACAddress, lightingValue, radius};
+		return new Object [] {location, MACAddress, lightingValue, radius, pairedRegion};
 	}
 	
 	@Override
 	public boolean edit(String [] parameters, Object [] values) throws Exception 
 	{
+		boolean objectEditted = false;
+		
 		if(parameters.length != values.length)
 		{
 			throw new Exception("Parameter list not the same length as value list!");
@@ -134,8 +136,11 @@ public class StaticNode extends ModelObject
 			{
 				if(values[iter] instanceof Point2D.Double)
 				{
-					location = (Point2D.Double)values[iter];
-					return true;
+					if(!location.equals((Point2D.Double) values[iter]))
+					{
+						location = (Point2D.Double)values[iter];
+						objectEditted = true;
+					}
 				}
 				else
 				{
@@ -146,18 +151,41 @@ public class StaticNode extends ModelObject
 			{
 				if(values[iter] instanceof String)
 				{
-					MACAddress = (String) values[iter];
+					if(!MACAddress.equals((String) values[iter]))
+					{
+						MACAddress = (String) values[iter];
+						objectEditted =  true;
+					}
 				}
 				else
 				{
 					throw new Exception("Value " + iter + " is not of type String!");
 				}
 			}
+			else if(parameters[iter].equals("lightingValue"))
+			{
+				if(values[iter] instanceof Integer)
+				{
+					if(lightingValue != (Integer) values[iter])
+					{
+						lightingValue = (Integer) values[iter];
+						objectEditted =  true;
+					}
+				}
+				else
+				{
+					throw new Exception("Value " + iter + " is not of type Integer!");
+				}
+			}
 			else if(parameters[iter].equals("pairedRegion"))
 			{
 				if(values[iter] instanceof Region || values[iter] == null)
 				{
-					pairedRegion = (Region) values[iter];
+					if(pairedRegion == null || !pairedRegion.equals((Region) values[iter]))
+					{
+						pairedRegion = (Region) values[iter];
+						objectEditted = true;
+					}
 				}
 				else
 				{
@@ -166,7 +194,7 @@ public class StaticNode extends ModelObject
 			}
 			
 		}
-		return false;
+		return objectEditted;
 	}
 	
 	@Override

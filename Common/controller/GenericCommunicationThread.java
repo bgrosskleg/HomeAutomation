@@ -100,7 +100,8 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     					throw new Exception();
     				}
 
-    				System.out.println("Received: |" + recieved + "|");
+    				if(GenericController.VERBOSE)
+    				{System.out.println("Received: |" + recieved + "|");}
     				
     				//Process command
     				switch(recieved)
@@ -109,7 +110,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
 	    										controller.updateSystemModel(receiveModel());
 												break;
 	
-	    				default:				System.out.println("DEFAULT BEHAVIOUR");
+	    				default:				System.err.println("DEFAULT BEHAVIOUR");
 	    										break;
 	    			}
     			} 
@@ -132,7 +133,8 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
   		//Send object
   		try 
   		{
-  			System.out.println("Sending model...");
+  			if(GenericController.VERBOSE)
+  			{System.out.println("Sending model...");}
 
   			//Notify on command stream
   			activeCommandStreamOut.println("MODEL");
@@ -149,7 +151,8 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
   				//Analyze command stream response
   				if(activeCommandStreamIn.readLine().equals("OKAY"))
   				{
-  					System.out.println("Model sent successfully.");
+  					if(GenericController.VERBOSE)
+  					{System.out.println("Model sent successfully.");}
   				}
   				else if(activeCommandStreamIn.readLine().equals("FAIL"))
   				{
@@ -181,7 +184,8 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
   			//Notify ready
   			passiveCommandStreamOut.println("OKAY");
 
-  			System.out.println("Recieving model...");
+  			if(GenericController.VERBOSE)
+  			{System.out.println("Recieving model...");}
 
   			//Read object off object stream
   			SystemModel received = (SystemModel) passiveObjectStreamIn.readObject();
@@ -189,7 +193,8 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
   			//Notify result
   			passiveCommandStreamOut.println("OKAY");
 
-  			System.out.println("Model recieved successfully.");
+  			if(GenericController.VERBOSE)
+  			{System.out.println("Model recieved successfully.");}
 
   			return received;
   		} 

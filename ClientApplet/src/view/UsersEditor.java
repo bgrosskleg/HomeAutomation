@@ -135,7 +135,7 @@ public class UsersEditor extends JFrame
 				@Override
 				public void actionPerformed(ActionEvent e) 
 				{
-					new UserEditor(null);	
+					new UserEditor(null, userListModel);	
 				}
 			});
 			add(newUser, gbc);
@@ -149,7 +149,7 @@ public class UsersEditor extends JFrame
 				@Override
 				public void actionPerformed(ActionEvent e) 
 				{
-					new UserEditor(userList.getSelectedValue());					
+					new UserEditor(userList.getSelectedValue(), userListModel);					
 				}
 			});
 			add(editUser, gbc);
@@ -162,8 +162,12 @@ public class UsersEditor extends JFrame
 			{
 				@Override
 				public void actionPerformed(ActionEvent e) 
-				{
+				{					
+					//Remove user from systemModel
 					ClientApplet.getController().removeModelObject(userList.getSelectedValue());
+					
+					//Remove user from userListModel
+					userListModel.removeElement(userList.getSelectedValue());
 				}
 			});
 			add(removeUser, gbc);
@@ -187,47 +191,7 @@ public class UsersEditor extends JFrame
 		@Override
 		public void modelChanged() 
 		{
-			//Re-sync links from list to new model
-			ClientApplet.getController().getModelObjects();
-
-			//Add missing user to listModel
-			for(ModelObject object : ClientApplet.getController().getModelObjects())
-			{
-				if(object instanceof User)
-				{
-					User user = (User) object;
-					if(!userListModel.contains(user))
-					{
-						userListModel.addElement(user);
-					}
-				}
-			}
-
-			//Remove a user from listModel that should no longer be in it
-			for(int iter = 0; iter < userListModel.getSize(); iter++)
-			{
-				if(!ClientApplet.getController().getModelObjects().contains(userListModel.get(iter)))
-				{
-					userListModel.remove(iter);
-				}
-			}
-			
-			//Update list links to any existing objects
-			for(int iter = 0; iter < userListModel.getSize(); iter++)
-			{
-				for(ModelObject object : ClientApplet.getController().getModelObjects())
-				{
-					if(object instanceof User)
-					{
-						User user = (User) object;
-						if(userListModel.get(iter).equals(user))
-						{
-							userListModel.setElementAt(user, iter);
-						}
-					}
-				}
-			}
-			
+			this.repaint();
 		}	
 	}	
 	
@@ -238,12 +202,12 @@ public class UsersEditor extends JFrame
 	{
 		private static final long serialVersionUID = 1L;
 
-		private UserEditor(User user)
+		private UserEditor(User user, DefaultListModel<User> userListModel)
 		{
 			super("User Editor");
 			this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-			add(new UserEditorPane(this, user));
+			add(new UserEditorPane(this, user, userListModel));
 
 			this.pack();
 			this.setVisible(true);
@@ -260,7 +224,7 @@ public class UsersEditor extends JFrame
 		private JSlider slider;
 		private JLabel value;
 		
-		UserEditorPane(final JFrame frame, final User user)
+		UserEditorPane(final JFrame frame, final User user, final DefaultListModel<User> userListModel)
 		{
 			super();
 			
@@ -369,7 +333,15 @@ public class UsersEditor extends JFrame
 					//Grab new data and either create or modify user
 					if(user == null)
 					{
-						ClientApplet.getController().addModelObject(new User(name.getText(), MACAddress.getText(), slider.getValue(), colorChooser.getCurrentColor()));
+						//Create user
+						User newUser = new User(name.getText(), MACAddress.getText(), slider.getValue(), colorChooser.getCurrentColor());
+						
+						//Add user to listModel
+						userListModel.addElement(newUser);
+						
+						
+						//Add user to systemModel
+						ClientApplet.getController().addModelObject(newUser);
 					}
 					else
 					{
