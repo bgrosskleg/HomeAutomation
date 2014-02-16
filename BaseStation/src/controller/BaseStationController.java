@@ -6,22 +6,14 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.pi4j.io.serial.Serial;
+
 
 import model.SystemModel;
-
-import com.pi4j.io.serial.SerialDataEvent;
-import com.pi4j.io.serial.SerialDataListener;
-import com.pi4j.io.serial.SerialFactory;
-
 
 public class BaseStationController extends GenericController
 {		
 	
 	private String modelPath;
-	
-	//TESTING USART HANDLER
-	Serial serial;
 	
 	public BaseStationController()
 	{
@@ -49,44 +41,7 @@ public class BaseStationController extends GenericController
 		
 		//Create communication thread
 		comThread = new BaseStationCommunicationThread(this);
-		comThread.start();
-				
-				
-				//TESTING CREATING USART HANDLER
-				serial = SerialFactory.createInstance();
-				
-				serial.addListener(new SerialDataListener() 
-				{
-					@Override
-					public void dataReceived(SerialDataEvent event) 
-					{
-						System.out.println(event.getData());
-					}
-				});
-				
-			    // wait 1 second before opening
-		        try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		
-		        // open the default serial port provided on the GPIO header
-		        serial.open(Serial.DEFAULT_COM_PORT, 9600);
-		        
-		        // wait 1 second before continuing
-		        try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		        
-		        // Write to switch to command mode
-	            serial.write('+');
-	            serial.write('+');
-	            serial.write('+');
+		comThread.start();        
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-package view;
+package controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,7 +6,6 @@ import java.awt.geom.Point2D;
 
 import javax.swing.Timer;
 
-import controller.BaseStationController;
 import model.User;
 
 class BaseStation 

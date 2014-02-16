@@ -2,7 +2,14 @@ package controller;
 
 import interfaces.ModelSubscriber;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+
+import com.pi4j.io.serial.Serial;
+import com.pi4j.io.serial.SerialDataEvent;
+import com.pi4j.io.serial.SerialDataListener;
+import com.pi4j.io.serial.SerialFactory;
 
 import model.ModelObject;
 import model.Region;
@@ -21,11 +28,107 @@ public abstract class GenericController implements ModelSubscriber
 	protected SystemModel systemModel;
 	protected GenericCommunicationThread comThread;
 	
+	//TESTING USART HANDLER
+	Serial serial;
+	
 	//CONSTRUCTOR************************************************************
 	public GenericController()
 	{
 		modelSubscriberList = new ArrayList<ModelSubscriber>();
 		systemModel = new SystemModel();	
+		
+						//TESTING CREATING USART HANDLER
+						try 
+				        {
+							serial = SerialFactory.createInstance();
+							
+							serial.addListener(new SerialDataListener() 
+							{
+								@Override
+								public void dataReceived(SerialDataEvent event) 
+								{
+									System.out.println(event.getData());
+								}
+							});
+							
+						    // wait 1 second before opening
+							Thread.sleep(1000);
+							
+					
+					        // open the default serial port provided on the GPIO header
+					        serial.open(Serial.DEFAULT_COM_PORT, 9600);
+					        
+					        // wait 1 second before continuing
+							Thread.sleep(1000);
+							
+
+								BufferedReader br = 
+					                      new BufferedReader(new InputStreamReader(System.in));
+					 				 
+								for(;;)
+								{
+									System.out.println("ATDH:");
+									String input1 = br.readLine();
+									
+									System.out.println("ATDL:");
+									String input2 = br.readLine();
+									
+									if(input1.equals("exit") || input2.equals("exit"))
+									{break;}
+									
+									//10ms guard times
+									//10ms command mode timeout
+									
+									Thread.sleep(10);
+						            serial.write('+');
+						            serial.write('+');
+						            serial.write('+');
+						            Thread.sleep(10);
+						     
+									//serial.write("ATDH" + input1);
+									//Thread.sleep(5);
+									//serial.write("ATDL" + input2);
+									//Thread.sleep(5);
+									//serial.write("ATWR");
+									//Thread.sleep(5);
+									//serial.write("ATAC");
+									//Thread.sleep(5);
+									//serial.write("ATCN");
+									//Thread.sleep(5);
+									
+								}
+								
+								
+					        
+					        // Write to switch to command mode
+							/*Thread.sleep(20);
+				            serial.write('+');
+				            serial.write('+');
+				            serial.write('+');
+				            Thread.sleep(20);
+					        
+					       
+					        System.out.println("ATDH00000000");
+					        serial.write("ATDH00000000"); 
+					        Thread.sleep(5);
+					        System.out.println("ATDL00000000");
+					        serial.write("ATDL00000000"); 
+					        Thread.sleep(5);
+					        System.out.println("ATWR");
+					        serial.write("ATWR"); 
+					        Thread.sleep(5);
+					        System.out.println("ATAC");
+					        serial.write("ATAC"); 
+					        Thread.sleep(5);
+					        System.out.println("ATCN");
+					        serial.write("ATCN"); 
+					        Thread.sleep(5);*/			        
+				        } 
+				        catch (Exception e) 
+				        {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 	}
 	
 	protected synchronized void updateSystemModel(SystemModel newModel)
@@ -168,6 +271,8 @@ public abstract class GenericController implements ModelSubscriber
 									System.out.println("SEND XBEE COMMAND TO:");
 									System.out.println("STATIC NODE: " + staticNode.getMACAddress());
 									System.out.println("LIGHTING VALUE: " + region.getLightingValue());
+									
+									serial.write("!" + String.valueOf(region.getLightingValue()));
 								}
 							}
 						}
@@ -204,6 +309,8 @@ public abstract class GenericController implements ModelSubscriber
 									System.out.println("SEND XBEE COMMAND TO:");
 									System.out.println("STATIC NODE: " + staticNode.getMACAddress());
 									System.out.println("LIGHTING VALUE: " + region.getLightingValue());
+								
+									serial.write("!" + String.valueOf(region.getLightingValue()));
 								}
 							}
 						}
