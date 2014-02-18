@@ -8,12 +8,29 @@ import java.io.ObjectOutputStream;
 
 
 
+
+
+
+
+
+
+import com.pi4j.io.serial.Serial;
+import com.pi4j.io.serial.SerialDataEvent;
+import com.pi4j.io.serial.SerialDataListener;
+import com.pi4j.io.serial.SerialFactory;
+
+import model.ModelObject;
+import model.Region;
+import model.StaticNode;
 import model.SystemModel;
+import model.User;
 
 public class BaseStationController extends GenericController
 {		
 	
 	private String modelPath;
+	
+	Serial serial;
 	
 	public BaseStationController()
 	{
@@ -41,7 +58,87 @@ public class BaseStationController extends GenericController
 		
 		//Create communication thread
 		comThread = new BaseStationCommunicationThread(this);
-		comThread.start();        
+		comThread.start();     
+		
+		//Create Xbee serial communication
+		try 
+        {
+			serial = SerialFactory.createInstance();
+			
+			serial.addListener(new SerialDataListener() 
+			{
+				@Override
+				public void dataReceived(SerialDataEvent event) 
+				{
+					System.out.println(event.getData());
+				}
+			});
+			
+		    // wait 1 second before opening
+			Thread.sleep(1000);
+			
+	
+	        // open the default serial port provided on the GPIO header
+	        serial.open(Serial.DEFAULT_COM_PORT, 9600);
+	        
+	        // wait 1 second before continuing
+			Thread.sleep(1000);
+			
+
+				/*BufferedReader br = 
+	                      new BufferedReader(new InputStreamReader(System.in));
+	 				
+				System.out.println("ATDH:");
+				String input1 = br.readLine();
+				
+				System.out.println("ATDL:");
+				String input2 = br.readLine();
+												
+				//10ms guard times
+				//10ms command mode timeout, setting sleep to 10 seems to fast to recognize
+				
+				System.out.println("Sent: +++");
+	            serial.write("+++");
+	            
+	            Thread.sleep(25);
+	  
+	            System.out.println("Sent: ATDH" + input1);
+				serial.write("ATDH" + input1 + '\r');
+				
+				Thread.sleep(25);
+				
+	            System.out.println("Sent: ATDL" + input2);
+				serial.write("ATDL" + input2 + '\r');
+				
+				Thread.sleep(25);
+				
+
+				for(;;)
+				{
+					System.out.println("MESSAGE:");
+					input1 = br.readLine();
+
+					if(input1.equals("exit"))
+					{break;}
+					
+					//10ms guard times
+					//10ms command mode timeout
+					
+					System.out.println("Sent: " + input1);
+		            serial.write(input1);
+		            
+		            Thread.sleep(25);
+					
+					Thread.sleep(500);
+					
+				}
+					*/	        
+        } 
+        catch (Exception e) 
+        {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -168,4 +265,164 @@ public class BaseStationController extends GenericController
           	return null;
   		}
   	}
+
+
+	//MODIFY OBJECT*************************************************************************************
+
+	@Override
+	public synchronized void modifyObject(ModelObject object, String[] parameters, Object[] values)
+	{
+		if(systemModel.getModelObjectList().contains(object))
+		{
+			try 
+			{
+				if(object.edit(parameters, values))
+				{					
+					//Re-determine occupied regions
+					if(object instanceof User)
+					{updateOccupancy();}
+					
+					//Notify local subscribers
+					notifyModelSubscribers();
+					
+					//Send model to other end
+					comThread.sendModel();
+				}
+			} 
+			catch (Exception e) 
+			{
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			System.err.println("Object not part of systemModel list!");
+		}
+	}
+	
+	private synchronized void updateOccupancy()
+	{
+		//O(n^2)
+		
+		for(ModelObject object1 : systemModel.getModelObjectList())
+		{
+			if(object1 instanceof Region)
+			{
+				Region region = (Region) object1;
+				
+				for(ModelObject object2 : systemModel.getModelObjectList())
+				{
+					if(object2 instanceof User)
+					{
+						User user = (User) object2;
+						
+						if(region.getPath().contains(user.getLocation()))
+						{
+							//If the user is within the region
+							
+							//Add user to region
+							if(!region.getUsers().contains(user))
+							{
+								region.getUsers().add(user);
+								
+								//Set region lighting value to highest user
+								if(region.getLightingValue() < user.getPreferredLightingValue())
+								{
+									region.setLightingValue(user.getPreferredLightingValue());
+								}
+								
+								//Notify all regions static nodes
+								for(StaticNode staticNode : region.getStaticNodes())
+								{
+									updateStaticNode(staticNode, region.getLightingValue());
+								}
+							}
+						}
+						else
+						{
+							//If the user is not within the region
+							
+							//Remove user from region
+							if(region.getUsers().contains(user))
+							{
+								region.getUsers().remove(user);
+								
+								//Set region lighting to next highest value, off if empty
+								if(region.getUsers().isEmpty())
+								{
+									region.setLightingValue(0);
+								}
+								else
+								{
+									for(User user2 : region.getUsers())
+									{
+										if(region.getLightingValue() < user2.getPreferredLightingValue())
+										{
+											region.setLightingValue(user2.getPreferredLightingValue());
+										}
+									}
+								}
+								
+								//Notify all regions static nodes
+								for(StaticNode staticNode : region.getStaticNodes())
+								{
+									updateStaticNode(staticNode, region.getLightingValue());
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	
+	private void updateStaticNode(StaticNode staticNode, int lightingValue)
+	{
+		staticNode.setLightingValue(lightingValue);
+		
+		//Send lighting command
+		System.out.println("SEND XBEE COMMAND TO:");
+		System.out.println("STATIC NODE: " + staticNode.getMACAddress());
+		System.out.println("LIGHTING VALUE: " + lightingValue);
+		
+			//This timing seems to work for configuring Xbee address
+			//10ms guard times
+			//10ms command mode timeout, setting sleep to 10 seems to fast to recognize
+			
+			try
+			{
+				System.out.println("Sent: +++");
+	            serial.write("+++");
+	            
+	            Thread.sleep(25);
+	  
+	            System.out.println("Sent: ATDH" + staticNode.getMACAddress().substring(0, 7));
+				serial.write("ATDH" + staticNode.getMACAddress().substring(0, 7) + '\r');
+				
+				Thread.sleep(25);
+				
+	            System.out.println("Sent: ATDL" + staticNode.getMACAddress().substring(8, 15));
+				serial.write("ATDL" + staticNode.getMACAddress().substring(8, 15) + '\r');
+				
+				Thread.sleep(25);
+				
+				System.out.println("Sent: ATCN");
+				serial.write("ATCN" + '\r');
+					
+				Thread.sleep(25);
+				
+				Thread.sleep(250);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+	
+			
+		serial.write("!" + String.valueOf(lightingValue));
+		
+	}
+
 }

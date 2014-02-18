@@ -89,15 +89,42 @@ public class AppletController extends GenericController
 					staticNode.setPairedRegion(null);
 				}
 			}
-			
-			
-			
+
 			//Notify local subscribers
 			notifyModelSubscribers();
 		
 			//Send to baseStation
 			comThread.sendModel();
 		}
+	}
+	
+	
+	@Override
+	public void modifyObject(ModelObject object, String[] parameters, Object[] values) 
+	{
+		if(systemModel.getModelObjectList().contains(object))
+		{
+			try 
+			{
+				if(object.edit(parameters, values))
+				{									
+					//Notify local subscribers
+					notifyModelSubscribers();
+					
+					//Send model to other end
+					comThread.sendModel();
+				}
+			} 
+			catch (Exception e) 
+			{
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			System.err.println("Object not part of systemModel list!");
+		}	
 	}
 		
 	
