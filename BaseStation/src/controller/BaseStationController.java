@@ -22,8 +22,8 @@ public class BaseStationController extends GenericController
 		//Path to model
 		//Computer: = 	modelPath = C:/Users/Brian Grosskleg/Desktop/model.ser
 		//Pi: 			modelPath = /var/www/model.ser
-		modelPath = "C:/Users/Brian Grosskleg/Desktop/model.ser";
-		//modelPath = "/var/www/model.ser";
+		//modelPath = "C:/Users/Brian Grosskleg/Desktop/model.ser";
+		modelPath = "/var/www/model.ser";
 		
 		//Load model from file, create new one if failed
 		SystemModel temp = readModelFromFile();

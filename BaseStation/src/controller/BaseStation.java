@@ -20,7 +20,7 @@ class BaseStation
         
         //Creates a timer to simulate moving user position 
         
-        int delay = 500; //milliseconds
+        int delay = 3000; //milliseconds
     	       
         ActionListener taskPerformer = new ActionListener() 
         {

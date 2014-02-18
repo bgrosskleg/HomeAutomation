@@ -62,73 +62,61 @@ public abstract class GenericController implements ModelSubscriber
 							Thread.sleep(1000);
 							
 
-								BufferedReader br = 
+								/*BufferedReader br = 
 					                      new BufferedReader(new InputStreamReader(System.in));
-					 				 
+					 				
+								System.out.println("ATDH:");
+								String input1 = br.readLine();
+								
+								System.out.println("ATDL:");
+								String input2 = br.readLine();
+																
+								//10ms guard times
+								//10ms command mode timeout, setting sleep to 10 seems to fast to recognize
+								
+								System.out.println("Sent: +++");
+					            serial.write("+++");
+					            
+					            Thread.sleep(25);
+					  
+					            System.out.println("Sent: ATDH" + input1);
+								serial.write("ATDH" + input1 + '\r');
+								
+								Thread.sleep(25);
+								
+					            System.out.println("Sent: ATDL" + input2);
+								serial.write("ATDL" + input2 + '\r');
+								
+								Thread.sleep(25);
+								
+
 								for(;;)
 								{
-									System.out.println("ATDH:");
-									String input1 = br.readLine();
-									
-									System.out.println("ATDL:");
-									String input2 = br.readLine();
-									
-									if(input1.equals("exit") || input2.equals("exit"))
+									System.out.println("MESSAGE:");
+									input1 = br.readLine();
+	
+									if(input1.equals("exit"))
 									{break;}
 									
 									//10ms guard times
 									//10ms command mode timeout
 									
-									Thread.sleep(10);
-						            serial.write('+');
-						            serial.write('+');
-						            serial.write('+');
-						            Thread.sleep(10);
-						     
-									//serial.write("ATDH" + input1);
-									//Thread.sleep(5);
-									//serial.write("ATDL" + input2);
-									//Thread.sleep(5);
-									//serial.write("ATWR");
-									//Thread.sleep(5);
-									//serial.write("ATAC");
-									//Thread.sleep(5);
-									//serial.write("ATCN");
-									//Thread.sleep(5);
+									System.out.println("Sent: " + input1);
+						            serial.write(input1);
+						            
+						            Thread.sleep(25);
+									
+									Thread.sleep(500);
 									
 								}
-								
-								
-					        
-					        // Write to switch to command mode
-							/*Thread.sleep(20);
-				            serial.write('+');
-				            serial.write('+');
-				            serial.write('+');
-				            Thread.sleep(20);
-					        
-					       
-					        System.out.println("ATDH00000000");
-					        serial.write("ATDH00000000"); 
-					        Thread.sleep(5);
-					        System.out.println("ATDL00000000");
-					        serial.write("ATDL00000000"); 
-					        Thread.sleep(5);
-					        System.out.println("ATWR");
-					        serial.write("ATWR"); 
-					        Thread.sleep(5);
-					        System.out.println("ATAC");
-					        serial.write("ATAC"); 
-					        Thread.sleep(5);
-					        System.out.println("ATCN");
-					        serial.write("ATCN"); 
-					        Thread.sleep(5);*/			        
+									*/	        
 				        } 
 				        catch (Exception e) 
 				        {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
+						
 	}
 	
 	protected synchronized void updateSystemModel(SystemModel newModel)
@@ -211,7 +199,7 @@ public abstract class GenericController implements ModelSubscriber
 				{					
 					//Re-determine occupied regions
 					if(object instanceof User)
-					{updateStaticNodes();}
+					{updateOccupancy();}
 					
 					//Notify local subscribers
 					notifyModelSubscribers();
@@ -232,7 +220,7 @@ public abstract class GenericController implements ModelSubscriber
 		}
 	}
 	
-	private synchronized void updateStaticNodes()
+	private synchronized void updateOccupancy()
 	{
 		//O(n^2)
 		
@@ -250,6 +238,8 @@ public abstract class GenericController implements ModelSubscriber
 						
 						if(region.getPath().contains(user.getLocation()))
 						{
+							//If the user is within the region
+							
 							//Add user to region
 							if(!region.getUsers().contains(user))
 							{
@@ -264,20 +254,14 @@ public abstract class GenericController implements ModelSubscriber
 								//Notify all regions static nodes
 								for(StaticNode staticNode : region.getStaticNodes())
 								{
-									staticNode.setLightingValue(region.getLightingValue());
-									
-									//Send lighting command
-									//TO BE DONE
-									System.out.println("SEND XBEE COMMAND TO:");
-									System.out.println("STATIC NODE: " + staticNode.getMACAddress());
-									System.out.println("LIGHTING VALUE: " + region.getLightingValue());
-									
-									serial.write("!" + String.valueOf(region.getLightingValue()));
+									updateStaticNode(staticNode, region.getLightingValue());
 								}
 							}
 						}
 						else
 						{
+							//If the user is not within the region
+							
 							//Remove user from region
 							if(region.getUsers().contains(user))
 							{
@@ -302,15 +286,7 @@ public abstract class GenericController implements ModelSubscriber
 								//Notify all regions static nodes
 								for(StaticNode staticNode : region.getStaticNodes())
 								{
-									staticNode.setLightingValue(region.getLightingValue());
-									
-									//Send lighting command
-									//TO BE DONE
-									System.out.println("SEND XBEE COMMAND TO:");
-									System.out.println("STATIC NODE: " + staticNode.getMACAddress());
-									System.out.println("LIGHTING VALUE: " + region.getLightingValue());
-								
-									serial.write("!" + String.valueOf(region.getLightingValue()));
+									updateStaticNode(staticNode, region.getLightingValue());
 								}
 							}
 						}
@@ -319,6 +295,54 @@ public abstract class GenericController implements ModelSubscriber
 			}
 		}
 	}
+	
+	
+	private void updateStaticNode(StaticNode staticNode, int lightingValue)
+	{
+		staticNode.setLightingValue(lightingValue);
+		
+		//Send lighting command
+		System.out.println("SEND XBEE COMMAND TO:");
+		System.out.println("STATIC NODE: " + staticNode.getMACAddress());
+		System.out.println("LIGHTING VALUE: " + lightingValue);
+		
+			//This timing seems to work for configuring Xbee address
+			//10ms guard times
+			//10ms command mode timeout, setting sleep to 10 seems to fast to recognize
+			
+			try
+			{
+				System.out.println("Sent: +++");
+	            serial.write("+++");
+	            
+	            Thread.sleep(25);
+	  
+	            System.out.println("Sent: ATDH" + staticNode.getMACAddress().substring(0, 7));
+				serial.write("ATDH" + staticNode.getMACAddress().substring(0, 7) + '\r');
+				
+				Thread.sleep(25);
+				
+	            System.out.println("Sent: ATDL" + staticNode.getMACAddress().substring(8, 15));
+				serial.write("ATDL" + staticNode.getMACAddress().substring(8, 15) + '\r');
+				
+				Thread.sleep(25);
+				
+				System.out.println("Sent: ATCN");
+				serial.write("ATCN" + '\r');
+					
+				Thread.sleep(25);
+				
+				Thread.sleep(250);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+	
+			
+		serial.write("!" + String.valueOf(lightingValue));
+	}
+	
 	
 	public ArrayList<ModelObject> getModelObjects()
 	{
