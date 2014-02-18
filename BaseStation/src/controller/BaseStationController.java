@@ -82,57 +82,7 @@ public class BaseStationController extends GenericController
 	        serial.open(Serial.DEFAULT_COM_PORT, 9600);
 	        
 	        // wait 1 second before continuing
-			Thread.sleep(1000);
-			
-
-				/*BufferedReader br = 
-	                      new BufferedReader(new InputStreamReader(System.in));
-	 				
-				System.out.println("ATDH:");
-				String input1 = br.readLine();
-				
-				System.out.println("ATDL:");
-				String input2 = br.readLine();
-												
-				//10ms guard times
-				//10ms command mode timeout, setting sleep to 10 seems to fast to recognize
-				
-				System.out.println("Sent: +++");
-	            serial.write("+++");
-	            
-	            Thread.sleep(25);
-	  
-	            System.out.println("Sent: ATDH" + input1);
-				serial.write("ATDH" + input1 + '\r');
-				
-				Thread.sleep(25);
-				
-	            System.out.println("Sent: ATDL" + input2);
-				serial.write("ATDL" + input2 + '\r');
-				
-				Thread.sleep(25);
-				
-
-				for(;;)
-				{
-					System.out.println("MESSAGE:");
-					input1 = br.readLine();
-
-					if(input1.equals("exit"))
-					{break;}
-					
-					//10ms guard times
-					//10ms command mode timeout
-					
-					System.out.println("Sent: " + input1);
-		            serial.write(input1);
-		            
-		            Thread.sleep(25);
-					
-					Thread.sleep(500);
-					
-				}
-					*/	        
+			Thread.sleep(1000);        
         } 
         catch (Exception e) 
         {
@@ -387,42 +337,61 @@ public class BaseStationController extends GenericController
 		System.out.println("STATIC NODE: " + staticNode.getMACAddress());
 		System.out.println("LIGHTING VALUE: " + lightingValue);
 		
-			//This timing seems to work for configuring Xbee address
-			//10ms guard times
-			//10ms command mode timeout, setting sleep to 10 seems to fast to recognize
+		//This timing seems to work for configuring Xbee address
+		//10ms guard times
+		//10*100 = 1000ms command mode timeout
+		//75ms delay seems stable
+
+		//no '\r' required for "+++"
+		//'\r' required to end all other commands
+
+		try
+		{
+			Thread.sleep(75);
 			
-			try
+			System.out.println("Sent: +++");
+			Thread.sleep(10);
+			serial.write("+++");
+			Thread.sleep(10);
+
+			Thread.sleep(75);
+
+			System.out.println("Sent: ATDH" + staticNode.getMACAddress().substring(0, 8));
+			serial.write("ATDH" + staticNode.getMACAddress().substring(0, 8) + '\r');
+
+			Thread.sleep(75);
+
+			System.out.println("Sent: ATDL" + staticNode.getMACAddress().substring(8, 16));
+			serial.write("ATDL" + staticNode.getMACAddress().substring(8, 16) + '\r');
+
+			Thread.sleep(75);
+
+			System.out.println("Sent: ATCN");
+			serial.write("ATCN" + '\r');
+
+			Thread.sleep(75);
+
+			if(lightingValue == 100)
 			{
-				System.out.println("Sent: +++");
-	            serial.write("+++");
-	            
-	            Thread.sleep(25);
-	  
-	            System.out.println("Sent: ATDH" + staticNode.getMACAddress().substring(0, 7));
-				serial.write("ATDH" + staticNode.getMACAddress().substring(0, 7) + '\r');
-				
-				Thread.sleep(25);
-				
-	            System.out.println("Sent: ATDL" + staticNode.getMACAddress().substring(8, 15));
-				serial.write("ATDL" + staticNode.getMACAddress().substring(8, 15) + '\r');
-				
-				Thread.sleep(25);
-				
-				System.out.println("Sent: ATCN");
-				serial.write("ATCN" + '\r');
-					
-				Thread.sleep(25);
-				
-				Thread.sleep(250);
+				serial.write("!" + String.valueOf(lightingValue));
 			}
-			catch (Exception e)
+			else if(lightingValue < 100 && lightingValue > 9)
 			{
-				e.printStackTrace();
+				serial.write("!0" + String.valueOf(lightingValue));
 			}
-	
-			
-		serial.write("!" + String.valueOf(lightingValue));
-		
+			else if(lightingValue < 10)
+			{
+				serial.write("!00" + String.valueOf(lightingValue));
+			}
+			else
+			{
+				throw new Exception("Impossible case");
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 }
