@@ -1,6 +1,10 @@
 package tracker;
 
+import java.util.concurrent.Semaphore;
+
 import com.pi4j.io.serial.Serial;
+import com.pi4j.io.serial.SerialDataEvent;
+import com.pi4j.io.serial.SerialDataListener;
 import com.pi4j.io.serial.SerialFactory;
 
 /**
@@ -12,6 +16,14 @@ import com.pi4j.io.serial.SerialFactory;
  */
 public class XBee 
 {
+	public final static String OK = "OK";
+	private final static String COMMAND_MODE = "+++";
+	private final static String DESTINATION_HIGH = "ATDH";
+	private final static String DESTINATION_LOW = "ATDL";
+	private final static String WRITE_CHANGES = "ATWR";
+	private final static String APPLY_CHANGES = "ATAC";
+	private final static String EXIT_COMMAND_MODE = "ATCN";	
+	
 	/**
 	 * Stores all the received packets that have not yet been read.
 	 */
@@ -20,12 +32,28 @@ public class XBee
 	/**
 	 * Serial communications object that handles UART communication.
 	 */
-	final Serial serial;
+	private final Serial serial;
 	
 	/**
 	 * A UartListener that collects messages sent to us over UART.
 	 */
-	UartListener listener;
+	private UartListener listener;
+	
+	/**
+	 * The current mode of the attached XBEE module.
+	 */
+	private Mode mode;
+	
+	/**
+	 * The number of OK's we have received so far while sending a message.
+	 */
+	Semaphore okSem;
+	
+	/**
+	 * Current MAC address to send to.
+	 */
+	private String mac;
+	
 	public XBee()
 	{
 		// Initialize the serial communications object and register UartListener
@@ -34,6 +62,12 @@ public class XBee
 		listener = new UartListener();
 		listener.xbee = this;
 		serial.addListener(listener);
+		
+		// The XBee starts in normal mode to start
+		mode = Mode.NORMAL;
+		
+		// Originally no mac to send to
+		mac = "";
 		
 		// Initialize the packet storage
 		packets = new Packets();		
@@ -46,7 +80,59 @@ public class XBee
 	 */
 	public void SendMessage(String nodeIdentifier, String message)
 	{
-		// TODO: Write this.
+		if(nodeIdentifier != mac)
+		{
+			// A semaphore that allows us to wait for the "OK" response from the XBee
+			okSem = new Semaphore(0);
+			
+			// Add a listener that handle's the OK's
+			SerialDataListener tempListener = new SerialDataListener() {
+				
+				@Override
+				public void dataReceived(SerialDataEvent event) {
+					if(event.getData() == OK)
+					{
+						// When an OK is received we increase the number of permits available for the main send
+						// thread to handle
+						okSem.release();
+					}				
+				}
+			};		
+			serial.addListener(tempListener);	
+			
+			// Switch to command mode if necessary
+			if(mode != Mode.COMMAND)
+			{
+				serial.write(COMMAND_MODE);
+				mode = Mode.COMMAND;
+				
+				// Wait for OK before continuing
+				okSem.acquireUninterruptibly();
+			}
+			
+			//Set high and low bytes
+			serial.write(DESTINATION_HIGH + nodeIdentifier.substring(0, 7));
+			okSem.acquireUninterruptibly();
+			serial.write(DESTINATION_LOW + nodeIdentifier.substring(8, 15));
+			okSem.acquireUninterruptibly();
+			mac = nodeIdentifier;
+			
+			// Write and apply changes
+			serial.write(WRITE_CHANGES);
+			okSem.acquireUninterruptibly();
+			serial.write(APPLY_CHANGES);
+			okSem.acquireUninterruptibly();
+			
+			// Exit command mode
+			serial.write(EXIT_COMMAND_MODE);
+			okSem.acquireUninterruptibly();
+			mode = Mode.NORMAL;
+			
+			serial.removeListener(tempListener);
+		}
+		
+		// Send the data, we are sending to the correct node
+		serial.write(message);
 	}
 	
 	/**
@@ -67,3 +153,9 @@ public class XBee
 		packets.push(packet);
 	}
 }
+
+enum Mode
+{
+	COMMAND, NORMAL
+}
+

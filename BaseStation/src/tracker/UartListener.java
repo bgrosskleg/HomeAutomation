@@ -14,10 +14,10 @@ public class UartListener implements SerialDataListener {
 	 * Unfortunately, the way we have set up communication and the way the pi4j library
 	 * works, we end up with a weird state machine here.  Packets look like this:
 	 *  ###\n 
-	 *  Mobile node identifier\n 
-	 *  Static node identifier\n 
-	 *  Signal strength\n
 	 *  Broadcast number\n 
+	 *  Mobile: Mobile node identifier\n 
+	 *  Sensor: Static node identifier\n 
+	 *  RSSI: Signal strength\n
 	 *  $$$\n
 	 *  
 	 *  State 0: Waiting for ###\n, move to state 1
@@ -34,6 +34,7 @@ public class UartListener implements SerialDataListener {
 	 */
 	ReceivePacket packet;
 	
+	// TODO: Update this to follow the packet style that Brian and Jason decided to use.
 	@Override
 	public void dataReceived(SerialDataEvent event) {
 		String data = event.getData();
@@ -61,6 +62,9 @@ public class UartListener implements SerialDataListener {
 			{
 				throw new IllegalStateException("Current state: " + state + ". Received $$$.");
 			}
+			break;
+		case XBee.OK:
+			// Ignore OK responses
 			break;
 		default:
 			switch (state) 

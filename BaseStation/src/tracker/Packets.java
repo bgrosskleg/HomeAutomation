@@ -39,7 +39,7 @@ public class Packets
 	 */
 	public void push(ReceivePacket packet)
 	{
-		// Acquire the lockt that makes the queue atomic
+		// Acquire the lock that makes the queue atomic
 		block.acquireUninterruptibly();
 		
 		packets.add(packet);
