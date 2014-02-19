@@ -11,7 +11,7 @@ public class ReceivePacket
 {
 	public String mobileMac;
 	public String staticMac;
-	public int signalStrength;
+	public String signalStrength;
 	public int broadcastNumber;
 	
 	public ReceivePacket()
@@ -19,7 +19,7 @@ public class ReceivePacket
 	
 	}
 	
-	public ReceivePacket(String mobileMac, String staticMac, int signalStrength, int broadcastNumber)
+	public ReceivePacket(String mobileMac, String staticMac, String signalStrength, int broadcastNumber)
 	{
 		this.mobileMac = mobileMac;
 		this.staticMac = staticMac;

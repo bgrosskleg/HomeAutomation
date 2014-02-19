@@ -3,8 +3,13 @@ package tracker;
 import com.pi4j.io.serial.SerialDataEvent;
 import com.pi4j.io.serial.SerialDataListener;
 
-public class UartListener implements SerialDataListener {
-
+public class UartListener implements SerialDataListener 
+{
+	private final static String BROADCAST_NUMBER = "Broadcast #: ";
+	private final static String MOBILE_NODE = "Mobile: ";
+	private final static String STATIC_NODE = "Sensor: ";
+	private final static String RSSI = "RSSI: ";
+	
 	/**
 	 * The XBee object to push received data into.
 	 */
@@ -20,12 +25,10 @@ public class UartListener implements SerialDataListener {
 	 *  RSSI: Signal strength\n
 	 *  $$$\n
 	 *  
-	 *  State 0: Waiting for ###\n, move to state 1
-	 *  State 1: Waiting for mobile node identifier, store, move to state 2
-	 *  State 2: Waiting for static node identifier, store, move to state 3
-	 *  State 3: Waiting for signal strength, store, move to state 4
-	 *  State 4: Waiting for broadcast number, store, move to state 5
-	 *  State 5: Waiting for $$$\n, Send packet to xbee, move to state 0	 *  
+	 *  State 0: Waiting for "Broadcast #: <number>", move to state 1
+	 *  State 1: Waiting for "Mobile: <mobile node identifier>", store, move to state 2
+	 *  State 2: Waiting for "Sensor: <static node identifier>, store, move to state 3
+	 *  State 3: Waiting for "RSSI: <signal strength>", store, move to state 4 
 	 */
 	private int state = 0;
 	
@@ -33,53 +36,31 @@ public class UartListener implements SerialDataListener {
 	 * Store the current packet we are building.
 	 */
 	ReceivePacket packet;
-	
-	// TODO: Update this to follow the packet style that Brian and Jason decided to use.
+
 	@Override
 	public void dataReceived(SerialDataEvent event) {
 		String data = event.getData();
 		
 		switch (data) 
 		{
-		case "###\n":
-			if(state == 0)
-			{
-				packet = new ReceivePacket();
-				state = 1;
-			}
-			else
-			{
-				throw new IllegalStateException("Current state: " + state + ". Received ###.");
-			}
-			break;
-		case "$$$\n":
-			if(state == 5)
-			{
-				xbee.AddPacket(packet);
-				state = 0;
-			}
-			else
-			{
-				throw new IllegalStateException("Current state: " + state + ". Received $$$.");
-			}
-			break;
 		case XBee.OK:
 			// Ignore OK responses
 			break;
+		// TODO: Add a case in here that handles adding mobile/static nodes to network
 		default:
 			switch (state) 
 			{
+			case 0:
+				packet.broadcastNumber = Integer.parseInt(data.replaceFirst(BROADCAST_NUMBER, ""));
+				break;
 			case 1:
-				packet.mobileMac = data.substring(0, data.length() - 2);
+				packet.mobileMac = data.replaceFirst(MOBILE_NODE, "");
 				break;
 			case 2:
-				packet.staticMac = data.substring(0, data.length() - 2);
+				packet.staticMac = data.replaceFirst(STATIC_NODE, "");
 				break;
 			case 3:
-				packet.signalStrength = Integer.parseInt(data.substring(0, data.length() - 2));
-				break;
-			case 4:
-				packet.broadcastNumber = Integer.parseInt(data.substring(0, data.length() - 2));
+				packet.signalStrength = data.replaceFirst(RSSI, "");
 				break;
 			default:
 				throw new IllegalStateException("Current state: " + state + ". Received: " + data + ".");
