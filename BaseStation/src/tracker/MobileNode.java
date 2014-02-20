@@ -1,5 +1,6 @@
 package tracker;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -52,6 +53,32 @@ public class MobileNode
 		}
 		
 		return toReturn;
+	}	
+	
+	/**
+	 * Get all of the static nodes whos most recent signal strength was measured on the input
+	 * broadcast number.  Used in the location calculator to get the signal strengths and locations of
+	 * static nodes for computation of the mobile nodes location.
+	 * @param broadcastNumber - The broadcast number to check for.
+	 * @return - The static nodes that are returned must have their current signal strengths 
+	 * 			broadcast number equal to the input broadcast number.
+	 */
+	public ArrayList<StaticNode> GetSignalStengthsByBroadcastNumber(int broadcastNumber)
+	{
+		ArrayList<StaticNode> toReturn = new ArrayList<StaticNode>();
+		
+		// Iterate over all of the static nodes and check their current signal strength
+		Iterator<StaticNode> iterator = staticNodes.listIterator();
+		while(iterator.hasNext())
+		{
+			StaticNode currentNode = iterator.next();
+			
+			// This static node was part of the most recent measurement so add it to the list.
+			if(currentNode.GetCurrentSignalStrength().broadcastNumber == broadcastNumber)
+				toReturn.add(currentNode);
+		}
+		
+		return toReturn;
 	}
 	
 	/**
@@ -71,5 +98,10 @@ public class MobileNode
 	public void SetLocation(Location location)
 	{
 		locations.push(location);
+	}
+	
+	public Location LastLocation()
+	{
+		return locations.peekFirst();
 	}
 }

@@ -1,7 +1,9 @@
 package tracker;
 
+import java.awt.geom.Point2D;
+
 /**
- * Represents a location in 2 dimensional space with floors being a sort of 3rd dimension.
+ * Represents a location in 2 dimensional space.
  */
 public class Location 
 {
@@ -14,20 +16,21 @@ public class Location
 	 * Y location
 	 */
 	public float y;
-	
-	/**
-	 * Floor
-	 */
-	public int floor;
+
 	
 	public Location()
 	{
 	}
 	
-	public Location(float x, float y, int floor)
+	public Location(float x, float y)
 	{
 		this.x = x;
 		this.y = y;
-		this.floor = floor;
+	}
+	
+	public Location(Point2D.Double location)
+	{
+		x = (float) location.x;
+		y = (float) location.y;
 	}
 }
