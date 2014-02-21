@@ -9,24 +9,37 @@ import model.StaticNode;
 import model.SystemModel;
 import model.User;
 
-public abstract class GenericController implements ModelSubscriber
+public abstract class GenericController
 {			
 	public static final boolean VERBOSE = false;
 	
-	//List of subscribers
+	/**
+	 * List of model subscribers to be notified
+	 */
 	protected ArrayList<ModelSubscriber> modelSubscriberList;
 	
-	//Controller objects
+	/**
+	 * A barebones controller needs a comThread and systemModel
+	 */
 	protected SystemModel systemModel;
 	protected GenericCommunicationThread comThread;
 		
 	//CONSTRUCTOR************************************************************
+	/**
+	 * Creates a simplistic controller with new model and subscriber list
+	 */
 	public GenericController()
 	{
 		modelSubscriberList = new ArrayList<ModelSubscriber>();
 		systemModel = new SystemModel();							
 	}
 	
+	/**
+	 * Called when a new model is recieved in the comThread
+	 * It does not overwrite the model, rather performs a diff function to add/remove or edit
+	 * objects in order to maintain the references made to them
+	 * @param newModel the new model recieved in the comThread
+	 */
 	protected synchronized void updateSystemModel(SystemModel newModel)
 	{
 		//Perform a diff function on the local model and new model and update local rather than overwrite to 
@@ -96,7 +109,12 @@ public abstract class GenericController implements ModelSubscriber
 		
 	
 	//MODIFY MODEL***********************************************************
-	
+	/**
+	 * Modify object will be implemented differently in the BaseStation and Client Applet controllers
+	 * @param object the object to be editted
+	 * @param parameters the list of String parameters to edit
+	 * @param values the list of Object values to use
+	 */
 	public abstract void modifyObject(ModelObject object, String [] parameters, Object [] values);
 	
 	
@@ -105,6 +123,11 @@ public abstract class GenericController implements ModelSubscriber
 		return systemModel.getModelObjectList();
 	}
 	
+	/**
+	 * Returns the user with the entered MAC address, null if not found
+	 * @param MACAddress the MACAddress of user to get
+	 * @return the User if found, null if not
+	 */
 	public User getUser(String MACAddress)
 	{
 		 for(ModelObject object : getModelObjects())
@@ -121,7 +144,12 @@ public abstract class GenericController implements ModelSubscriber
 		 return null;
 	}
 	
-	public StaticNode getSensor(String MACAddress)
+	/**
+	 * Returns the static Node with the entered MAC address, null if not found
+	 * @param MACAddress of the staticNode to get
+	 * @return the staticNode if found, null if not
+	 */
+	public StaticNode getStaticNode(String MACAddress)
 	{
 		 for(ModelObject object : getModelObjects())
 		 {
@@ -140,17 +168,27 @@ public abstract class GenericController implements ModelSubscriber
 
 	//SUBSCRIBERS/OBSERVERS****************************************************************
 
-	//houseModel subscribers
+	/**
+	 * Add modelSubscriber
+	 * @param subscriber the subscriber to add
+	 */
 	public void addModelSubscriber(ModelSubscriber subscriber) 
 	{
 		modelSubscriberList.add(subscriber);		
 	}
 
+	/**
+	 * Remove modelSubscriber
+	 * @param subscriber the subscriber to remove
+	 */
 	public void removeModelSubscriber(ModelSubscriber subscriber) 
 	{
 		modelSubscriberList.remove(subscriber);
 	}
 
+	/**
+	 * Calls the modelChanged() function in all the modelSubscribers
+	 */
 	public void notifyModelSubscribers() 
 	{
 		for(ModelSubscriber subscriber : modelSubscriberList)

@@ -45,11 +45,18 @@ import java.awt.*;
 
 public class ClientApplet extends JApplet
 {
-
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * This controller is the main means of accessing the systemModel on the ClientApplet
+	 * All model manipulation must be done through the controllers methods as to notify
+	 * model subscribers (canvas, pop-up boxes, any other modules that need systemModel info etc)
+	 */
 	private static AppletController controller;
  
+	/**
+	 * Called automatically on loading, creates the applet
+	 */
     public synchronized void init() 
     {
         try 
@@ -69,6 +76,9 @@ public class ClientApplet extends JApplet
         } 		
     }
 
+    /**
+     * Creates the GUI of the applet, including the canvas, toolbar and instructions
+     */
     private void createGUI() 
     {    	
     	//Create applet controller and canvas
@@ -91,7 +101,11 @@ public class ClientApplet extends JApplet
     	setSize(getPreferredSize());
     } 
     
-        
+    /**
+     * Used to get reference to the applet controller since there is no
+     * applet object needed, this method is static so it can be called anywhere
+     * @return	the ClientApplet controller
+     */
     public static AppletController getController()
     {
     	return controller;

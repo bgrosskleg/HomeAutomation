@@ -10,23 +10,27 @@ import view.ClientApplet;
 
 public class AppletController extends GenericController
 {		
-	private ClientApplet application;
-	
-	private Canvas canvas;
+	/**
+	 * reference to the applet, required to get codebase to load images from server
+	 */
+	private ClientApplet applet;
 	
 	private String currentTool;
 	
 	//CONSTRUCTOR***********************************************
+	/**
+	 * Creates the applet controller, the applet controller adds additional functions to the generic controller
+	 * @param applet	the applet that created this controller
+	 * @param canvas	the canvas that is in the applet, used for repainting
+	 */
 	public AppletController(ClientApplet applet, Canvas canvas)
 	{
 		super();
 		
-		this.application = applet;
+		this.applet = applet;
 		
-		this.canvas = canvas;
-		
-		//Add this controller as subscriber to model
-		addModelSubscriber(this);
+		//Add canvas as subscriber to model
+		addModelSubscriber(canvas);
 
 		//Create communication thread
 		comThread = new AppletCommunicationThread(this);
@@ -36,7 +40,7 @@ public class AppletController extends GenericController
 	//MUTATORS AND ACCESSORS*************************************
 	public ClientApplet getClientApplet()
 	{
-		return application;
+		return applet;
 	}
 	
 	public String getCurrentTool() 
@@ -48,15 +52,12 @@ public class AppletController extends GenericController
 	{
 		this.currentTool = currentTool;
 	}
-
-	@Override
-	public void modelChanged() 
-	{		
-		canvas.repaint();
-	}
 	
 	//MODIFY MODEL ***********************************************************
-	
+	/**
+	 * Add's object to systemModel, notifies local subscribers and sends the model over the communication channel to BaseStation
+	 * @param object	ModelObject to be added
+	 */
 	public void addModelObject(ModelObject object)
 	{
 		if(systemModel.getModelObjectList().add(object));
@@ -69,6 +70,11 @@ public class AppletController extends GenericController
 		}
 	}
 
+	/**
+	 * Remove an object from systemModel, removes any staticNode-region pairing references
+	 * Notifies local subscribers and sends model over communication channel to BaseStation
+	 * @param object
+	 */
 	public void removeModelObject(ModelObject object)
 	{
 		if(systemModel.getModelObjectList().remove(object));
@@ -98,7 +104,12 @@ public class AppletController extends GenericController
 		}
 	}
 	
-	
+	/**
+	 * If the object exists, edit the object with the parameters and values passed to the function
+	 * @param object 	the modelObject to be editted
+	 * @param parameters the String list of parameters to be editted
+	 * @param values the object List of the values to be used
+	 */
 	@Override
 	public void modifyObject(ModelObject object, String[] parameters, Object[] values) 
 	{
@@ -130,8 +141,13 @@ public class AppletController extends GenericController
 	
 	//LOAD IMAGE FROM HOST************************************************************
 	
+	/**
+	 * Handles loading an image from the server the applet came from
+	 * @param filepath the filepath of the requested image
+	 * @return the imageIcon requested
+	 */
 	public ImageIcon loadImageIconFromHost(String filepath)
 	{
-		return new ImageIcon(application.getImage(((AppletCommunicationThread)comThread).getCodebase(), filepath));
+		return new ImageIcon(applet.getImage(((AppletCommunicationThread)comThread).getCodebase(), filepath));
 	}
 }

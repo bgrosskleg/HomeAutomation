@@ -1,5 +1,7 @@
 package view;
 
+import interfaces.ModelSubscriber;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -21,31 +23,44 @@ import model.StaticNode;
 import model.User;
 import model.Wall;
 
-public class Canvas extends JPanel
+public class Canvas extends JPanel implements ModelSubscriber
 {
 	private static final long serialVersionUID = 1L;
 	
-	//Grid parameters;
+	/**
+	 * Grid parameters
+	 */
 	public final int gridSize = 25;
 	public final int width = 800;
 	public final int height = 800;
 	
-	//Grid dots
+	/**
+	 * Stores the grid dots of the canvas
+	 */
 	private final ArrayList<Point> points = createGrid();
 		
-	//TempObjects
+	/**
+	 * Temporary objects and logic used for object previewing while drawing
+	 */
 	private Wall tempWall = null;
 	private boolean currentlyBuildingWall = false;
 	
 	private Region tempRegion = null;
 	private boolean currentlyBuildingRegion = false;
 	
-	//Cursor location
+	/**
+	 * Cursor location
+	 */
 	private Point2D.Double cursorPoint = new Point2D.Double(0, 0);
 	
-	//Selected objects
+	/**
+	 * List of selected objects
+	 */
 	private ArrayList<ModelObject> selected = new ArrayList<ModelObject>();
 	
+	/**
+	 * Creates canvas that displays the current model
+	 */
 	public Canvas()
 	{
 		setBackground(new Color(132,136,255));
@@ -58,7 +73,9 @@ public class Canvas extends JPanel
 		addMouseMotionListener(CMA);
 	}
 	
-	
+	/**
+	 * Paint command is responsible for displaying the contents of the model on screen
+	 */
 	public void paintComponent(Graphics g)
 	{
 		Graphics2D g2 = (Graphics2D) g;
@@ -78,6 +95,8 @@ public class Canvas extends JPanel
 		selected.clear();
 						
 		//Select objects based on cursor position and paint to screen
+		
+		//Paint unselected regions first
 		for(ModelObject object : ClientApplet.getController().getModelObjects())
 		{
 				if(object instanceof Region)
@@ -96,6 +115,7 @@ public class Canvas extends JPanel
 				}
 		}
 		
+		//Paint unselected walls on top
 		for(ModelObject object : ClientApplet.getController().getModelObjects())
 		{
 				if(object instanceof Wall)
@@ -114,6 +134,7 @@ public class Canvas extends JPanel
 				}
 		}
 		
+		//Paint unselected lights next
 		for(ModelObject object : ClientApplet.getController().getModelObjects())
 		{
 				if(object instanceof Light)
@@ -131,6 +152,7 @@ public class Canvas extends JPanel
 				}
 		}
 		
+		//Paint unselected staticNodes next
 		for(ModelObject object : ClientApplet.getController().getModelObjects())
 		{
 				if(object instanceof StaticNode)
@@ -148,7 +170,7 @@ public class Canvas extends JPanel
 				}
 		}
 		
-		//Now paint selected items in selected color
+		//Now paint selected regions or static nodes items in selected color
 		for(ModelObject object : selected)
 		{
 			g2.setColor(object.getSelectedColor());
@@ -164,7 +186,7 @@ public class Canvas extends JPanel
 		}
 			
 			
-		//Paint users
+		//Paint users on top
 		for(ModelObject object : ClientApplet.getController().getModelObjects())
 		{
 			if(object instanceof User)
@@ -183,21 +205,21 @@ public class Canvas extends JPanel
 		}
 		
 				
-		//Paint temporary region
+		//Paint temporary region on top
 		if(tempRegion != null)
 		{
 			g2.setColor(tempRegion.getUnselectedColor());
 			tempRegion.paintComponent(g2);
 		}
 		
-		//Paint temporary wall
+		//Paint temporary wall on top
 		if(tempWall != null)
 		{
 			g2.setColor(tempWall.getUnselectedColor());
 			tempWall.paintComponent(g2);
 		}
 					
-		//Paint cursor
+		//Paint cursor last (so it's always on top and visible)
 		if(cursorPoint != null)
 		{
 			//Paint white dot
@@ -206,6 +228,9 @@ public class Canvas extends JPanel
 		}		
 	}
 	
+	/**
+	 * Clears any temporary objecs used for previewing
+	 */
 	public void EraseTempObjects()
 	{
 		//Delete all temp objects
@@ -217,6 +242,10 @@ public class Canvas extends JPanel
 		repaint();
 	}
 	
+	/**
+	 * Creates the arrayList of grid dots
+	 * @return arrayList containing the grid dots
+	 */
 	private  ArrayList<Point> createGrid()
 	{
 		ArrayList<Point> result = new ArrayList<Point>();
@@ -232,6 +261,12 @@ public class Canvas extends JPanel
 		return result;
 	}
 	
+	/**
+	 * This function takes a mouse event in and based on the grid parameters,
+	 * snaps the cursor to the nearest grid dot.  This function uses variables so
+	 * grid parameters can be changes simply
+	 * @param e	MouseClick or MouseMove Event that causes the on canvas cursor to update position
+	 */
 	public void snapMouseToGrid(MouseEvent e)
 	{
 		//Quantify mouse position to be on grid
@@ -310,7 +345,10 @@ public class Canvas extends JPanel
 		tempRegion = region;
 	}
 
-	
+	/**
+	 * Private class to store grid point information
+	 * @author Brian Grosskleg
+	 */
 	private class Point
 	{
 		//Static variables will be same for all wall objects
@@ -335,7 +373,10 @@ public class Canvas extends JPanel
 		
 		
 		//INTERFACE METHODS***************************************************************
-			
+		/**
+		 * Paint a white dot at location of point
+		 * @param g Graphics object from canvas
+		 */
 		public void paintComponent(Graphics g)
 		{
 			Graphics2D g2 = (Graphics2D) g;
@@ -343,6 +384,16 @@ public class Canvas extends JPanel
 	        Ellipse2D.Double point = new Ellipse2D.Double((location.x-size/2)-1, (location.y-size/2)-1, size , size);
 	        g2.fill(point);
 		}
+	}
+
+	/**
+	 * Called every time model changes
+	 * In this case, redraws the model components on screen
+	 */
+	@Override
+	public void modelChanged() 
+	{
+		repaint();
 	}
 	
 	

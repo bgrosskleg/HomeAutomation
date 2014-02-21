@@ -39,6 +39,9 @@ public class UsersEditor extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Window to edit users (plural)
+	 */
 	public UsersEditor()
 	{ 
 		super("Users");
@@ -53,6 +56,11 @@ public class UsersEditor extends JFrame
 	
 	//USERS EDITOR PANE*********************************************************************************************
 	
+	/**
+	 * Panel to edit users information (plural)
+	 * @author Brian Grosskleg
+	 *
+	 */
 	private class UsersEditorPane extends JPanel implements ModelSubscriber
 	{
 		private static final long serialVersionUID = 1L;
@@ -64,6 +72,10 @@ public class UsersEditor extends JFrame
 		JButton editUser;
 		JButton removeUser;		
 
+		/**
+		 * Creates a panel to display all users
+		 * @param frame	parent frame used as reference for dispose
+		 */
 		private UsersEditorPane(final JFrame frame)
 		{
 			super();
@@ -123,7 +135,8 @@ public class UsersEditor extends JFrame
 			gbc.fill = GridBagConstraints.BOTH;
 			add(listScroller, gbc);
 			
-			//NEW USER
+			
+			//NEW USER BUTTON
 			gbc.gridy = 1;
 			gbc.gridx = 1;
 			gbc.gridheight = 1;
@@ -140,7 +153,8 @@ public class UsersEditor extends JFrame
 			});
 			add(newUser, gbc);
 			
-			//EDIT USER
+			
+			//EDIT USER BUTTON
 			gbc.gridy = 2;
 			editUser = new JButton("Edit User");
 			editUser.setEnabled(false);
@@ -154,7 +168,7 @@ public class UsersEditor extends JFrame
 			});
 			add(editUser, gbc);
 			
-			//REMOVE USER
+			//REMOVE USER BUTTON
 			gbc.gridy = 3;
 			removeUser = new JButton("Remove User");
 			removeUser.setEnabled(false);
@@ -172,7 +186,8 @@ public class UsersEditor extends JFrame
 			});
 			add(removeUser, gbc);
 			
-			//OKAY
+			
+			//OKAY BUTTON
 			gbc.weighty = 0.2;
 			gbc.gridy = 4;
 			JButton OKAY = new JButton("OK");
@@ -188,6 +203,10 @@ public class UsersEditor extends JFrame
 			add(OKAY, gbc);
 		}
 
+		/**
+		 * Called everytime the model is changed
+		 * In this case it repaints the list with a new label for each user
+		 */
 		@Override
 		public void modelChanged() 
 		{
@@ -198,6 +217,11 @@ public class UsersEditor extends JFrame
 	
 	//USER EDITOR FRAME***********************************************************************************************
 	
+	/**
+	 * User editor window (singular)
+	 * @author Brian Grosskleg
+	 *
+	 */
 	private class UserEditor extends JFrame
 	{
 		private static final long serialVersionUID = 1L;
@@ -215,6 +239,11 @@ public class UsersEditor extends JFrame
 		}
 	}
 
+	/**
+	 * User editor panel (singular)
+	 * @author Brian Grosskleg
+	 *
+	 */
 	private class UserEditorPane extends JPanel
 	{
 		private static final long serialVersionUID = 1L;
@@ -224,6 +253,12 @@ public class UsersEditor extends JFrame
 		private JSlider slider;
 		private JLabel value;
 		
+		/**
+		 * Creates the user editor panel (singular)
+		 * @param frame	parent frame used for disposing
+		 * @param user	user to be editted
+		 * @param userListModel to get which user had been selected and add user to
+		 */
 		UserEditorPane(final JFrame frame, final User user, final DefaultListModel<User> userListModel)
 		{
 			super();
@@ -378,7 +413,11 @@ public class UsersEditor extends JFrame
 		}
 	}
 	
-	
+	/**
+	 * Quick custom color palatte used for selecting user color
+	 * @author Brian Grosskleg
+	 *
+	 */
 	private class CustomColorChooserPanel extends JPanel
 	{
 		private static final long serialVersionUID = 1L;
@@ -446,6 +485,11 @@ public class UsersEditor extends JFrame
 	
 	//CELL RENDERER FOR CUSTOM LIST RENDERING **********************************************************************************
 	
+	/**
+	 * Renderer responsible for displaying the users icon, name and MAC address in the usersEditor listBox
+	 * @author Brian Grosskleg
+	 *
+	 */
 	private class UserCellRenderer extends JLabel implements ListCellRenderer<User>, Icon
 	{
 		private static final long serialVersionUID = 1L;

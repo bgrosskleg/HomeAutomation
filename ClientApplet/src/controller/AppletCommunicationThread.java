@@ -16,6 +16,10 @@ public class AppletCommunicationThread extends GenericCommunicationThread
 	  	
 	private URL codebase;
     	
+	/**
+	 * Create the LAN communication thread, extends generic controller thread
+	 * @param cntrl the controller used by the applet, in order to use the controller methods
+	 */
 	public AppletCommunicationThread(AppletController cntrl) 
     {
 		super("AppletCommunicationThread", cntrl);
@@ -47,6 +51,9 @@ public class AppletCommunicationThread extends GenericCommunicationThread
 		passiveCommandPort = 65002;
     }
 	
+	/**
+	 * Initializes the applet side of the communication, that is the sockets and streams but not serverSockets
+	 */
 	public void initializeConnection() throws IOException
 	{ 
 		connected = false;

@@ -27,6 +27,10 @@ public class StaticNodeEditor extends JFrame
 
 	StaticNodeEditorPane SNEP;
 	
+	/**
+	 * Creates the window that edits a static node
+	 * @param staticNode
+	 */
 	public StaticNodeEditor(StaticNode staticNode)
 	{ 
 		super("Static Node Editor");
@@ -40,6 +44,10 @@ public class StaticNodeEditor extends JFrame
 		this.setVisible(true);
 	}
 	
+	/**
+	 * Dispose method must be overridden to remove memory leak where editor is
+	 * added as a model subscriber but never removed
+	 */
 	@Override
 	public void dispose()
 	{
@@ -47,6 +55,10 @@ public class StaticNodeEditor extends JFrame
 		ClientApplet.getController().removeModelSubscriber(SNEP);
 	}
 	
+	/**
+	 * Displays the pane that allows staticNode editting
+	 * @author Brian Grosskleg
+	 */
 	private class StaticNodeEditorPane extends JPanel implements ModelSubscriber
 	{
 		private static final long serialVersionUID = 1L;
@@ -57,6 +69,11 @@ public class StaticNodeEditor extends JFrame
 		
 		private JLabel lightingValueLabel;
 		
+		/**
+		 * Creates the pane for staticNode editting
+		 * @param frame			parent frame used so listenerers can close window
+		 * @param staticNode	staticNode to be editted/displayed
+		 */
 		private StaticNodeEditorPane(final JFrame frame, final StaticNode staticNode)
 		{
 			super();
@@ -125,6 +142,7 @@ public class StaticNodeEditor extends JFrame
 					{
 						if(staticNode.getPairedRegion() != null)
 						{
+							//If new paired region is null, but had an old region, remove the staticNode from the old region
 							staticNode.getPairedRegion().removeStaticNode(staticNode);
 						}
 					}
@@ -132,13 +150,14 @@ public class StaticNodeEditor extends JFrame
 					{
 						for(ModelObject object : ClientApplet.getController().getModelObjects())
 						{
-							
 							if(object instanceof Region)
 							{
 								Region region = (Region) object;
 								
 								if(regionList.getSelectedItem().equals(region))
 								{
+									//If selected region matches a region in the model
+									//Add the static node to that region and set that region as the static nodes newPairedRegion
 									if(!region.getStaticNodes().contains(staticNode))
 									{
 										region.addStaticNode(staticNode);
@@ -150,12 +169,13 @@ public class StaticNodeEditor extends JFrame
 						}
 					}
 
-					//Testing changing parameters
+					//Modify objects
 					String [] parameters = new String[]{"MACAddress", "pairedRegion"};
 					Object [] values = new Object[]{MACAddress.getText(), newPairedRegion};
 					
 					ClientApplet.getController().modifyObject(staticNode, parameters, values);	
 
+					//Close parent window
 					frame.dispose();
 				}
 
@@ -180,7 +200,10 @@ public class StaticNodeEditor extends JFrame
 		}
 	
 	
-
+		/**
+		 * Called everytime the model is changed
+		 * In this case the lightingValue is updated
+		 */
 		@Override
 		public void modelChanged() 
 		{	
@@ -191,6 +214,12 @@ public class StaticNodeEditor extends JFrame
 	
 	//CELL RENDERER FOR CUSTOM LIST RENDERING **********************************************************************************
 	
+	/**
+	 * This class is responsible for displaying just the regions name and not the toString() method
+	 * in the regionList list.
+	 * @author Brian Grosskleg
+	 *
+	 */
 	private class RegionCellRenderer extends JLabel implements ListCellRenderer<Region>
 	{
 		private static final long serialVersionUID = 1L;
