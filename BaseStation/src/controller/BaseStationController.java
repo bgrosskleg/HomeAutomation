@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import tracker.LocationThread;
+
 
 
 
@@ -31,6 +33,8 @@ public class BaseStationController extends GenericController
 	private String modelPath;
 	
 	Serial serial;
+	
+	LocationThread locThread;
 	
 	public BaseStationController()
 	{
@@ -58,7 +62,12 @@ public class BaseStationController extends GenericController
 		
 		//Create communication thread
 		comThread = new BaseStationCommunicationThread(this);
-		comThread.start();     
+		comThread.start();
+		
+		// Create the location controlling thread
+		locThread = new LocationThread(this);
+		locThread.start();
+		
 		
 		//Create Xbee serial communication
 		try 
