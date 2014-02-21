@@ -14,10 +14,17 @@ public class Light extends ModelObject
 	private static int size = 16;
 	
 	//Member variables will be unique for each object
+	/**
+	 * Location of the light in x and y pixel coordinates
+	 */
 	private Point2D.Double location;	
 	
 	//CONSTRUCTOR**********************************************************************
 	
+	/**
+	 * Creates new light at position p
+	 * @param p position of new light
+	 */
 	public Light(Point2D.Double p)
 	{
 		super(Color.YELLOW, Color.RED);	
@@ -26,6 +33,11 @@ public class Light extends ModelObject
 
 
 	//INTERFACE METHODS****************************************************************	
+	/**
+	 * Equals is used in the ArrayList contains function
+	 * By implementing equals for each type of object it is possible to call
+	 * ArrayList<ModelObject>.containts(User, Region etc) and it will work
+	 */
 	@Override
 	public boolean equals(Object other) 
 	{

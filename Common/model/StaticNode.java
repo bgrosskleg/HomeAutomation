@@ -88,6 +88,12 @@ public class StaticNode extends ModelObject
 	
 	//INTERFACE METHODS************************************************************
 	
+	
+	/**
+	 * Equals is used in the ArrayList contains function
+	 * By implementing equals for each type of object it is possible to call
+	 * ArrayList<ModelObject>.containts(User, Region etc) and it will work
+	 */
 	@Override
 	public boolean equals(Object other) 
 	{
@@ -197,6 +203,9 @@ public class StaticNode extends ModelObject
 		return objectEditted;
 	}
 	
+	/**
+	 * Paints staticNode as dot and ring
+	 */
 	@Override
 	public void paintComponent(Graphics g) 
 	{

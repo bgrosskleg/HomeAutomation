@@ -74,7 +74,32 @@ public class User extends ModelObject
 	
 	
 	//INTERFACE METHODS***********************************************************
+	
+	/**
+	 * Equals is used in the ArrayList contains function
+	 * By implementing equals for each type of object it is possible to call
+	 * ArrayList<ModelObject>.containts(User, Region etc) and it will work
+	 */
+	@Override
+	public boolean equals(Object other) 
+	{
+		if (other == null) 
+		{return false;}
 		
+	    if (other == this) 
+	    {return true;}
+	    
+	    if (!(other instanceof User))
+	    {return false;}
+	    
+	    //Class specific comparison
+	    User user = (User) other;
+	    if(this.MACAddress.equals(user.MACAddress))
+	    {return true;}
+	    else
+	    {return false;}    
+	}
+	
 	@Override
 	public String toString()
 	{
@@ -194,24 +219,5 @@ public class User extends ModelObject
         g2.fill(user);
 	}
 
-
-	@Override
-	public boolean equals(Object other) 
-	{
-		if (other == null) 
-		{return false;}
-		
-	    if (other == this) 
-	    {return true;}
-	    
-	    if (!(other instanceof User))
-	    {return false;}
-	    
-	    //Class specific comparison
-	    User user = (User) other;
-	    if(this.MACAddress.equals(user.MACAddress))
-	    {return true;}
-	    else
-	    {return false;}    
-	}
+	
 }

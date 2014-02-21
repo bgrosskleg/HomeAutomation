@@ -21,6 +21,9 @@ public class SystemModel implements Serializable
 		return modelObjectList;
 	}	
 	
+	/**
+	 * Print out all contents of systemModel
+	 */
 	public String toString()
 	{
 		String result = "System Model\n";

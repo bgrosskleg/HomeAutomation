@@ -17,6 +17,10 @@ public class BaseStationCommunicationThread extends GenericCommunicationThread
 	private static ServerSocket activeCommandServerSocket;
 	private static ServerSocket passiveCommandServerSocket;
     	
+	/**
+	 * Creates the base station communication thread
+	 * @param cntrl reference to the controller to call model methods
+	 */
 	public BaseStationCommunicationThread(BaseStationController cntrl)
     {
 		super("BaseStationCommunicationThread", cntrl);
@@ -43,6 +47,9 @@ public class BaseStationCommunicationThread extends GenericCommunicationThread
 		passiveCommandPort = 65003;
     }
 	
+	/**
+	 * Initializes the LAN connection including creates serverSockets
+	 */
 	public void initializeConnection() throws IOException
 	{ 
 		connected = false;

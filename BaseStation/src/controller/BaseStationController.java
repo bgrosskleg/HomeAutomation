@@ -28,6 +28,11 @@ import model.StaticNode;
 import model.SystemModel;
 import model.User;
 
+/**
+ * Controller the runs on RaspberryPi basestation
+ * @author Brian Grosskleg
+ *
+ */
 public class BaseStationController extends GenericController implements ModelSubscriber
 {		
 	
@@ -35,6 +40,9 @@ public class BaseStationController extends GenericController implements ModelSub
 	
 	Serial serial;
 	
+	/**
+	 * Create baseStation Controller
+	 */
 	public BaseStationController()
 	{
 		super();
@@ -94,6 +102,10 @@ public class BaseStationController extends GenericController implements ModelSub
 		}
 	}
 	
+	/**
+	 * Called everytime the model is changed
+	 * in this case saves the model to disk
+	 */
 	@Override
 	public void modelChanged() 
 	{		
@@ -105,6 +117,9 @@ public class BaseStationController extends GenericController implements ModelSub
 	//MODEL FILE HANDLING*********************************************	
 	
   	//Save model
+	/**
+	 * Saves the model as a serialized binary file at the filepath location set in constructor
+	 */
   	public void saveModelToFile()
     {
   		if(GenericController.VERBOSE)
@@ -162,6 +177,10 @@ public class BaseStationController extends GenericController implements ModelSub
     }
   	
   	//Load model
+  	/**
+  	 * Loads model from filepath set in constructor, returns null if not found
+  	 * @return the SystemModel that is stored at the filepath, null if not found
+  	 */
     public SystemModel readModelFromFile() 
     {   
     	System.out.println("Loading model from file...");
@@ -222,6 +241,10 @@ public class BaseStationController extends GenericController implements ModelSub
 
 	//MODIFY OBJECT*************************************************************************************
 
+    /**
+     * Modify the object with the parameters and values
+     * The basestation version is almost identical to the applet version but adds the updateOccupancy function
+     */
 	@Override
 	public synchronized void modifyObject(ModelObject object, String[] parameters, Object[] values)
 	{
@@ -254,6 +277,9 @@ public class BaseStationController extends GenericController implements ModelSub
 		}
 	}
 	
+	/**
+	 * This function is called if a user is editted (likely editted a location)
+	 */
 	private synchronized void updateOccupancy()
 	{
 		//O(n^2)
@@ -330,7 +356,11 @@ public class BaseStationController extends GenericController implements ModelSub
 		}
 	}
 	
-	
+	/**
+	 * Responsible for transmitting serial out
+	 * @param staticNode	the staticNode to send the command to	
+	 * @param lightingValue	the lightingValue to send
+	 */
 	private void updateStaticNode(StaticNode staticNode, int lightingValue)
 	{
 		staticNode.setLightingValue(lightingValue);

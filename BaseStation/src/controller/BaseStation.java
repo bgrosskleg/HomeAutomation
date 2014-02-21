@@ -8,10 +8,19 @@ import javax.swing.Timer;
 
 import model.User;
 
+/**
+ * BaseStation application that runs as the firmware
+ * @author Brian Grosskleg
+ *
+ */
 class BaseStation 
 {	
 	private static BaseStationController controller;
 	
+	/**
+	 * Entry point for program
+	 * @param args not used
+	 */
     public static synchronized void main(String[] args) 
     {
     	//Create base station controller
@@ -74,6 +83,10 @@ class BaseStation
         new Timer(delay, taskPerformer).start(); 
     }
     
+    /**
+     * Reference to get controller, static can be accessed anywhere
+     * @return the baseStation controller
+     */
     public static BaseStationController getController()
     {
     	return controller;

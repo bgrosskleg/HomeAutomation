@@ -107,7 +107,11 @@ public class Wall extends ModelObject
 		return ("Type: Wall StartPoint: " + startPoint + " EndPoint " + endPoint);
 	}
 
-
+	/**
+	 * Equals is used in the ArrayList contains function
+	 * By implementing equals for each type of object it is possible to call
+	 * ArrayList<ModelObject>.containts(User, Region etc) and it will work
+	 */
 	@Override
 	public boolean equals(Object other) 
 	{

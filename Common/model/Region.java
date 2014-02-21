@@ -137,6 +137,33 @@ public class Region extends ModelObject
 		
 	//INTERFACE METHODS********************************************************************
 	
+	/**
+	 * Equals is used in the ArrayList contains function
+	 * By implementing equals for each type of object it is possible to call
+	 * ArrayList<ModelObject>.containts(User, Region etc) and it will work
+	 */
+	@Override
+	public boolean equals(Object other) 
+	{
+		if (other == null) 
+		{return false;}
+		
+	    if (other == this) 
+	    {return true;}
+	    
+	    if (!(other instanceof Region))
+	    {return false;}
+	    
+	    //Class specific comparison
+	    //When modifying name, first call in modifyObject is contains which uses equals
+	    //at this point names are the same, then modifyObject changes name but reference is already established
+	    Region region = (Region) other;	    
+	    if(this.name.equals(region.name))
+	    {return true;}
+	    else
+	    {return false;}  
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public Region clone() 
@@ -265,26 +292,5 @@ public class Region extends ModelObject
         	g2.fill(path);       		
         }
 	}
-
-	@Override
-	public boolean equals(Object other) 
-	{
-		if (other == null) 
-		{return false;}
-		
-	    if (other == this) 
-	    {return true;}
-	    
-	    if (!(other instanceof Region))
-	    {return false;}
-	    
-	    //Class specific comparison
-	    //When modifying name, first call in modifyObject is contains which uses equals
-	    //at this point names are the same, then modifyObject changes name but reference is already established
-	    Region region = (Region) other;	    
-	    if(this.name.equals(region.name))
-	    {return true;}
-	    else
-	    {return false;}  
-	}
+	
 }
