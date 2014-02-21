@@ -23,6 +23,7 @@ public class TestXbee
 				@Override
 				public void dataReceived(SerialDataEvent event) 
 				{
+					System.out.println("!");
 					System.out.println(event.getData());
 				}
 			});
@@ -39,21 +40,42 @@ public class TestXbee
         
 			
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			String waitTime;
 			String input1;
-			String input2;
 			
 			for(;;)
 			{
-				System.out.println("INPUT1:");
+				System.out.println("Wait time ms (typ 50ms):");
+				waitTime = br.readLine();
+				
+				if(waitTime.equals("exit"))
+				{
+					break;
+				}
+				
+				System.out.println("CONFIG:");
 				input1 = br.readLine();
 				
-				System.out.println("INPUT2:");
-				input2 = br.readLine();
+				if(input1.equals("exit"))
+				{
+					break;
+				}
 				
-				serial.write(input1);
-				Thread.sleep(10);
-				serial.write(input2);
+				System.out.println("SENT: +++");
+				serial.write("+++");
+				Thread.sleep(Integer.valueOf(waitTime));
+				System.out.println("SENT: " + input1 + '\r');
+				serial.write(input1 + '\r');
 			}	
+			
+			for(;;)
+			{
+				System.out.println("MESSAGE:");
+				input1 = br.readLine();
+				serial.write(input1);
+			}
+			
+			
 		}
 		catch (Exception e)
 		{
