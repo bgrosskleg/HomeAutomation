@@ -10,14 +10,17 @@ import com.pi4j.io.serial.SerialFactory;
 
 public class TestXbee 
 {	
+	//Serial object
 	public static Serial serial;
 	
 	public static void main(String[] args) 
 	{
 		try 
         {
+			//Create serial object
 			serial = SerialFactory.createInstance();
 			
+			//Add data listener
 			serial.addListener(new SerialDataListener() 
 			{
 				@Override
@@ -38,22 +41,62 @@ public class TestXbee
 			Thread.sleep(1000);
         
 			
+			//Create input reader from console in
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			String waitTime;
 			String input1;
-			String input2;
 			
 			for(;;)
 			{
-				System.out.println("INPUT1:");
+				//Ask for delay between +++ and command (used in debugging)
+				System.out.println("Wait time ms (typ. 50ms):");
+				waitTime = br.readLine();
+				
+				//If blank, use 50ms
+				if((waitTime.isEmpty()))
+				{waitTime = "50";}
+				
+				//If exit, break to sending messages
+				if(waitTime.equals("exit"))
+				{
+					break;
+				}
+				
+				//Ask the user what they want to configure
+				System.out.println("CONFIG:");
 				input1 = br.readLine();
 				
-				System.out.println("INPUT2:");
-				input2 = br.readLine();
+				//If exit, break to sending messages
+				if(input1.equals("exit"))
+				{
+					break;
+				}
 				
-				serial.write(input1);
-				Thread.sleep(10);
-				serial.write(input2);
+				//Send enter command mode
+				System.out.println("SENT: +++");
+				serial.write("+++");
+				
+				//Wait set amount
+				Thread.sleep(Integer.valueOf(waitTime));
+				
+				//Send CONFIG
+				System.out.println("SENT: " + input1 + '\r');
+				serial.write(input1 + '\r');
+				
+				//REPEAT
 			}	
+			
+			for(;;)
+			{
+				//Type message to sent out serial
+				System.out.println("MESSAGE:");
+				input1 = br.readLine();
+				
+				//Send message
+				serial.write(input1);
+			}
+			
+			
 		}
 		catch (Exception e)
 		{

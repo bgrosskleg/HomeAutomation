@@ -70,7 +70,7 @@ public class BaseStationController extends GenericController
 		
 		
 		//Create Xbee serial communication
-		try 
+		/*try 
         {
 			serial = SerialFactory.createInstance();
 			
@@ -97,7 +97,7 @@ public class BaseStationController extends GenericController
         {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 	@Override
