@@ -21,6 +21,10 @@ public class RegionEditor extends JFrame
 
 	RegionEditorPane REP;
 	
+	/**
+	 * Window displays information on the region
+	 * @param region The region to be displayed in the editor
+	 */
 	public RegionEditor(Region region)
 	{ 
 		super("Region Editor");
@@ -34,6 +38,10 @@ public class RegionEditor extends JFrame
 		this.setVisible(true);
 	}
 	
+	/**
+	 * Overriding the stock dispose function to remove memory leak where
+	 * this frame is added as a modelSubscriber but never removed.
+	 */
 	@Override
 	public void dispose()
 	{
@@ -41,6 +49,10 @@ public class RegionEditor extends JFrame
 		ClientApplet.getController().removeModelSubscriber(REP);
 	}
 	
+	/**
+	 * Panel that displays the contents of the region
+	 * @author Brian Grosskleg
+	 */
 	private class RegionEditorPane extends JPanel implements ModelSubscriber
 	{
 		private static final long serialVersionUID = 1L;
@@ -53,6 +65,11 @@ public class RegionEditor extends JFrame
 		
 		private JLabel lightingValueLabel;
 
+		/**
+		 * Creates the panel that displays the information
+		 * @param frame		the parent frame, passed so an ActionListener can close it
+		 * @param region	the region to be editted
+		 */
 		private RegionEditorPane(final JFrame frame, final Region region)
 		{
 			super();
@@ -74,6 +91,7 @@ public class RegionEditor extends JFrame
 			gbc.gridx = 1;
 			this.add(name, gbc);
 
+			
 			//Add list of paired sensors
 			gbc.gridy = 2;
 			gbc.gridx = 0;
@@ -92,6 +110,7 @@ public class RegionEditor extends JFrame
 			staticNodeLabel = new JLabel(staticNodes);
 			add(staticNodeLabel, gbc);
 
+			
 			//Add list of current users occupying region
 			gbc.gridy = 3;
 			gbc.gridx = 0;
@@ -110,6 +129,7 @@ public class RegionEditor extends JFrame
 			usersLabel = new JLabel(users);
 			add(usersLabel, gbc);
 			
+			
 			//Add lightingValue indication
 			gbc.gridy = 4;
 			gbc.gridx = 0;
@@ -118,7 +138,8 @@ public class RegionEditor extends JFrame
 			gbc.gridx = 1;
 			add(lightingValueLabel, gbc);
 
-
+			
+			//Add buttons
 			JButton OKButton = new JButton("OK");
 			OKButton.addActionListener(new ActionListener()
 			{
@@ -131,8 +152,6 @@ public class RegionEditor extends JFrame
 					//Testing changing parameters
 					String [] parameters = new String[]{"name"};
 					Object [] values = new Object[]{name.getText()};
-					
-					System.err.println("MODIFY REGION!");
 
 					ClientApplet.getController().modifyObject(region, parameters, values);	
 
@@ -160,6 +179,10 @@ public class RegionEditor extends JFrame
 		}
 	
 
+		/**
+		 * This function is called everytime the model is changed
+		 * Here it will update the labels with occupancy and lightingValue information
+		 */
 		@Override
 		public void modelChanged() 
 		{			

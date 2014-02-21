@@ -1,5 +1,7 @@
 package controller;
 
+import interfaces.ModelSubscriber;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -7,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import tracker.LocationThread;
+
 
 
 
@@ -27,7 +30,7 @@ import model.StaticNode;
 import model.SystemModel;
 import model.User;
 
-public class BaseStationController extends GenericController
+public class BaseStationController extends GenericController implements ModelSubscriber
 {		
 	
 	private String modelPath;
@@ -70,7 +73,7 @@ public class BaseStationController extends GenericController
 		
 		
 		//Create Xbee serial communication
-		/*try 
+		try 
         {
 			serial = SerialFactory.createInstance();
 			
@@ -97,7 +100,7 @@ public class BaseStationController extends GenericController
         {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 	
 	@Override

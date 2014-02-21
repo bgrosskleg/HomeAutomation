@@ -20,8 +20,15 @@ public class CanvasToolbar extends JPanel
 {
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * List of toggle buttons in toolbar
+	 */
 	private JToggleButton buttons[];
 		
+	/**
+	 * Creates and displays the various GUI control buttons
+	 * Creates and uses the buttons listeners to modify the controllers "currentTool"
+	 */
 	public CanvasToolbar()
 	{
 		//Create drawing buttons
@@ -44,6 +51,7 @@ public class CanvasToolbar extends JPanel
 				@Override
 				public void itemStateChanged(ItemEvent e) 
 				{
+					//Set the controllers currentTool to whichever button was pressed
 					AbstractButton source = (AbstractButton) e.getItemSelectable();
 					ClientApplet.getController().setCurrentTool(source.getText());	
 				}
@@ -57,6 +65,7 @@ public class CanvasToolbar extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
+				//Open UsersEditor on click
 				new UsersEditor();
 			}
 		});

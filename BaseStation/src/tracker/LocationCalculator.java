@@ -61,9 +61,9 @@ public class LocationCalculator
 		float r13 = 3.605551275f;
 		*/
 		
-		model.StaticNode modelStaticNode1 = controller.getSensor(n1.mac);
-		model.StaticNode modelStaticNode2 = controller.getSensor(n2.mac);
-		model.StaticNode modelStaticNode3 = controller.getSensor(n3.mac);
+		model.StaticNode modelStaticNode1 = controller.getStaticNode(n1.mac);
+		model.StaticNode modelStaticNode2 = controller.getStaticNode(n2.mac);
+		model.StaticNode modelStaticNode3 = controller.getStaticNode(n3.mac);
 		// Locations of the static nodes
 		Location l1 = new Location(modelStaticNode1.getLocation());
 		Location l2 = new Location(modelStaticNode2.getLocation());
