@@ -41,13 +41,24 @@ public class UartListener implements SerialDataListener
 	public void dataReceived(SerialDataEvent event) {
 		String data = event.getData();
 		
-		switch (data) 
+		if(data == XBee.OK || data.substring(0, 1) == "0x")
 		{
-		case XBee.OK:
-			// Ignore OK responses
-			break;
+			// Ignore OK responses as they mean nothing to us
+			// Ignore db readings as we don't handle them
+		}
+		// This is a broadcast from a mobile node so pass it to the XBee module to build the packet
+		else if(data.charAt(0) == '*')
+		{
+			int broadcastNumber = Integer.parseInt(data.substring(1, 3));
+			String mac = data.substring(4);
+			xbee.GetReceiveSignalPacket(broadcastNumber, mac);
+		}
 		// TODO: Add a case in here that handles adding mobile/static nodes to network
-		default:
+		else if(false)
+		{			
+		}
+		else
+		{
 			switch (state) 
 			{
 			case 0:
@@ -65,9 +76,7 @@ public class UartListener implements SerialDataListener
 			default:
 				throw new IllegalStateException("Current state: " + state + ". Received: " + data + ".");
 			}
-			break;
 		}
-
 	}
 
 }

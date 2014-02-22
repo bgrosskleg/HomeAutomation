@@ -22,7 +22,10 @@ public class XBee
 	private final static String DESTINATION_LOW = "ATDL";
 	private final static String WRITE_CHANGES = "ATWR";
 	private final static String APPLY_CHANGES = "ATAC";
-	private final static String EXIT_COMMAND_MODE = "ATCN";	
+	private final static String EXIT_COMMAND_MODE = "ATCN";
+	private final static String SIGNAL_STRENGTH = "ATDB";
+	private final static String LOCAL_MAC_HIGH = "ATSH";
+	private final static String LOCAL_MAC_LOW = "ATSL";
 	
 	/**
 	 * Stores all the received packets that have not yet been read.
@@ -50,15 +53,68 @@ public class XBee
 	Semaphore okSem;
 	
 	/**
+	 * Locks the thread until the dbm value has been received.
+	 */
+	Semaphore dbmSem;
+	
+	/**
+	 * A received dbm value.
+	 */
+	String dbm;
+	
+	/**
 	 * Current MAC address to send to.
 	 */
-	private String mac;
+	private String currentMac;
+	
+	/**
+	 * The XBee modules mac address.
+	 */
+	private String myMac;
 	
 	public XBee()
 	{
+		// The serial instance for communication
+		serial = SerialFactory.createInstance();
+		
+		// A semaphore that allows us to wait for the "OK" response from the XBee
+		okSem = new Semaphore(0);
+		
+		// Add a listener that handle's the OK's and get's back the mac address
+		SerialDataListener tempListener = new SerialDataListener() {
+			
+			@Override
+			public void dataReceived(SerialDataEvent event) {
+				if(event.getData() == OK)
+				{
+					// When an OK is received we increase the number of permits available for the main send
+					// thread to handle
+					okSem.release();
+				}
+				else
+				{
+					String data = event.getData();
+					String padded = "00000000".substring(data.length()) + data;
+					myMac += padded;
+				}
+			}
+		};		
+		serial.addListener(tempListener);
+		
+		CommandMode();
+		
+		//Get high and low bytes
+		serial.write(LOCAL_MAC_HIGH);
+		okSem.acquireUninterruptibly();
+		
+		serial.write(LOCAL_MAC_LOW);
+		okSem.acquireUninterruptibly();
+		
+		ExitCommandMode();
+		serial.removeListener(tempListener);
+		
 		// Initialize the serial communications object and register UartListener
 		// to listen for messages
-		serial = SerialFactory.createInstance();
 		listener = new UartListener();
 		listener.xbee = this;
 		serial.addListener(listener);
@@ -67,7 +123,7 @@ public class XBee
 		mode = Mode.NORMAL;
 		
 		// Originally no mac to send to
-		mac = "";
+		currentMac = "";
 		
 		// Initialize the packet storage
 		packets = new Packets();		
@@ -80,7 +136,8 @@ public class XBee
 	 */
 	public void SendMessage(String nodeIdentifier, String message)
 	{
-		if(nodeIdentifier != mac)
+		// Change the mac address we send to if necessary
+		if(nodeIdentifier != currentMac)
 		{
 			// A semaphore that allows us to wait for the "OK" response from the XBee
 			okSem = new Semaphore(0);
@@ -100,22 +157,14 @@ public class XBee
 			};		
 			serial.addListener(tempListener);	
 			
-			// Switch to command mode if necessary
-			if(mode != Mode.COMMAND)
-			{
-				serial.write(COMMAND_MODE);
-				mode = Mode.COMMAND;
-				
-				// Wait for OK before continuing
-				okSem.acquireUninterruptibly();
-			}
+			CommandMode();
 			
 			//Set high and low bytes
 			serial.write(DESTINATION_HIGH + nodeIdentifier.substring(0, 7));
 			okSem.acquireUninterruptibly();
 			serial.write(DESTINATION_LOW + nodeIdentifier.substring(8, 15));
 			okSem.acquireUninterruptibly();
-			mac = nodeIdentifier;
+			currentMac = nodeIdentifier;
 			
 			// Write and apply changes
 			serial.write(WRITE_CHANGES);
@@ -123,16 +172,66 @@ public class XBee
 			serial.write(APPLY_CHANGES);
 			okSem.acquireUninterruptibly();
 			
-			// Exit command mode
-			serial.write(EXIT_COMMAND_MODE);
-			okSem.acquireUninterruptibly();
-			mode = Mode.NORMAL;
+			ExitCommandMode();
 			
 			serial.removeListener(tempListener);
 		}
 		
 		// Send the data, we are sending to the correct node
 		serial.write(message);
+	}
+	
+	/**
+	 * Build a receive signal packet from the most recent receive signal strength.
+	 */
+	public void GetReceiveSignalPacket(int broadcastNumber, String mobileMac)
+	{
+		// A semaphore that allows us to wait for the "OK" response from the XBee
+		okSem = new Semaphore(0);
+		dbmSem = new Semaphore(0);
+		
+		// Add a listener that handle's the OK's
+		SerialDataListener tempListener = new SerialDataListener() {
+			
+			@Override
+			public void dataReceived(SerialDataEvent event) {
+				if(event.getData() == OK)
+				{
+					// When an OK is received we increase the number of permits available for the main send
+					// thread to handle
+					okSem.release();
+				}
+				else if(event.getData().substring(0, 1) == "0x")
+				{
+					dbm = event.getData();
+					dbmSem.release();
+				}
+			}
+		};		
+		serial.addListener(tempListener);
+		
+		CommandMode();
+		
+		//Set high and low bytes
+		serial.write(SIGNAL_STRENGTH);
+		dbmSem.acquireUninterruptibly();
+		
+		ExitCommandMode();
+		serial.removeListener(tempListener);
+		
+		// Build signal strength, first put in the raw db
+		String signalStrength = dbm;
+		
+		// Add the int db value
+		Integer intDbm = -Integer.parseInt(dbm.substring(2), 16);
+		signalStrength += " " + intDbm + "dBm ";
+		
+		// Add percentage
+		Integer percent = intDbm + 92 / 66;
+		signalStrength += "(" + percent + "%)";
+		
+		ReceivePacket packet = new ReceivePacket(mobileMac, myMac, signalStrength, broadcastNumber);
+		AddPacket(packet);
 	}
 	
 	/**
@@ -151,6 +250,36 @@ public class XBee
 	public void AddPacket(ReceivePacket packet)
 	{
 		packets.push(packet);
+	}
+	
+	/**
+	 * Put the XBee module into command mode.
+	 */
+	private void CommandMode()
+	{
+		// Switch to command mode if necessary
+		if(mode != Mode.COMMAND)
+		{
+			serial.write(COMMAND_MODE);
+			mode = Mode.COMMAND;
+			
+			// Wait for OK before continuing
+			okSem.acquireUninterruptibly();
+		}
+	}
+	
+	/**
+	 * Put the XBee module into normal mode.
+	 */
+	private void ExitCommandMode()
+	{
+		// Exit command mode
+		if(mode == Mode.COMMAND)
+		{
+			serial.write(EXIT_COMMAND_MODE);
+			okSem.acquireUninterruptibly();
+			mode = Mode.NORMAL;
+		}
 	}
 }
 
