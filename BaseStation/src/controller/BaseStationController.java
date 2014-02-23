@@ -87,10 +87,14 @@ public class BaseStationController extends GenericController implements ModelSub
 			
 			serial.addListener(new SerialDataListener() 
 			{
+				String temp = "";
 				@Override
 				public void dataReceived(SerialDataEvent event) 
 				{
-					System.out.println(event.getData());
+					temp += event.getData();
+					if(temp.length() > 100)
+						System.out.println(temp);
+					//System.out.println(event.getData());
 				}
 			});
 			

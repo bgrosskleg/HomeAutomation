@@ -2,6 +2,7 @@ package test;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.concurrent.Semaphore;
 
 import com.pi4j.io.serial.Serial;
 import com.pi4j.io.serial.SerialDataEvent;
@@ -13,6 +14,11 @@ public class TestXbee
 	//Serial object
 	public static Serial serial;
 	
+	static Semaphore full = new Semaphore(0);
+	//static Semaphore empty = new Semaphore(0);
+	static Semaphore lock = new Semaphore(1);
+	static String temp = "";
+	
 	public static void main(String[] args) 
 	{
 		try 
@@ -23,11 +29,25 @@ public class TestXbee
 			//Add data listener
 			serial.addListener(new SerialDataListener() 
 			{
+				//Semaphore sem = new Semaphore(1);
 				@Override
 				public void dataReceived(SerialDataEvent event) 
 				{
-					System.out.println(event.getData());
+					//System.out.println("Hello world.");
+					lock.acquireUninterruptibly();
+					temp += event.getData();
+					if(temp.length() > 100)
+					{
+						full.release();
+						/*System.out.println(temp);
+						System.out.println();
+						System.out.println();
+						temp = "";*/
+					}
+					//System.out.println(event.getData());
+					lock.release();
 				}
+				
 			});
 			
 		    // wait 1 second before opening
@@ -35,7 +55,7 @@ public class TestXbee
 			
 	
 	        // open the default serial port provided on the GPIO header
-	        serial.open(Serial.DEFAULT_COM_PORT, 9600);
+	        serial.open(Serial.DEFAULT_COM_PORT, 1200);
 	        
 	        // wait 1 second before continuing
 			Thread.sleep(1000);
@@ -87,13 +107,23 @@ public class TestXbee
 			}	
 			
 			for(;;)
-			{
+			{				
 				//Type message to sent out serial
 				System.out.println("MESSAGE:");
-				input1 = br.readLine();
+				//input1 = br.readLine();
 				
 				//Send message
-				serial.write(input1);
+				//serial.write(input1);
+				
+				full.acquireUninterruptibly();
+				lock.acquireUninterruptibly();
+				System.out.println("Hello world");
+				System.out.println(temp.length());
+				String temp2 = temp;
+				System.out.println(temp2.getBytes());
+				System.out.println();
+				temp = "";
+				lock.release();
 			}
 			
 			
