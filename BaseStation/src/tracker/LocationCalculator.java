@@ -1,6 +1,8 @@
 package tracker;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import controller.BaseStationController;
@@ -19,21 +21,28 @@ public class LocationCalculator
 		// Get the static nodes that got a signal strength reading in the most recent broadcast.
 		ArrayList<StaticNode> sNodes = mNode.GetSignalStengthsByBroadcastNumber(broadcastNumber);
 		
-		// We need at least 3 locations to give a location
-		if(sNodes.size() < 3)
+		// We need at least 4 locations to give a location
+		if(sNodes.size() < 4)
 			return mNode.LastLocation();
 		
-		// Calculate the expected location for each set of 3 static nodes in our list.  If we have
-		// 4 static nodes then we will calculate 4 locations.  For 5 static nodes we do 9 calculations.
-		// For 3 nodes, only one calculation.  Average these values later.
+		// Calculate the expected location for each set of 4 static nodes in our list.  If we have
+		// 5 static nodes then we will calculate 4 locations.  For 6 static nodes we do 9 calculations.
+		// For 4 nodes, only one calculation.  Average these values later.
 		LinkedList<Location> intermediateLocations = new LinkedList<Location>();
-		for(int i = 0; i < sNodes.size() - 2; i++)
-			for(int j = i + 1; j < sNodes.size() - 1; j++)
-				for(int k = j + 1; k < sNodes.size(); k++)
-				{
-					Location tempLocation = CalculateLocation(sNodes.get(i), sNodes.get(i), sNodes.get(i), controller);
-					intermediateLocations.add(tempLocation);
-				}
+		for(int i = 0; i < sNodes.size() - 3; i++)
+			for(int j = i + 1; j < sNodes.size() - 2; j++)
+				for(int k = j + 1; k < sNodes.size() - 1; k++)
+					for(int l = k + 1; l < sNodes.size(); l++)
+					{
+						Location tempLocation = new Location();
+						try {
+							tempLocation = CalculateLocation(sNodes.get(i), sNodes.get(j), sNodes.get(k), sNodes.get(l), controller);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						intermediateLocations.add(tempLocation);
+					}
 		
 		// Average the x and y values in the locations.
 		float x = 0.0f;
@@ -51,64 +60,57 @@ public class LocationCalculator
 		return new Location(x, y);
 	}
 	
-	private static Location CalculateLocation(StaticNode n1, StaticNode n2, StaticNode n3, BaseStationController controller)
+	private static Location CalculateLocation(StaticNode n1, StaticNode n2, StaticNode n3, StaticNode n4, BaseStationController controller) throws Exception
 	{
-		/* My test values
+		/*// My test values
 		Location l1 = new Location(1,1);
 		Location l2 = new Location(7,3);
 		Location l3 = new Location(3,7);
 		float r12 = 1.497123679f;
-		float r13 = 3.605551275f;
-		*/
+		float r13 = 3.605551275f;*/
+		
 		
 		model.StaticNode modelStaticNode1 = controller.getStaticNode(n1.mac);
 		model.StaticNode modelStaticNode2 = controller.getStaticNode(n2.mac);
 		model.StaticNode modelStaticNode3 = controller.getStaticNode(n3.mac);
+		model.StaticNode modelStaticNode4 = controller.getStaticNode(n4.mac);
 		// Locations of the static nodes
 		Location l1 = new Location(modelStaticNode1.getLocation());
 		Location l2 = new Location(modelStaticNode2.getLocation());
 		Location l3 = new Location(modelStaticNode3.getLocation());
+		Location l4 = new Location(modelStaticNode4.getLocation());
 		
-		// TODO: might need to decay these signal strengths by r^2 as they aren't linear in this form?
-		// The ratio's of the signal strengths.  
-		float r12 = n1.GetCurrentSignalStrength().percent /  n2.GetCurrentSignalStrength().percent; 
-		float r13 = n1.GetCurrentSignalStrength().percent /  n3.GetCurrentSignalStrength().percent;
+		// The ratio's of the distances.  Have to convert dbm into power by 10^(dbm/10) then power into distance by power ^ .5  
+		float r12 = (float) Math.sqrt(Math.pow(10, n1.GetCurrentSignalStrength().dbm / 10) /  
+							Math.pow(10, n2.GetCurrentSignalStrength().dbm / 10)); 
+		float r13 = (float) Math.sqrt(Math.pow(10, n1.GetCurrentSignalStrength().dbm / 10) /  
+							Math.pow(10, n3.GetCurrentSignalStrength().dbm / 10)); 
+		float r14 = (float) Math.sqrt(Math.pow(10, n1.GetCurrentSignalStrength().dbm / 10) /  
+				Math.pow(10, n4.GetCurrentSignalStrength().dbm / 10));
 		
 		// Really just some intermediate computation
 		Circle c1 = GetCircle(l1, l2, r12);
 		Circle c2 = GetCircle(l1, l3, r13);
+		Circle c3 = GetCircle(l1, l4, r14);
 		
-		// The rest is magic... or algebra.  Depends how you want to look at it.
-		float d = (float) Math.sqrt(Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2));
+		Location[] locations = concat(CircleIntersection(c1, c2), CircleIntersection(c1, c3));
 		
-		Location r1 = new Location();
+		for(int i = 0; i < 3; i++)
+		{
+			BigDecimal x1 = BigDecimal.valueOf(locations[i].x).setScale(2, BigDecimal.ROUND_HALF_UP);
+			BigDecimal y1 = BigDecimal.valueOf(locations[i].y).setScale(2, BigDecimal.ROUND_HALF_UP);
+			for(int j = i + 1; j < locations.length; j++)
+			{
+				BigDecimal x2 = BigDecimal.valueOf(locations[j].x).setScale(2, BigDecimal.ROUND_HALF_UP);
+				BigDecimal y2 = BigDecimal.valueOf(locations[j].y).setScale(2, BigDecimal.ROUND_HALF_UP);
+				
+				if(x1.compareTo(x2) == 0 && y1.compareTo(y2) == 0)
+					return locations[i];
+			}
+		}
 		
-		r1.x = (float) ((c2.x + c1.x) / 2 + (c2.x - c1.x) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) +
-				((c2.y - c1.y) / (2 * d * d)) * 
-				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
-		
-		r1.y = (float) ((c2.y + c1.y) / 2 + (c2.y - c1.y) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) -
-				((c2.x - c1.x) / (2 * d * d)) * 
-				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
-		
-		Location r2 = new Location();
-		
-		r2.x = (float) ((c2.x + c1.x) / 2 + (c2.x - c1.x) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) -
-				((c2.y - c1.y) / (2 * d * d)) * 
-				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
-		
-		r2.y = (float) ((c2.y + c1.y) / 2 + (c2.y - c1.y) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) +
-				((c2.x - c1.x) / (2 * d * d)) * 
-				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
-		
-		System.out.println("C1: (" + c1.x + ", " + c1.y + ", " + c1.r + ")");
-		System.out.println("C2: (" + c2.x + ", " + c2.y + ", " + c2.r + ")");
-		
-		System.out.println("R1: (" + r1.x + ", " + r1.y + ")");
-		System.out.println("R2: (" + r2.x + ", " + r2.y + ")");
-		
-		// TODO: return either r1 or r2 here. Need to figure out how to decide.
-		return null;
+		// Shouldn't reach here
+		throw new Exception("Couldn't calculate a location.");
 	}
 	
 	/**
@@ -138,6 +140,54 @@ public class LocationCalculator
 		toReturn.y = - o / (2 * m);
 		toReturn.r = (float) Math.sqrt(q / m + Math.pow(n / (2 * m), 2) + Math.pow(o / (2 * m), 2));
 		return toReturn;
+	}
+	
+	/**
+	 * Calculate the intersections of 2 circles.
+	 * @param c1 - First circle
+	 * @param c2 - Second circle
+	 * @return - 0, 1, 2 intersections
+	 */
+	private static Location[] CircleIntersection(Circle c1, Circle c2)
+	{
+		// The rest is magic... or algebra.  Depends how you want to look at it. Intersection of the circles
+		float d = (float) Math.sqrt(Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2));
+		
+		Location r1 = new Location();
+		
+		r1.x = (float) ((c2.x + c1.x) / 2 + (c2.x - c1.x) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) +
+				((c2.y - c1.y) / (2 * d * d)) * 
+				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
+		
+		r1.y = (float) ((c2.y + c1.y) / 2 + (c2.y - c1.y) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) -
+				((c2.x - c1.x) / (2 * d * d)) * 
+				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
+		
+		Location r2 = new Location();
+		
+		r2.x = (float) ((c2.x + c1.x) / 2 + (c2.x - c1.x) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) -
+				((c2.y - c1.y) / (2 * d * d)) * 
+				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
+		
+		r2.y = (float) ((c2.y + c1.y) / 2 + (c2.y - c1.y) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) +
+				((c2.x - c1.x) / (2 * d * d)) * 
+				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
+		
+		System.out.println("C1: (" + c1.x + ", " + c1.y + ", " + c1.r + ")");
+		System.out.println("C2: (" + c2.x + ", " + c2.y + ", " + c2.r + ")");
+		
+		System.out.println("R1: (" + r1.x + ", " + r1.y + ")");
+		System.out.println("R2: (" + r2.x + ", " + r2.y + ")");
+		
+		return new Location[]{ r1, r2 };
+	}
+
+
+	public static <T> T[] concat(T[] first, T[] second) 
+	{
+	  T[] result = Arrays.copyOf(first, first.length + second.length);
+	  System.arraycopy(second, 0, result, first.length, second.length);
+	  return result;
 	}
 }
 
