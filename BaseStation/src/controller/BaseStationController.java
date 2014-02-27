@@ -76,8 +76,8 @@ public class BaseStationController extends GenericController implements ModelSub
 		comThread.start();
 		
 		// Create the location controlling thread
-		locThread = new LocationThread(this);
-		locThread.start();
+		//locThread = new LocationThread(this);
+		//locThread.start();
 		
 		
 		//Create Xbee serial communication
@@ -103,7 +103,7 @@ public class BaseStationController extends GenericController implements ModelSub
 			
 	
 	        // open the default serial port provided on the GPIO header
-	        serial.open(Serial.DEFAULT_COM_PORT, 9600);
+	        serial.open(Serial.DEFAULT_COM_PORT, 1200);
 	        
 	        // wait 1 second before continuing
 			Thread.sleep(1000);        
