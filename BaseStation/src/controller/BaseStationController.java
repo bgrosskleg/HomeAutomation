@@ -76,8 +76,8 @@ public class BaseStationController extends GenericController implements ModelSub
 		comThread.start();
 		
 		// Create the location controlling thread
-		locThread = new LocationThread(this);
-		locThread.start();
+		//locThread = new LocationThread(this);
+		//locThread.start();
 		
 		
 		//Create Xbee serial communication

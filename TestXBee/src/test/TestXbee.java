@@ -34,18 +34,22 @@ public class TestXbee
 				public void dataReceived(SerialDataEvent event) 
 				{
 					//System.out.println("Hello world.");
-					lock.acquireUninterruptibly();
-					temp += event.getData();
-					if(temp.length() > 100)
-					{
-						full.release();
+					//lock.acquireUninterruptibly();
+					//temp += event.getData();
+					//if(temp.length() > 100)
+					//{
+						//full.release();
 						/*System.out.println(temp);
 						System.out.println();
 						System.out.println();
 						temp = "";*/
-					}
+						synchronized(System.out)
+						{
+							System.out.println(event.getData());
+						}
+					//}
 					//System.out.println(event.getData());
-					lock.release();
+					//lock.release();
 				}
 				
 			});
@@ -55,7 +59,7 @@ public class TestXbee
 			
 	
 	        // open the default serial port provided on the GPIO header
-	        serial.open(Serial.DEFAULT_COM_PORT, 1200);
+	        serial.open(Serial.DEFAULT_COM_PORT, 9600);
 	        
 	        // wait 1 second before continuing
 			Thread.sleep(1000);
@@ -69,7 +73,7 @@ public class TestXbee
 			for(;;)
 			{
 				//Ask for delay between +++ and command (used in debugging)
-				System.out.println("Wait time ms (typ. 50ms):");
+				//System.out.println("Wait time ms (typ. 50ms):");
 				waitTime = br.readLine();
 				
 				//If blank, use 50ms
@@ -83,7 +87,7 @@ public class TestXbee
 				}
 				
 				//Ask the user what they want to configure
-				System.out.println("CONFIG:");
+				//System.out.println("CONFIG:");
 				input1 = br.readLine();
 				
 				//If exit, break to sending messages
@@ -93,14 +97,14 @@ public class TestXbee
 				}
 				
 				//Send enter command mode
-				System.out.println("SENT: +++");
+				//System.out.println("SENT: +++");
 				serial.write("+++");
 				
 				//Wait set amount
 				Thread.sleep(Integer.valueOf(waitTime));
 				
 				//Send CONFIG
-				System.out.println("SENT: " + input1 + '\r');
+				//System.out.println("SENT: " + input1 + '\r');
 				serial.write(input1 + '\r');
 				
 				//REPEAT
@@ -109,21 +113,26 @@ public class TestXbee
 			for(;;)
 			{				
 				//Type message to sent out serial
-				System.out.println("MESSAGE:");
+				//System.out.println("MESSAGE:");
 				//input1 = br.readLine();
 				
 				//Send message
 				//serial.write(input1);
-				
+				/*
 				full.acquireUninterruptibly();
 				lock.acquireUninterruptibly();
-				System.out.println("Hello world");
+				//System.out.println("Hello world");
+				synchronized (System.out) {
+					
+				
 				System.out.println(temp.length());
 				String temp2 = temp;
 				System.out.println(temp2.getBytes());
 				System.out.println();
 				temp = "";
+				}
 				lock.release();
+				*/
 			}
 			
 			
