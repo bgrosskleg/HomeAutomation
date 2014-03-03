@@ -126,7 +126,7 @@ public class XBee
 		currentMac = "";
 		
 		// Initialize the packet storage
-		packets = new Packets();		
+		packets = new Packets();			
 	}
 	
 	/**

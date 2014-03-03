@@ -15,7 +15,7 @@ public class SignalStrength
 	/**
 	 * Signal strength in percent
 	 */
-	public float percent;
+	public double percent;
 	
 	/**
 	 * The broadcast that this was measured as a part of
@@ -26,7 +26,7 @@ public class SignalStrength
 	{
 	}
 	
-	public SignalStrength(String hex, int dbm, float percent, int broadcastNumber)
+	public SignalStrength(String hex, int dbm, double percent, int broadcastNumber)
 	{
 		this.hex = hex;
 		this.dbm = dbm;
@@ -51,7 +51,7 @@ public class SignalStrength
 		dbm = Integer.parseInt(split[1].replaceFirst("dBm", ""));
 		
 		// Get percent
-		percent = Float.parseFloat(split[2].replaceFirst("(", "").replaceFirst("%)", ""));
+		percent = Double.parseDouble(split[2].replaceFirst("\\(", "").replaceFirst("\\%\\)", ""));
 		
 		this.broadcastNumber = broadcastNumber;
 	}
