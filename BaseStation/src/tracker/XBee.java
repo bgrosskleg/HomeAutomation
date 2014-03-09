@@ -120,9 +120,23 @@ public class XBee
 				
 		// Initialize the serial communications object and register UartListener
 		// to listen for messages
-		listener = new UartListener();
-		listener.xbee = this;
-		serial.addListener(listener);		
+		try 
+		{
+			listener = new UartListener();
+			listener.xbee = this;
+			serial.addListener(listener);	
+			// wait 1 second before opening
+			Thread.sleep(1000);
+	        // open the default serial port provided on the GPIO header
+	        serial.open(Serial.DEFAULT_COM_PORT, 9600);        
+	        // wait 1 second before continuing		
+			Thread.sleep(1000);
+			
+		} catch (InterruptedException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		// Originally no mac to send to
 		currentMac = "";

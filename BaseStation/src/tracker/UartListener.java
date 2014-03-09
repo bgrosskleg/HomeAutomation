@@ -6,8 +6,8 @@ import com.pi4j.io.serial.SerialDataListener;
 public class UartListener implements SerialDataListener 
 {	
 	private static final String BROADCAST_START_DELIM = "*";
-	private static final String BROADCAST_END_DELIM = "&";
-	private static final String STRENGTH_START_DELIM = "*";
+	private static final String BROADCAST_END_DELIM = "@";
+	private static final String STRENGTH_START_DELIM = "#";
 	private static final String STRENGTH_END_DELIM = "?";
 	
 	/**
@@ -23,6 +23,10 @@ public class UartListener implements SerialDataListener
 	@Override
 	public void dataReceived(SerialDataEvent event) {
 		String data = event.getData();
+		
+		System.out.println(data);
+		System.out.println();
+		System.out.println(buffer);
 		
 		data = data.replaceAll(XBee.OK, "");
 		buffer.append(data);

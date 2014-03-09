@@ -22,6 +22,11 @@ public class LocationThread extends Thread
 	 */
 	private BaseStationController controller;
 	
+	/**
+	 * Used to try find the location of a mobile node.
+	 */
+	LocationEstimator estimator;
+	
 	public LocationThread(BaseStationController controller)
 	{
 		// Initialize the xbee module we use for communication
@@ -32,6 +37,9 @@ public class LocationThread extends Thread
 		
 		// A handle to the controller so we can get info about the current home model
 		this.controller = controller;
+		
+		// Initialize estimation
+		estimator = new LocationEstimator(800, 800);
 	}
 	
 	public void run() 
@@ -49,7 +57,7 @@ public class LocationThread extends Thread
     		node.AddSignalStrength(strength, packet.staticMac);    		
     		
     		// Calculate location of mobile node
-    		Location location = LocationCalculator.CalculateLocation(controller, node, packet.broadcastNumber);
+    		Location location = estimator.CalculateLocation(controller, node, packet.broadcastNumber);
     		
     		if(location != null)
     		{
