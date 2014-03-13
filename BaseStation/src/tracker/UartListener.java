@@ -23,11 +23,11 @@ public class UartListener implements SerialDataListener
 	@Override
 	public void dataReceived(SerialDataEvent event) {
 		String data = event.getData();
+		synchronized (System.out) {
 		
-		System.out.println(data);
-		System.out.println();
-		System.out.println(buffer);
-		
+			System.out.println(data.replace("\r", "\\r"));
+			System.out.println();
+		}
 		data = data.replaceAll(XBee.OK, "");
 		buffer.append(data);
 		

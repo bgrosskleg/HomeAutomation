@@ -27,10 +27,10 @@ public class LocationEstimator
 		int yDistSquare[] = new int[height];
 		
 		for(int i = 0; i < width; i++)
-			xDistSquare[i] = width * width;
+			xDistSquare[i] = i * i;
 		
 		for(int i = 0; i < height; i++)
-			xDistSquare[i] = height * height;
+			yDistSquare[i] = i * i;
 		
 		for(int i = 0; i < width; i++)
 			for(int j = 0; j < height; j++)
@@ -103,13 +103,13 @@ public class LocationEstimator
 	
 	private Boolean InRange(int x, int y, LocAndStrength node)
 	{
-		DistanceLookup dbmDist = distanceLookup[node.strengthIndex];
+		DistanceLookup dbmDist = distanceLookup[node.strengthIndex - 26];
 		
 		int tempX = (int) (x - node.loc.x);
 		if(tempX < 0)
 			tempX = -tempX;
 		
-		int tempY = (int) (x - node.loc.x);
+		int tempY = (int) (y - node.loc.y);
 		if(tempY < 0)
 			tempY = -tempY;
 		
@@ -126,7 +126,7 @@ public class LocationEstimator
 		
 		public LocAndStrength(StaticNode n, Location l)
 		{
-			strengthIndex = -n.GetCurrentSignalStrength().dbm;
+			strengthIndex = n.GetCurrentSignalStrength().dbm;
 			loc = l;
 		}
 	}
