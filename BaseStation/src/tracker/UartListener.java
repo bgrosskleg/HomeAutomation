@@ -46,20 +46,23 @@ public class UartListener implements SerialDataListener
 			{
 				if(bEndDelim != -1)
 				{
-					buffer.replace(bStartDelim, bEndDelim, "");
+					buffer.replace(bStartDelim, bEndDelim + 1, "");
 				}
 			}
 			else if(sStartDelim == 0)
 			{
 				if(sEndDelim != -1)
 				{
-					String sigStren = buffer.substring(sStartDelim + 1, sEndDelim - 1);
-					buffer.replace(sStartDelim, sEndDelim, "");
-					
-					xbee.AddPacket(new ReceivePacket(sigStren.substring(4, 19), 
-													 sigStren.substring(21, 36), 
-													 sigStren.substring(38, 39), 
-													 Integer.parseInt(sigStren.substring(0, 2))));
+					String sigStren = buffer.substring(sStartDelim + 1, sEndDelim);
+					buffer.replace(sStartDelim, sEndDelim + 1, "");
+					ReceivePacket temp = new ReceivePacket(sigStren.substring(4, 20), 
+							 sigStren.substring(21, 37), 
+							 sigStren.substring(38, 40), 
+							 Integer.parseInt(sigStren.substring(0, 3)));
+					xbee.AddPacket(new ReceivePacket(sigStren.substring(4, 20), 
+													 sigStren.substring(21, 37), 
+													 sigStren.substring(38, 40), 
+													 Integer.parseInt(sigStren.substring(0, 3))));
 				}
 			}
 		}while(bEndDelim != -1 || sEndDelim != -1);

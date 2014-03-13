@@ -27,7 +27,7 @@ public class MobileNodes
 		while(toReturn == null && iterator.hasNext())
 		{
 			MobileNode currentNode = iterator.next();
-			if(currentNode.mac == mac)
+			if(currentNode.mac.equals(mac))
 				toReturn = currentNode;
 		}
 		if(toReturn == null)

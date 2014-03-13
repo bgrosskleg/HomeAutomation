@@ -40,7 +40,7 @@ public class SignalStrength
 		hex = "-" + rawSigStrength;
 		
 		// Get number dbm
-		dbm = Integer.parseInt(rawSigStrength, 8);
+		dbm = Integer.parseInt(rawSigStrength, 16);
 		
 		this.broadcastNumber = broadcastNumber;
 	}
