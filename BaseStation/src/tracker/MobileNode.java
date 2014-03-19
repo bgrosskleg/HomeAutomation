@@ -104,4 +104,25 @@ public class MobileNode
 	{
 		return locations.peekFirst();
 	}
+	
+	public Location GetAveragedLocation()
+	{
+		if(locations.peek() == null)
+			return null;
+		
+		Iterator<Location> iter = locations.iterator();
+		int weight = 5;
+		int totalWeight = 0;
+		int sumX = 0;
+		int sumY = 0;
+		while(iter.hasNext() && weight > 0)
+		{
+			Location loc = iter.next();
+			sumX += weight * loc.x;
+			sumY += weight * loc.y;			
+			totalWeight += weight;
+			weight--;
+		}
+		return new Location(sumX / totalWeight, sumY / totalWeight);
+	}
 }

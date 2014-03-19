@@ -44,4 +44,21 @@ public class SignalStrength
 		
 		this.broadcastNumber = broadcastNumber;
 	}
+	
+	/**
+	 * Convert the raw string signal strength into a signal strength object.  This is the signal
+	 * strength that comes from the network.
+	 * @param raw - String of format "<hex> <dbm> <(percent)>"
+	 * @param broadcastNumber - The broadcast that this signal strength was measured as a part of
+	 */
+	public SignalStrength(int dbm, int broadcastNumber)
+	{		
+		// Hex first
+		hex = Integer.toHexString(dbm);
+		
+		// Get number dbm
+		this.dbm = dbm;
+		
+		this.broadcastNumber = broadcastNumber;
+	}
 }

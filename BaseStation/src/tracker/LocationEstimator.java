@@ -19,6 +19,18 @@ public class LocationEstimator
 		distance = new double[width][height];
 		
 		ComputeDistances();
+		
+		distanceLookup = new DistanceLookup[57];
+		for(int i = 0; i < 57; i++)
+		{
+			int dbm = i + 26;
+			double meters = 0.3048 * (0.0442 * dbm * dbm - 3.691 * dbm + 77.517);
+			double min = meters - 0.5;
+			if(min < 0)
+				min = 0;
+			double max = meters + 0.5;
+			distanceLookup[i] = new DistanceLookup(min, max);
+		}
 	}
 	
 	private void ComputeDistances()
@@ -144,7 +156,7 @@ public class LocationEstimator
 		}
 	}
 	
-	private DistanceLookup distanceLookup[] = 
+	private DistanceLookup distanceLookup[];/* = 
 		{
 			new DistanceLookup(0, 1.5),//26
 			new DistanceLookup(0, 1.5),//27
@@ -204,6 +216,6 @@ public class LocationEstimator
 			new DistanceLookup(24.3, 30.5),//81
 			new DistanceLookup(24.3, 30.5),//82
 			new DistanceLookup(24.3, 30.5)//83			
-		};
+		};*/
 		
 }

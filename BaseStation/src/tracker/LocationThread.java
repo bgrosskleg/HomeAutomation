@@ -64,6 +64,8 @@ public class LocationThread extends Thread
 	    		// Store the current location
 	    		node.SetLocation(location);
 	    		
+	    		location = node.GetAveragedLocation();
+	    		
 	    		// Send the new location to the model, it will decide if we need to send lighting commands and do so if necessary
 	    		User user = controller.getUser(node.mac);
 	    		

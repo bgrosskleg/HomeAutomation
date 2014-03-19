@@ -1,5 +1,6 @@
 package tracker;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 
@@ -24,7 +25,22 @@ public class StaticNode
 	
 	public SignalStrength GetCurrentSignalStrength()
 	{
-		return strengths.peek();
+		if(strengths.peek() == null)
+			return null;
+		
+		Iterator<SignalStrength> iter = strengths.iterator();
+		int weight = 5;
+		int totalWeight = 0;
+		int sum = 0;
+		while(iter.hasNext() && weight > 0)
+		{
+			SignalStrength stren = iter.next();
+			sum += weight * stren.dbm;
+			totalWeight += weight;
+			weight--;
+		}
+		int dbm = sum / totalWeight;
+		return new SignalStrength(dbm, strengths.peek().broadcastNumber);
 	}
 	
 	public void AddSignalStrength(SignalStrength strength)
