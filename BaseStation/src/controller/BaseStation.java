@@ -29,7 +29,7 @@ class BaseStation
         
         //Creates a timer to simulate moving user position 
         
-        int delay = 3000; //milliseconds
+        int delay = 2000; //milliseconds
     	       
         ActionListener taskPerformer = new ActionListener() 
         {
@@ -49,20 +49,20 @@ class BaseStation
 	        		double LocY = temp.getLocation().getY();
 	        		
 	        		//Move user
-	        		if(moveRight && LocX < 175)
+	        		if(moveRight && LocX < 400)
 	        		{
 	        			newLocation = new Point2D.Double(LocX += stepSize, LocY);
 	        		}
-	        		else if(moveRight && LocX >= 175)
+	        		else if(moveRight && LocX >= 400)
 	        		{
 	        			moveRight = false;
 	        			newLocation = new Point2D.Double(LocX -= stepSize, LocY);
 	        		}
-	        		else if(!moveRight && LocX > 25)
+	        		else if(!moveRight && LocX > 50)
 	        		{
 	        			newLocation = new Point2D.Double(LocX -= stepSize, LocY);
 	        		}
-	        		else if(!moveRight && LocX <= 25)
+	        		else if(!moveRight && LocX <= 50)
 	        		{
 	        			moveRight = true;
 	        			newLocation = new Point2D.Double(LocX += stepSize, LocY);
