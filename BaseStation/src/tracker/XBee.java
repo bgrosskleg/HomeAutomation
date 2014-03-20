@@ -178,18 +178,18 @@ public class XBee
 				}
 			};		
 			
-			//Wyatt's code - not working, hangs after OK\r
+			//Wyatt's code - not working, hangs after first transmit
 			/*serial.addListener(tempListener);	
 			
 			System.out.println("Get's here 3 - " + System.currentTimeMillis());
 			CommandMode();
 			System.out.println("Get's here 4 - " + System.currentTimeMillis());
 			//Set high and low bytes
-			serial.write(DESTINATION_HIGH + nodeIdentifier.substring(0, 7));
+			serial.write(DESTINATION_HIGH + nodeIdentifier.substring(0, 7) + '\r');
 			System.out.println("Get's here 5 - " + System.currentTimeMillis());
 			okSem.acquireUninterruptibly();
 			System.out.println("Get's here 6 - " + System.currentTimeMillis());
-			serial.write(DESTINATION_LOW + nodeIdentifier.substring(8, 15));
+			serial.write(DESTINATION_LOW + nodeIdentifier.substring(8, 15) + '\r');
 			System.out.println("Get's here 7 - " + System.currentTimeMillis());
 			okSem.acquireUninterruptibly();
 			System.out.println("Get's here 8 - " + System.currentTimeMillis());
@@ -211,8 +211,7 @@ public class XBee
 			serial.removeListener(tempListener);
 			*/
 			
-			//Brian's old code - used to work, not waiting for OK's
-			//nodeIdentifier = "0013A2004079B114";
+			//Brian's old code - usable fallback
 			try
 			{
 				Thread.sleep(75);
@@ -245,6 +244,7 @@ public class XBee
 			{
 				e.printStackTrace();
 			}
+			
 		}
 		
 		// Send the data, we are sending to the correct node
