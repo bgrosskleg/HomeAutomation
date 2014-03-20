@@ -56,7 +56,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 	/**
 	 * List of selected objects
 	 */
-	private ArrayList<ModelObject> selected = new ArrayList<ModelObject>();
+	private ModelObject selected;
 	
 	/**
 	 * Creates canvas that displays the current model
@@ -92,7 +92,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 			point.paintComponent(g2);
 		}
 		
-		selected.clear();
+		selected = null;
 						
 		//Select objects based on cursor position and paint to screen
 		
@@ -104,7 +104,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 					//If cursor is within the region
 					if(((Region)object).getPath().contains(cursorPoint))
 					{
-						selected.add(object);					
+						selected = object;				
 					}	
 					else
 					{
@@ -123,7 +123,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 					//Create bounding box for line selection
 					if(((Wall)object).getLine().intersects(new Rectangle2D.Double(cursorPoint.getX() - gridSize/2, cursorPoint.getY() - gridSize/2, gridSize, gridSize)))
 					{
-						selected.add(object);
+						selected = object;
 					}	
 					else
 					{
@@ -141,7 +141,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 				{
 					if(((Light)object).getLocation().equals(cursorPoint))
 					{	
-						selected.add(object);
+						selected = object;
 					}	
 					else
 					{
@@ -159,7 +159,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 				{
 					if(((StaticNode)object).getLocation().equals(cursorPoint))
 					{	
-						selected.add(object);
+						selected = object;
 					}	
 					else
 					{
@@ -171,17 +171,18 @@ public class Canvas extends JPanel implements ModelSubscriber
 		}
 		
 		//Now paint selected regions or static nodes items in selected color
-		for(ModelObject object : selected)
+		if(selected != null)
 		{
-			g2.setColor(object.getSelectedColor());
-			object.paintComponent(g2);
+			g2.setColor(selected.getSelectedColor());
+			selected.paintComponent(g2);
 			
-			if(object instanceof Region || object instanceof StaticNode)
+			if(selected instanceof Region || selected instanceof StaticNode)
 			{
 				//Paint label
 				g2.setColor(Color.BLACK);
 				g2.setFont(new Font("default", Font.BOLD, 16));
-				g2.drawString(object.toString(),	(int) cursorPoint.x + 10, (int) cursorPoint.y - 1);
+				
+				{g2.drawString(selected.toString(),	(int) cursorPoint.x + 10, (int) cursorPoint.y - 1);}
 			}
 		}
 			
@@ -320,7 +321,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 		this.currentlyBuildingWall = currentlyBuildingWall;
 	}
 
-	public ArrayList<ModelObject> getSelected() {
+	public ModelObject getSelected() {
 		return selected;
 	}
 	

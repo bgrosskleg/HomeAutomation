@@ -148,11 +148,8 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 										}
 										break;
 					
-					case "Erase":		for(ModelObject object : canvas.getSelected())
-										{
-											//Remove modelObject
-											ClientApplet.getController().removeModelObject(object);
-										}
+					case "Erase":		ClientApplet.getController().removeModelObject(canvas.getSelected());
+										
 										break;
 					
 				default:
@@ -160,31 +157,15 @@ public class CanvasMouseAdapter extends MouseInputAdapter
 			}
 		}
 		else if(SwingUtilities.isRightMouseButton(e))
-		{
-			//Check for edittable objects under right click
-			boolean editSensor = false;
-			
+		{			
 			//Edit sensor
-			for(ModelObject object : canvas.getSelected())
+			if(canvas.getSelected() instanceof StaticNode)
 			{
-				if(object instanceof StaticNode)
-				{
-					new StaticNodeEditor((StaticNode)object);
-					editSensor = true;
-				}
-				break;
+				new StaticNodeEditor((StaticNode)canvas.getSelected());
 			}
-			
-			//if no sensor at location, try Edit region
-			if(!editSensor)
+			else if(canvas.getSelected() instanceof Region)
 			{
-				for(ModelObject object : canvas.getSelected())
-				{
-					//Get the first selected region or sensor
-					if(object instanceof Region)
-					{new RegionEditor((Region)object);}
-					break;
-				}
+				new RegionEditor((Region)canvas.getSelected());
 			}
 		}
 	}

@@ -54,9 +54,6 @@ public class UartListener implements SerialDataListener
 			xbee.GetReceiveSignalPacket(broadcastNumber, mac);
 		}
 		// TODO: Add a case in here that handles adding mobile/static nodes to network
-		else if(false)
-		{			
-		}
 		else
 		{
 			switch (state) 
