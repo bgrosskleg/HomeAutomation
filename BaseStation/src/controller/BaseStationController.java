@@ -25,7 +25,7 @@ public class BaseStationController extends GenericController implements ModelSub
 	
 	private String modelPath;
 	
-	Serial serial;
+	//Serial serial;
 	
 	LocationThread locThread;
 	
@@ -377,47 +377,27 @@ public class BaseStationController extends GenericController implements ModelSub
 		//'\r' required to end all other commands
 
 		try
-		{
-			Thread.sleep(75);
+		{		
+			String message;
 			
-			System.out.println("Sent: +++");
-			Thread.sleep(10);
-			serial.write("+++");
-			Thread.sleep(10);
-
-			Thread.sleep(75);
-
-			System.out.println("Sent: ATDH" + staticNode.getMACAddress().substring(0, 8));
-			serial.write("ATDH" + staticNode.getMACAddress().substring(0, 8) + '\r');
-
-			Thread.sleep(75);
-
-			System.out.println("Sent: ATDL" + staticNode.getMACAddress().substring(8, 16));
-			serial.write("ATDL" + staticNode.getMACAddress().substring(8, 16) + '\r');
-
-			Thread.sleep(75);
-
-			System.out.println("Sent: ATCN");
-			serial.write("ATCN" + '\r');
-
-			Thread.sleep(75);
-
 			if(lightingValue == 100)
 			{
-				serial.write("!" + String.valueOf(lightingValue));
+				message = ("!" + String.valueOf(lightingValue));
 			}
 			else if(lightingValue < 100 && lightingValue > 9)
 			{
-				serial.write("!0" + String.valueOf(lightingValue));
+				message = ("!0" + String.valueOf(lightingValue));
 			}
 			else if(lightingValue < 10)
 			{
-				serial.write("!00" + String.valueOf(lightingValue));
+				message = ("!00" + String.valueOf(lightingValue));
 			}
 			else
 			{
 				throw new Exception("Impossible case");
 			}
+			
+			locThread.xbee.SendMessage(staticNode.getMACAddress(), message);
 		}
 		catch (Exception e)
 		{

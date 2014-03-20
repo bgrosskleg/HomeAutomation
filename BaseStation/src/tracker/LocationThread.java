@@ -10,7 +10,7 @@ public class LocationThread extends Thread
 	/**
 	 * The xbee module we use for receiving and sending messages.
 	 */
-	private XBee xbee;
+	public XBee xbee;
 	
 	/**
 	 * A storage system for the mobile nodes

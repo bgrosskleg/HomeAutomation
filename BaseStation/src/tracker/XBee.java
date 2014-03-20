@@ -16,19 +16,19 @@ import com.pi4j.io.serial.SerialFactory;
  */
 public class XBee 
 {
-	public final static String OK = "OK";
+	public final static String OK = "OK\r";
 	private final static String COMMAND_MODE = "+++";
 	private final static String DESTINATION_HIGH = "ATDH";
 	private final static String DESTINATION_LOW = "ATDL";
-	private final static String WRITE_CHANGES = "ATWR";
-	private final static String APPLY_CHANGES = "ATAC";
-	private final static String EXIT_COMMAND_MODE = "ATCN";
+	private final static String WRITE_CHANGES = "ATWR\r";
+	private final static String APPLY_CHANGES = "ATAC\r";
+	private final static String EXIT_COMMAND_MODE = "ATCN\r";
 	@SuppressWarnings("unused")
-	private final static String SIGNAL_STRENGTH = "ATDB";
+	private final static String SIGNAL_STRENGTH = "ATDB\r";
 	@SuppressWarnings("unused")
-	private final static String LOCAL_MAC_HIGH = "ATSH";
+	private final static String LOCAL_MAC_HIGH = "ATSH\r";
 	@SuppressWarnings("unused")
-	private final static String LOCAL_MAC_LOW = "ATSL";
+	private final static String LOCAL_MAC_LOW = "ATSL\r";
 	
 	/**
 	 * Stores all the received packets that have not yet been read.
@@ -161,7 +161,7 @@ public class XBee
 		{
 			// A semaphore that allows us to wait for the "OK" response from the XBee
 			okSem = new Semaphore(0);
-			
+			System.out.println("Get's here 1");
 			// Add a listener that handle's the OK's
 			SerialDataListener tempListener = new SerialDataListener() {
 				
@@ -171,26 +171,36 @@ public class XBee
 					{
 						// When an OK is received we increase the number of permits available for the main send
 						// thread to handle
+						System.out.println("Get's here 2");
 						okSem.release();
 					}				
 				}
 			};		
 			serial.addListener(tempListener);	
-			
+			System.out.println("Get's here 3");
 			CommandMode();
-			
+			System.out.println("Get's here 4");
 			//Set high and low bytes
 			serial.write(DESTINATION_HIGH + nodeIdentifier.substring(0, 7));
+			System.out.println("Get's here 5");
 			okSem.acquireUninterruptibly();
+			System.out.println("Get's here 6");
 			serial.write(DESTINATION_LOW + nodeIdentifier.substring(8, 15));
+			System.out.println("Get's here 7");
 			okSem.acquireUninterruptibly();
+			System.out.println("Get's here 8");
 			currentMac = nodeIdentifier;
 			
 			// Write and apply changes
+			System.out.println("Get's here 9");
 			serial.write(WRITE_CHANGES);
+			System.out.println("Get's here 10");
 			okSem.acquireUninterruptibly();
+			System.out.println("Get's here 11");
 			serial.write(APPLY_CHANGES);
+			System.out.println("Get's here 12");
 			okSem.acquireUninterruptibly();
+			System.out.println("Get's here 13");
 			
 			ExitCommandMode();
 			
