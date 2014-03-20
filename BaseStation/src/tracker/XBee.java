@@ -332,6 +332,16 @@ public class XBee
 		// Switch to command mode if necessary
 		if(mode != Mode.COMMAND)
 		{
+			try 
+			{
+				//Initial guard time
+				Thread.sleep(15);
+			} 
+			catch (InterruptedException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			serial.write(COMMAND_MODE);
 			mode = Mode.COMMAND;
 			
