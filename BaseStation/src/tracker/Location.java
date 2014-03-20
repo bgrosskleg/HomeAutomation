@@ -10,19 +10,19 @@ public class Location
 	/**
 	 * X location
 	 */
-	public float x;
+	public double x;
 	
 	/**
 	 * Y location
 	 */
-	public float y;
+	public double y;
 
 	
 	public Location()
 	{
 	}
 	
-	public Location(float x, float y)
+	public Location(double x, double y)
 	{
 		this.x = x;
 		this.y = y;
@@ -30,7 +30,7 @@ public class Location
 	
 	public Location(Point2D.Double location)
 	{
-		x = (float) location.x;
-		y = (float) location.y;
+		x = (double) location.x;
+		y = (double) location.y;
 	}
 }

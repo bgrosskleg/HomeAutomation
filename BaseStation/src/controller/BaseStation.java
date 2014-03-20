@@ -75,7 +75,7 @@ class BaseStation
         		}
         		else
         		{
-        			System.err.println("User ABCDEFGH12345678 is null!");
+        			//System.err.println("User ABCDEFGH12345678 is null!");
         		}
         	}	
         };

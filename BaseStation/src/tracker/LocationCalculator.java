@@ -45,8 +45,8 @@ public class LocationCalculator
 					}
 		
 		// Average the x and y values in the locations.
-		float x = 0.0f;
-		float y = 0.0f;
+		double x = 0.0f;
+		double y = 0.0f;
 		Iterator<Location> iterator = intermediateLocations.iterator();
 		while(iterator.hasNext())
 		{
@@ -66,8 +66,8 @@ public class LocationCalculator
 		Location l1 = new Location(1,1);
 		Location l2 = new Location(7,3);
 		Location l3 = new Location(3,7);
-		float r12 = 1.497123679f;
-		float r13 = 3.605551275f;*/
+		double r12 = 1.497123679f;
+		double r13 = 3.605551275f;*/
 		
 		
 		model.StaticNode modelStaticNode1 = controller.getStaticNode(n1.mac);
@@ -81,13 +81,25 @@ public class LocationCalculator
 		Location l4 = new Location(modelStaticNode4.getLocation());
 		
 		// The ratio's of the distances.  Have to convert dbm into power by 10^(dbm/10) then power into distance by power ^ .5  
-		float r12 = (float) Math.sqrt(Math.pow(10, n1.GetCurrentSignalStrength().dbm / 10) /  
-							Math.pow(10, n2.GetCurrentSignalStrength().dbm / 10)); 
-		float r13 = (float) Math.sqrt(Math.pow(10, n1.GetCurrentSignalStrength().dbm / 10) /  
-							Math.pow(10, n3.GetCurrentSignalStrength().dbm / 10)); 
-		float r14 = (float) Math.sqrt(Math.pow(10, n1.GetCurrentSignalStrength().dbm / 10) /  
-				Math.pow(10, n4.GetCurrentSignalStrength().dbm / 10));
-		
+		double r12 = (double) Math.sqrt(1 / Math.pow(10, ((double)n1.GetCurrentSignalStrength().dbm - 30) / 10)) /  
+							Math.sqrt(1 / Math.pow(10, ((double)n2.GetCurrentSignalStrength().dbm - 30) / 10)); 
+		double r13 = (double) Math.sqrt(1 / Math.pow(10, ((double)n1.GetCurrentSignalStrength().dbm - 30) / 10)) /  
+				Math.sqrt(1 / Math.pow(10, ((double)n3.GetCurrentSignalStrength().dbm - 30) / 10)); 
+		double r14 = (double) Math.sqrt(1 / Math.pow(10, ((double)n1.GetCurrentSignalStrength().dbm - 30) / 10)) /  
+				Math.sqrt(1 / Math.pow(10, ((double)n4.GetCurrentSignalStrength().dbm - 30) / 10)); 
+		/*
+		double r12 = (double) Math.sqrt(1 / Math.pow(10, ((double)-25.5716 - 30) / 10)) /  
+				Math.sqrt(1 / Math.pow(10, ((double)-24.20637 - 30) / 10)); 
+		double r13 = (double) Math.sqrt(1 / Math.pow(10, ((double)-25.5716 - 30) / 10)) /  
+			Math.sqrt(1 / Math.pow(10, ((double)-22.6656 - 30) / 10)); 
+		double r14 = (double) Math.sqrt(1 / Math.pow(10, ((double)-25.5716 - 30) / 10)) /  
+			Math.sqrt(1 / Math.pow(10, ((double)-13.5436 - 30) / 10));
+		double r12 = (double) Math.sqrt(1 / Math.pow(10, ((double)-61) / 10)) /  
+				Math.sqrt(1 / Math.pow(10, ((double)-59) / 10)); 
+		double r13 = (double) Math.sqrt(1 / Math.pow(10, ((double)-61) / 10)) /  
+			Math.sqrt(1 / Math.pow(10, ((double)-58) / 10)); 
+		double r14 = (double) Math.sqrt(1 / Math.pow(10, ((double)-61) / 10)) /  
+			Math.sqrt(1 / Math.pow(10, ((double)-48.61) / 10));*/
 		// Really just some intermediate computation
 		Circle c1 = GetCircle(l1, l2, r12);
 		Circle c2 = GetCircle(l1, l3, r13);
@@ -97,12 +109,12 @@ public class LocationCalculator
 		
 		for(int i = 0; i < 3; i++)
 		{
-			BigDecimal x1 = BigDecimal.valueOf(locations[i].x).setScale(2, BigDecimal.ROUND_HALF_UP);
-			BigDecimal y1 = BigDecimal.valueOf(locations[i].y).setScale(2, BigDecimal.ROUND_HALF_UP);
+			BigDecimal x1 = BigDecimal.valueOf(locations[i].x).setScale(1, BigDecimal.ROUND_HALF_UP);
+			BigDecimal y1 = BigDecimal.valueOf(locations[i].y).setScale(1, BigDecimal.ROUND_HALF_UP);
 			for(int j = i + 1; j < locations.length; j++)
 			{
-				BigDecimal x2 = BigDecimal.valueOf(locations[j].x).setScale(2, BigDecimal.ROUND_HALF_UP);
-				BigDecimal y2 = BigDecimal.valueOf(locations[j].y).setScale(2, BigDecimal.ROUND_HALF_UP);
+				BigDecimal x2 = BigDecimal.valueOf(locations[j].x).setScale(1, BigDecimal.ROUND_HALF_UP);
+				BigDecimal y2 = BigDecimal.valueOf(locations[j].y).setScale(1, BigDecimal.ROUND_HALF_UP);
 				
 				if(x1.compareTo(x2) == 0 && y1.compareTo(y2) == 0)
 					return locations[i];
@@ -120,25 +132,25 @@ public class LocationCalculator
 	 * @param strengthRatio - l1 signal strength / l2 signal strength
 	 * @return a circle
 	 */
-	private static Circle GetCircle(Location l1, Location l2, float strengthRatio)
+	private static Circle GetCircle(Location l1, Location l2, double strengthRatio)
 	{
-		float a = l1.x;
-		float b = l1.y;
-		float c = l2.x;
-		float d = l2.y;
-		float e = strengthRatio;
+		double a = l1.x;
+		double b = l1.y;
+		double c = l2.x;
+		double d = l2.y;
+		double e = strengthRatio;
 		
-		float f = e * e;
+		double f = e * e;
 		
-		float m = f - 1;
-		float n = 2 * a - 2 * c * f;
-		float o = 2 * b - 2 * d * f;
-		float q = a * a + b * b - f * c * c - f * d * d;
+		double m = f - 1;
+		double n = 2 * a - 2 * c * f;
+		double o = 2 * b - 2 * d * f;
+		double q = a * a + b * b - f * c * c - f * d * d;
 		
 		Circle toReturn = new Circle();
 		toReturn.x = - n / (2 * m);
 		toReturn.y = - o / (2 * m);
-		toReturn.r = (float) Math.sqrt(q / m + Math.pow(n / (2 * m), 2) + Math.pow(o / (2 * m), 2));
+		toReturn.r = (double) Math.sqrt(q / m + Math.pow(n / (2 * m), 2) + Math.pow(o / (2 * m), 2));
 		return toReturn;
 	}
 	
@@ -151,25 +163,25 @@ public class LocationCalculator
 	private static Location[] CircleIntersection(Circle c1, Circle c2)
 	{
 		// The rest is magic... or algebra.  Depends how you want to look at it. Intersection of the circles
-		float d = (float) Math.sqrt(Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2));
+		double d = (double) Math.sqrt(Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2));
 		
 		Location r1 = new Location();
 		
-		r1.x = (float) ((c2.x + c1.x) / 2 + (c2.x - c1.x) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) +
+		r1.x = (double) ((c2.x + c1.x) / 2 + (c2.x - c1.x) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) +
 				((c2.y - c1.y) / (2 * d * d)) * 
 				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
 		
-		r1.y = (float) ((c2.y + c1.y) / 2 + (c2.y - c1.y) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) -
+		r1.y = (double) ((c2.y + c1.y) / 2 + (c2.y - c1.y) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) -
 				((c2.x - c1.x) / (2 * d * d)) * 
 				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
 		
 		Location r2 = new Location();
 		
-		r2.x = (float) ((c2.x + c1.x) / 2 + (c2.x - c1.x) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) -
+		r2.x = (double) ((c2.x + c1.x) / 2 + (c2.x - c1.x) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) -
 				((c2.y - c1.y) / (2 * d * d)) * 
 				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
 		
-		r2.y = (float) ((c2.y + c1.y) / 2 + (c2.y - c1.y) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) +
+		r2.y = (double) ((c2.y + c1.y) / 2 + (c2.y - c1.y) * (Math.pow(c1.r, 2) - Math.pow(c2.r, 2)) / (2 * d * d) +
 				((c2.x - c1.x) / (2 * d * d)) * 
 				Math.sqrt((Math.pow(c1.r + c2.r, 2) - (d * d)) * ((d * d) - Math.pow(c1.r - c2.r, 2))));
 		
@@ -189,11 +201,4 @@ public class LocationCalculator
 	  System.arraycopy(second, 0, result, first.length, second.length);
 	  return result;
 	}
-}
-
-class Circle
-{
-	public float x;
-	public float y;
-	public float r;
 }

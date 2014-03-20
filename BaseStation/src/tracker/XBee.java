@@ -77,6 +77,7 @@ public class XBee
 		// The serial instance for communication
 		serial = SerialFactory.createInstance();
 		
+		/* This section is for getting received signal strengths.  Commented out for now.
 		// A semaphore that allows us to wait for the "OK" response from the XBee
 		okSem = new Semaphore(0);
 		
@@ -111,22 +112,37 @@ public class XBee
 		okSem.acquireUninterruptibly();
 		
 		ExitCommandMode();
-		serial.removeListener(tempListener);
-		
-		// Initialize the serial communications object and register UartListener
-		// to listen for messages
-		listener = new UartListener();
-		listener.xbee = this;
-		serial.addListener(listener);
+		serial.removeListener(tempListener);		
+		*/
 		
 		// The XBee starts in normal mode to start
 		mode = Mode.NORMAL;
+				
+		// Initialize the serial communications object and register UartListener
+		// to listen for messages
+		try 
+		{
+			listener = new UartListener();
+			listener.xbee = this;
+			serial.addListener(listener);	
+			// wait 1 second before opening
+			Thread.sleep(1000);
+	        // open the default serial port provided on the GPIO header
+	        serial.open(Serial.DEFAULT_COM_PORT, 9600);        
+	        // wait 1 second before continuing		
+			Thread.sleep(1000);
+			
+		} catch (InterruptedException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		// Originally no mac to send to
 		currentMac = "";
 		
 		// Initialize the packet storage
-		packets = new Packets();		
+		packets = new Packets();			
 	}
 	
 	/**
@@ -147,7 +163,7 @@ public class XBee
 				
 				@Override
 				public void dataReceived(SerialDataEvent event) {
-					if(event.getData() == OK)
+					if(event.getData().contains(OK))
 					{
 						// When an OK is received we increase the number of permits available for the main send
 						// thread to handle
@@ -184,6 +200,7 @@ public class XBee
 	/**
 	 * Build a receive signal packet from the most recent receive signal strength.
 	 */
+	/* This section is for getting received signal strengths.  Commented out for now.
 	public void GetReceiveSignalPacket(int broadcastNumber, String mobileMac)
 	{
 		// A semaphore that allows us to wait for the "OK" response from the XBee
@@ -233,6 +250,7 @@ public class XBee
 		ReceivePacket packet = new ReceivePacket(mobileMac, myMac, signalStrength, broadcastNumber);
 		AddPacket(packet);
 	}
+	*/
 	
 	/**
 	 * Get the oldest packet that has been received over the XBee device.

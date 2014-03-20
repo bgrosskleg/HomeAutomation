@@ -43,7 +43,7 @@ public class MobileNode
 		while(toReturn == null && iterator.hasNext())
 		{
 			StaticNode currentNode = iterator.next();
-			if(currentNode.mac == mac)
+			if(currentNode.mac.equals(mac))
 				toReturn = currentNode;
 		}
 		if(toReturn == null)
@@ -74,7 +74,7 @@ public class MobileNode
 			StaticNode currentNode = iterator.next();
 			
 			// This static node was part of the most recent measurement so add it to the list.
-			if(currentNode.GetCurrentSignalStrength().broadcastNumber == broadcastNumber)
+			if(currentNode.GetCurrentSignalStrength() != null && currentNode.GetCurrentSignalStrength().broadcastNumber == broadcastNumber)
 				toReturn.add(currentNode);
 		}
 		
@@ -91,7 +91,7 @@ public class MobileNode
 		StaticNode staticNode = GetStaticNode(mac);
 		
 		// Only add the input strength if it has a higher broadcast number
-		if(strength.broadcastNumber > staticNode.GetCurrentSignalStrength().broadcastNumber)
+		if(staticNode.GetCurrentSignalStrength() == null || strength.broadcastNumber > staticNode.GetCurrentSignalStrength().broadcastNumber)
 			staticNode.AddSignalStrength(strength);
 	}
 	
@@ -103,5 +103,26 @@ public class MobileNode
 	public Location LastLocation()
 	{
 		return locations.peekFirst();
+	}
+	
+	public Location GetAveragedLocation()
+	{
+		if(locations.peek() == null)
+			return null;
+		
+		Iterator<Location> iter = locations.iterator();
+		int weight = 5;
+		int totalWeight = 0;
+		int sumX = 0;
+		int sumY = 0;
+		while(iter.hasNext() && weight > 0)
+		{
+			Location loc = iter.next();
+			sumX += weight * loc.x;
+			sumY += weight * loc.y;			
+			totalWeight += weight;
+			weight--;
+		}
+		return new Location(sumX / totalWeight, sumY / totalWeight);
 	}
 }

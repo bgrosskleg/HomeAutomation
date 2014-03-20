@@ -11,12 +11,7 @@ public class SignalStrength
 	 * Signal strength in dBm
 	 */
 	public int dbm;
-	
-	/**
-	 * Signal strength in percent
-	 */
-	public float percent;
-	
+		
 	/**
 	 * The broadcast that this was measured as a part of
 	 */
@@ -26,11 +21,10 @@ public class SignalStrength
 	{
 	}
 	
-	public SignalStrength(String hex, int dbm, float percent, int broadcastNumber)
+	public SignalStrength(String hex, int dbm, int broadcastNumber)
 	{
 		this.hex = hex;
 		this.dbm = dbm;
-		this.percent = percent;
 		this.broadcastNumber = broadcastNumber;
 	}
 	
@@ -41,17 +35,29 @@ public class SignalStrength
 	 * @param broadcastNumber - The broadcast that this signal strength was measured as a part of
 	 */
 	public SignalStrength(String rawSigStrength, int broadcastNumber)
-	{
-		String[] split = rawSigStrength.split(" ");
-		
+	{		
 		// Hex first
-		hex = split[0];
+		hex = "-" + rawSigStrength;
 		
 		// Get number dbm
-		dbm = Integer.parseInt(split[1].replaceFirst("dBm", ""));
+		dbm = Integer.parseInt(rawSigStrength, 16);
 		
-		// Get percent
-		percent = Float.parseFloat(split[2].replaceFirst("(", "").replaceFirst("%)", ""));
+		this.broadcastNumber = broadcastNumber;
+	}
+	
+	/**
+	 * Convert the raw string signal strength into a signal strength object.  This is the signal
+	 * strength that comes from the network.
+	 * @param raw - String of format "<hex> <dbm> <(percent)>"
+	 * @param broadcastNumber - The broadcast that this signal strength was measured as a part of
+	 */
+	public SignalStrength(int dbm, int broadcastNumber)
+	{		
+		// Hex first
+		hex = Integer.toHexString(dbm);
+		
+		// Get number dbm
+		this.dbm = dbm;
 		
 		this.broadcastNumber = broadcastNumber;
 	}
