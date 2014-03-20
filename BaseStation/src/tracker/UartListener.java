@@ -55,6 +55,7 @@ public class UartListener implements SerialDataListener
 				{
 					String sigStren = buffer.substring(sStartDelim + 1, sEndDelim);
 					buffer.replace(sStartDelim, sEndDelim + 1, "");
+					@SuppressWarnings("unused")
 					ReceivePacket temp = new ReceivePacket(sigStren.substring(4, 20), 
 							 sigStren.substring(21, 37), 
 							 sigStren.substring(38, 40), 

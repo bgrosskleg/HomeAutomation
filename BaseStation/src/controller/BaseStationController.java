@@ -7,23 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 import tracker.LocationThread;
-
-
-
-
-
-
-
-
-
-
 import com.pi4j.io.serial.Serial;
-import com.pi4j.io.serial.SerialDataEvent;
-import com.pi4j.io.serial.SerialDataListener;
-import com.pi4j.io.serial.SerialFactory;
-
 import model.ModelObject;
 import model.Region;
 import model.StaticNode;

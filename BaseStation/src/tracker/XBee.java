@@ -23,8 +23,11 @@ public class XBee
 	private final static String WRITE_CHANGES = "ATWR";
 	private final static String APPLY_CHANGES = "ATAC";
 	private final static String EXIT_COMMAND_MODE = "ATCN";
+	@SuppressWarnings("unused")
 	private final static String SIGNAL_STRENGTH = "ATDB";
+	@SuppressWarnings("unused")
 	private final static String LOCAL_MAC_HIGH = "ATSH";
+	@SuppressWarnings("unused")
 	private final static String LOCAL_MAC_LOW = "ATSL";
 	
 	/**
@@ -70,6 +73,7 @@ public class XBee
 	/**
 	 * The XBee modules mac address.
 	 */
+	@SuppressWarnings("unused")
 	private String myMac;
 	
 	public XBee()
