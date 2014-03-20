@@ -93,7 +93,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 		}
 		
 		//Select objects based on cursor position and paint to screen	
-		selected = null;
+		boolean itemSelected = false;
 		
 		//Paint unselected regions first
 		for(ModelObject object : ClientApplet.getController().getModelObjects())
@@ -108,6 +108,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 						object.paintComponent(g2);
 						
 						selected = object;
+						itemSelected = true;
 					}	
 					else
 					{
@@ -131,6 +132,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 						object.paintComponent(g2);
 						
 						selected = object;
+						itemSelected = true;
 					}	
 					else
 					{
@@ -153,6 +155,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 						object.paintComponent(g2);
 						
 						selected = object;
+						itemSelected = true;
 					}	
 					else
 					{
@@ -175,6 +178,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 						object.paintComponent(g2);
 						
 						selected = object;
+						itemSelected = true;
 					}	
 					else
 					{
@@ -184,7 +188,16 @@ public class Canvas extends JPanel implements ModelSubscriber
 					}
 				}
 		}
-					
+				
+		
+		if(itemSelected && (selected instanceof Region || selected instanceof StaticNode))
+		{
+			//Paint label
+			g2.setColor(Color.BLACK);
+			g2.setFont(new Font("default", Font.BOLD, 16));
+			
+			g2.drawString(selected.toString(), (int) cursorPoint.x + 10, (int) cursorPoint.y + 5);					
+		}
 			
 		//Paint users on top
 		for(ModelObject object : ClientApplet.getController().getModelObjects())
@@ -203,16 +216,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 				g2.drawString(temp.getName(),	(int)temp.getLocation().x + 10, (int)temp.getLocation().y + 5);
 			}
 		}
-		
-		if(selected != null && (selected instanceof Region || selected instanceof StaticNode))
-		{
-			//Paint label
-			g2.setColor(Color.BLACK);
-			g2.setFont(new Font("default", Font.BOLD, 16));
 			
-			g2.drawString(selected.toString(), (int) cursorPoint.x + 10, (int) cursorPoint.y + 5);					
-		}
-		
 				
 		//Paint temporary region on top
 		if(tempRegion != null)
@@ -277,7 +281,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 	 * @param e	MouseClick or MouseMove Event that causes the on canvas cursor to update position
 	 */
 	public void snapMouseToGrid(MouseEvent e)
-	{
+	{		
 		//Quantify mouse position to be on grid
 		//Equation split up to show where divide by zero, if any
 		int tempx = ((Integer)(e.getX()/gridSize));
