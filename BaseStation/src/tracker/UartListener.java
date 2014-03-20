@@ -25,7 +25,7 @@ public class UartListener implements SerialDataListener
 		String data = event.getData();
 		synchronized (System.out) {
 
-			System.out.println(data.replace("\r", "\\r"));
+			System.out.println("[" + data.replace("\r", "\\r") + "]");
 			System.out.println();
 		}
 		data = data.replaceAll(XBee.OK, "");

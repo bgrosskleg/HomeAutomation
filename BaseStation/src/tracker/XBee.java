@@ -23,6 +23,7 @@ public class XBee
 	private final static String WRITE_CHANGES = "ATWR\r";
 	private final static String APPLY_CHANGES = "ATAC\r";
 	private final static String EXIT_COMMAND_MODE = "ATCN\r";
+	
 	@SuppressWarnings("unused")
 	private final static String SIGNAL_STRENGTH = "ATDB\r";
 	@SuppressWarnings("unused")
@@ -161,7 +162,7 @@ public class XBee
 		{
 			// A semaphore that allows us to wait for the "OK" response from the XBee
 			okSem = new Semaphore(0);
-			System.out.println("Get's here 1");
+			System.out.println("Get's here 1 - " + System.currentTimeMillis());
 			// Add a listener that handle's the OK's
 			SerialDataListener tempListener = new SerialDataListener() {
 				
@@ -171,40 +172,79 @@ public class XBee
 					{
 						// When an OK is received we increase the number of permits available for the main send
 						// thread to handle
-						System.out.println("Get's here 2");
+						System.out.println("Get's here 2 - " + System.currentTimeMillis());
 						okSem.release();
 					}				
 				}
 			};		
-			serial.addListener(tempListener);	
-			System.out.println("Get's here 3");
+			
+			//Wyatt's code - not working, hangs after OK\r
+			/*serial.addListener(tempListener);	
+			
+			System.out.println("Get's here 3 - " + System.currentTimeMillis());
 			CommandMode();
-			System.out.println("Get's here 4");
+			System.out.println("Get's here 4 - " + System.currentTimeMillis());
 			//Set high and low bytes
 			serial.write(DESTINATION_HIGH + nodeIdentifier.substring(0, 7));
-			System.out.println("Get's here 5");
+			System.out.println("Get's here 5 - " + System.currentTimeMillis());
 			okSem.acquireUninterruptibly();
-			System.out.println("Get's here 6");
+			System.out.println("Get's here 6 - " + System.currentTimeMillis());
 			serial.write(DESTINATION_LOW + nodeIdentifier.substring(8, 15));
-			System.out.println("Get's here 7");
+			System.out.println("Get's here 7 - " + System.currentTimeMillis());
 			okSem.acquireUninterruptibly();
-			System.out.println("Get's here 8");
+			System.out.println("Get's here 8 - " + System.currentTimeMillis());
 			currentMac = nodeIdentifier;
 			
 			// Write and apply changes
-			System.out.println("Get's here 9");
+			System.out.println("Get's here 9 - " + System.currentTimeMillis());
 			serial.write(WRITE_CHANGES);
-			System.out.println("Get's here 10");
+			System.out.println("Get's here 10 - " + System.currentTimeMillis());
 			okSem.acquireUninterruptibly();
-			System.out.println("Get's here 11");
+			System.out.println("Get's here 11 - " + System.currentTimeMillis());
 			serial.write(APPLY_CHANGES);
-			System.out.println("Get's here 12");
+			System.out.println("Get's here 12 - " + System.currentTimeMillis());
 			okSem.acquireUninterruptibly();
-			System.out.println("Get's here 13");
+			System.out.println("Get's here 13 - " + System.currentTimeMillis());
 			
 			ExitCommandMode();
 			
 			serial.removeListener(tempListener);
+			*/
+			
+			//Brian's old code - used to work, not waiting for OK's
+			//nodeIdentifier = "0013A2004079B114";
+			try
+			{
+				Thread.sleep(75);
+
+				System.out.println("Sent: +++");
+				Thread.sleep(10);
+				serial.write("+++");
+				Thread.sleep(10);
+
+				Thread.sleep(75);
+
+				System.out.println("Sent: ATDH" + nodeIdentifier.substring(0, 8));
+				serial.write("ATDH" + nodeIdentifier.substring(0, 8) + '\r');
+
+				Thread.sleep(75);
+
+				System.out.println("Sent: ATDL" + nodeIdentifier.substring(8, 16));
+				serial.write("ATDL" + nodeIdentifier.substring(8, 16) + '\r');
+
+				Thread.sleep(75);
+
+				System.out.println("Sent: ATCN");
+				serial.write("ATCN" + '\r');
+
+				Thread.sleep(75);
+
+				serial.write(message);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
 		}
 		
 		// Send the data, we are sending to the correct node
