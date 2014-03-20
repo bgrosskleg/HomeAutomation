@@ -93,6 +93,7 @@ public class Canvas extends JPanel implements ModelSubscriber
 		}
 		
 		//Select objects based on cursor position and paint to screen	
+		selected = null;
 		
 		//Paint unselected regions first
 		for(ModelObject object : ClientApplet.getController().getModelObjects())
@@ -203,13 +204,13 @@ public class Canvas extends JPanel implements ModelSubscriber
 			}
 		}
 		
-		if(selected instanceof Region || selected instanceof StaticNode)
+		if(selected != null && (selected instanceof Region || selected instanceof StaticNode))
 		{
 			//Paint label
 			g2.setColor(Color.BLACK);
 			g2.setFont(new Font("default", Font.BOLD, 16));
 			
-			g2.drawString(selected.toString(), (int) cursorPoint.x + 10, (int) cursorPoint.y - 1);					
+			g2.drawString(selected.toString(), (int) cursorPoint.x + 10, (int) cursorPoint.y + 5);					
 		}
 		
 				
