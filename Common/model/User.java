@@ -28,7 +28,7 @@ public class User extends ModelObject
 		this.name = name;
 		this.MACAddress = ID;
 		this.preferredLightingValue = preferredLightingValue;
-		this.location = new Point2D.Double(50+12.5,150);
+		this.location = new Point2D.Double(50+12.5,125+12.5);
 	}
 	
 	
