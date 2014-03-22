@@ -162,7 +162,7 @@ public class XBee
 		{
 			// A semaphore that allows us to wait for the "OK" response from the XBee
 			okSem = new Semaphore(0);
-			System.out.println("Get's here 1 - " + System.currentTimeMillis());
+			//System.out.println("Get's here 1 - " + System.currentTimeMillis());
 			// Add a listener that handle's the OK's
 			SerialDataListener tempListener = new SerialDataListener() {
 				
@@ -172,47 +172,62 @@ public class XBee
 					{
 						// When an OK is received we increase the number of permits available for the main send
 						// thread to handle
-						System.out.println("Get's here 2 - " + System.currentTimeMillis());
+						//System.out.println("Get's here 2 - " + System.currentTimeMillis());
 						okSem.release();
 					}				
 				}
 			};		
 			
 			//Wyatt's code - not working, hangs after first transmit
-			/*serial.addListener(tempListener);	
+			serial.addListener(tempListener);	
+			try
+			{
+				//System.out.println("Get's here 3 - " + System.currentTimeMillis());
+				//Thread.sleep(75);
+				CommandMode();
+				//Thread.sleep(10);
+				//System.out.println("Get's here 4 - " + System.currentTimeMillis());
+				//Set high and low bytes
+				//Thread.sleep(75);
+				serial.write(DESTINATION_HIGH + nodeIdentifier.substring(0, 8) + '\r');
+				//System.out.println("Get's here 5 - " + System.currentTimeMillis());
+				okSem.acquireUninterruptibly();
+				//System.out.println("Get's here 6 - " + System.currentTimeMillis());
+				//Thread.sleep(75);
+				serial.write(DESTINATION_LOW + nodeIdentifier.substring(8, 16) + '\r');
+				//System.out.println("Get's here 7 - " + System.currentTimeMillis());
+				okSem.acquireUninterruptibly();
+				//System.out.println("Get's here 8 - " + System.currentTimeMillis());
+				currentMac = nodeIdentifier;
+				
+				/*// Write and apply changes
+				System.out.println("Get's here 9 - " + System.currentTimeMillis());
+				//Thread.sleep(75);
+				serial.write(WRITE_CHANGES);
+				System.out.println("Get's here 10 - " + System.currentTimeMillis());
+				okSem.acquireUninterruptibly();
+				System.out.println("Get's here 11 - " + System.currentTimeMillis());
+				//Thread.sleep(75);
+				serial.write(APPLY_CHANGES);
+				System.out.println("Get's here 12 - " + System.currentTimeMillis());
+				okSem.acquireUninterruptibly();*/
+				
+				//System.out.println("Get's here 13 - " + System.currentTimeMillis());
+				//Thread.sleep(75);
+				ExitCommandMode();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
 			
-			System.out.println("Get's here 3 - " + System.currentTimeMillis());
-			CommandMode();
-			System.out.println("Get's here 4 - " + System.currentTimeMillis());
-			//Set high and low bytes
-			serial.write(DESTINATION_HIGH + nodeIdentifier.substring(0, 7) + '\r');
-			System.out.println("Get's here 5 - " + System.currentTimeMillis());
-			okSem.acquireUninterruptibly();
-			System.out.println("Get's here 6 - " + System.currentTimeMillis());
-			serial.write(DESTINATION_LOW + nodeIdentifier.substring(8, 15) + '\r');
-			System.out.println("Get's here 7 - " + System.currentTimeMillis());
-			okSem.acquireUninterruptibly();
-			System.out.println("Get's here 8 - " + System.currentTimeMillis());
-			currentMac = nodeIdentifier;
 			
-			// Write and apply changes
-			System.out.println("Get's here 9 - " + System.currentTimeMillis());
-			serial.write(WRITE_CHANGES);
-			System.out.println("Get's here 10 - " + System.currentTimeMillis());
-			okSem.acquireUninterruptibly();
-			System.out.println("Get's here 11 - " + System.currentTimeMillis());
-			serial.write(APPLY_CHANGES);
-			System.out.println("Get's here 12 - " + System.currentTimeMillis());
-			okSem.acquireUninterruptibly();
-			System.out.println("Get's here 13 - " + System.currentTimeMillis());
-			
-			ExitCommandMode();
 			
 			serial.removeListener(tempListener);
-			*/
+			
 			
 			//Brian's old code - usable fallback
-			try
+			/*try
 			{
 				Thread.sleep(75);
 
@@ -243,7 +258,7 @@ public class XBee
 			catch (Exception e)
 			{
 				e.printStackTrace();
-			}
+			}*/
 			
 		}
 		
@@ -336,17 +351,20 @@ public class XBee
 			{
 				//Initial guard time
 				Thread.sleep(15);
+			
+				serial.write(COMMAND_MODE);
+				mode = Mode.COMMAND;
+				
+				// Wait for OK before continuing
+				okSem.acquireUninterruptibly();
+			
+				Thread.sleep(15);
 			} 
 			catch (InterruptedException e) 
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			serial.write(COMMAND_MODE);
-			mode = Mode.COMMAND;
-			
-			// Wait for OK before continuing
-			okSem.acquireUninterruptibly();
 		}
 	}
 	

@@ -364,9 +364,9 @@ public class BaseStationController extends GenericController implements ModelSub
 		staticNode.setLightingValue(lightingValue);
 		
 		//Send lighting command
-		System.out.println("SEND XBEE COMMAND TO:");
+		/*System.out.println("SEND XBEE COMMAND TO:");
 		System.out.println("STATIC NODE: " + staticNode.getMACAddress());
-		System.out.println("LIGHTING VALUE: " + lightingValue);
+		System.out.println("LIGHTING VALUE: " + lightingValue);*/
 		
 		//This timing seems to work for configuring Xbee address
 		//10ms guard times

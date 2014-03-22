@@ -23,12 +23,13 @@ public class LocationEstimator
 		distanceLookup = new DistanceLookup[57];
 		for(int i = 0; i < 57; i++)
 		{
-			int dbm = i + 26;
-			double meters = 0.3048 * (0.0442 * dbm * dbm - 3.691 * dbm + 77.517);
-			double min = meters - 0.5;
+			int dbm = -(i + 26);
+			//double meters = 0.3048 * (0.0442 * dbm * dbm - 3.691 * dbm + 77.517);
+			double meters = 0.3048 * (-0.0014 * dbm * dbm * dbm - 0.1988 * dbm * dbm - 10.477 * dbm - 190.53);
+			double min = meters - 2;
 			if(min < 0)
 				min = 0;
-			double max = meters + 0.5;
+			double max = meters + 2;
 			distanceLookup[i] = new DistanceLookup(min, max);
 		}
 	}
@@ -108,6 +109,11 @@ public class LocationEstimator
 		x = x / num;
 		y = y / num;
 		
+		System.out.println("Node: " + nl[0].loc.x + "," + nl[0].loc.y + ":" + nl[0].strengthIndex);
+		System.out.println("Node: " + nl[1].loc.x + "," + nl[1].loc.y + ":" + nl[1].strengthIndex);
+		System.out.println("Node: " + nl[2].loc.x + "," + nl[2].loc.y + ":" + nl[2].strengthIndex);
+		System.out.println("Highest Count: " + highestCount);
+		System.out.println("Number Overlap: " + num);		
 		System.out.println("Estimator result: (X=" + x + ", Y=" + y + ")");
 		
 		return new Location(x, y);
