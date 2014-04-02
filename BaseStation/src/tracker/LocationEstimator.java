@@ -169,6 +169,68 @@ public class LocationEstimator
 	}
 	
 	private DistanceLookup distanceLookup[] = 
+		{
+			new DistanceLookup(0, 5, true),//26
+			new DistanceLookup(0, 5, true),//27
+			new DistanceLookup(0, 5, true),//28
+			new DistanceLookup(0, 5, true),//29
+			new DistanceLookup(0, 5, true),//30
+			new DistanceLookup(0, 5, true),//31
+			new DistanceLookup(0, 5, true),//32
+			new DistanceLookup(0, 5, true),//33
+			new DistanceLookup(0, 10, true),//34
+			new DistanceLookup(0, 10, true),//35
+			new DistanceLookup(0, 10, true),//36
+			new DistanceLookup(5, 10, true),//37
+			new DistanceLookup(5, 10, true),//38
+			new DistanceLookup(5, 10, true),//39
+			new DistanceLookup(5, 15, true),//40
+			new DistanceLookup(5, 15, true),//41
+			new DistanceLookup(5, 15, true),//42
+			new DistanceLookup(5, 20, true),//43
+			new DistanceLookup(10, 20, true),//44
+			new DistanceLookup(10, 20, true),//45
+			new DistanceLookup(10, 20, true),//46
+			new DistanceLookup(10, 25, true),//47
+			new DistanceLookup(10, 25, true),//48
+			new DistanceLookup(10, 25, true),//49
+			new DistanceLookup(15, 25, true),//50
+			new DistanceLookup(15, 25, true),//51
+			new DistanceLookup(15, 30, true),//52
+			new DistanceLookup(15, 30, true),//53
+			new DistanceLookup(15, 30, true),//54
+			new DistanceLookup(15, 30, true),//55
+			new DistanceLookup(15, 30, true),//56
+			new DistanceLookup(20, 30, true),//57
+			new DistanceLookup(20, 30, true),//58
+			new DistanceLookup(20, 35, true),//59
+			new DistanceLookup(20, 35, true),//60
+			new DistanceLookup(20, 35, true),//61
+			new DistanceLookup(20, 35, true),//62
+			new DistanceLookup(20, 35, true),//63
+			new DistanceLookup(25, 35, true),//64
+			new DistanceLookup(25, 35, true),//65
+			new DistanceLookup(30, 75, true),//66
+			new DistanceLookup(30, 75, true),//67
+			new DistanceLookup(55, 75, true),//68
+			new DistanceLookup(55, 80, true),//69
+			new DistanceLookup(55, 80, true),//70
+			new DistanceLookup(55, 80, true),//71
+			new DistanceLookup(55, 80, true),//72
+			new DistanceLookup(60, 80, true),//73
+			new DistanceLookup(60, 80, true),//74
+			new DistanceLookup(60, 80, true),//75
+			new DistanceLookup(60, 80, true),//76
+			new DistanceLookup(60, 85, true),//77
+			new DistanceLookup(60, 85, true),//78
+			new DistanceLookup(60, 85, true),//79
+			new DistanceLookup(65, 85, true),//80
+			new DistanceLookup(65, 85, true),//81
+			new DistanceLookup(65, 90, true),//82
+			new DistanceLookup(65, 90, true)//83			
+		};
+	
+	/*private DistanceLookup distanceLookup[] = 
 	{
 		new DistanceLookup(0, 5, true),//26
 		new DistanceLookup(0, 5, true),//27
@@ -189,29 +251,29 @@ public class LocationEstimator
 		new DistanceLookup(10, 30, true),//42
 		new DistanceLookup(10, 30, true),//43
 		new DistanceLookup(10, 30, true),//44
-		new DistanceLookup(25, 35, true),//45
-		new DistanceLookup(30, 40, true),//46
-		new DistanceLookup(30, 50, true),//47
-		new DistanceLookup(30, 55, true),//48
-		new DistanceLookup(35, 55, true),//49
-		new DistanceLookup(35, 55, true),//50
-		new DistanceLookup(35, 60, true),//51
-		new DistanceLookup(45, 60, true),//52
-		new DistanceLookup(45, 60, true),//53
-		new DistanceLookup(45, 60, true),//54
-		new DistanceLookup(45, 60, true),//55
-		new DistanceLookup(45, 65, true),//56
-		new DistanceLookup(45, 65, true),//57
-		new DistanceLookup(45, 65, true),//58
-		new DistanceLookup(50, 65, true),//59
-		new DistanceLookup(50, 70, true),//60
-		new DistanceLookup(50, 70, true),//61
-		new DistanceLookup(50, 70, true),//62
-		new DistanceLookup(50, 75, true),//63
-		new DistanceLookup(50, 75, true),//64
-		new DistanceLookup(50, 75, true),//65
-		new DistanceLookup(55, 75, true),//66
-		new DistanceLookup(55, 75, true),//67
+		new DistanceLookup(15, 35, true),//45
+		new DistanceLookup(15, 40, true),//46
+		new DistanceLookup(15, 50, true),//47
+		new DistanceLookup(15, 55, true),//48
+		new DistanceLookup(20, 55, true),//49
+		new DistanceLookup(20, 55, true),//50
+		new DistanceLookup(20, 60, true),//51
+		new DistanceLookup(20, 60, true),//52
+		new DistanceLookup(20, 60, true),//53
+		new DistanceLookup(20, 60, true),//54
+		new DistanceLookup(20, 60, true),//55
+		new DistanceLookup(20, 65, true),//56
+		new DistanceLookup(25, 65, true),//57
+		new DistanceLookup(25, 65, true),//58
+		new DistanceLookup(25, 65, true),//59
+		new DistanceLookup(25, 70, true),//60
+		new DistanceLookup(25, 70, true),//61
+		new DistanceLookup(25, 70, true),//62
+		new DistanceLookup(25, 75, true),//63
+		new DistanceLookup(25, 75, true),//64
+		new DistanceLookup(25, 75, true),//65
+		new DistanceLookup(30, 75, true),//66
+		new DistanceLookup(30, 75, true),//67
 		new DistanceLookup(55, 75, true),//68
 		new DistanceLookup(55, 80, true),//69
 		new DistanceLookup(55, 80, true),//70
@@ -228,9 +290,9 @@ public class LocationEstimator
 		new DistanceLookup(65, 85, true),//81
 		new DistanceLookup(65, 90, true),//82
 		new DistanceLookup(65, 90, true)//83			
-	};
+	};*/
 	
-	/*private DistanceLookup distanceLookup[]; = 
+	/*private DistanceLookup distanceLookup[] = 
 		{
 			new DistanceLookup(0, 1.5),//26
 			new DistanceLookup(0, 1.5),//27

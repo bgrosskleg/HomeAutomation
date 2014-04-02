@@ -173,6 +173,7 @@ public class XBee
 						// When an OK is received we increase the number of permits available for the main send
 						// thread to handle
 						//System.out.println("Get's here 2 - " + System.currentTimeMillis());
+						System.out.println("OK Received");
 						okSem.release();
 					}				
 				}
@@ -183,7 +184,7 @@ public class XBee
 			try
 			{
 				//System.out.println("Get's here 3 - " + System.currentTimeMillis());
-				//Thread.sleep(75);
+				Thread.sleep(75);
 				CommandMode();
 				//Thread.sleep(10);
 				//System.out.println("Get's here 4 - " + System.currentTimeMillis());
@@ -378,7 +379,18 @@ public class XBee
 		{
 			serial.write(EXIT_COMMAND_MODE);
 			okSem.acquireUninterruptibly();
+			
 			mode = Mode.NORMAL;
+		}
+	 
+		try 
+		{
+			Thread.sleep(15);
+		}
+		catch (InterruptedException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }

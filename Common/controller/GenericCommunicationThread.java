@@ -215,7 +215,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
     {
     	//Socket error, close all streams and sockets
 		
-		System.out.println("Closing existing streams and sockets...");
+		//System.out.println("Closing existing streams and sockets...");
 
 		//CLOSE STREAMS********************************************
 		
@@ -413,7 +413,7 @@ public abstract class GenericCommunicationThread extends Thread implements Seria
 			//e.printStackTrace();
 		}
 				
-		System.out.println("Existing streams and sockets closed.");
+		//System.out.println("Existing streams and sockets closed.");
 		connected = false;
     }
 
