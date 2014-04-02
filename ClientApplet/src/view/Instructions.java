@@ -27,9 +27,10 @@ public class Instructions extends JPanel
 				+ "Regions:&#09Click to define vertices of a region.  Return to initial vertex to complete region. <br>"
 				+ "Lights:&#09Click to place a light. <br>"
 				+ "Static Nodes:&#09Click to place a static node. <br>"
-				+ "Erase:&#09Click to erase highlighted objects."
-				+ "Users:&#09Opens a dialog box to edit users."
-				+ "Edit:&#09You can right click on regions and static nodes to edit them.</nobr></html>");
+				+ "Erase:&#09Click to erase highlighted objects. <br>"
+				+ "Users:&#09Opens a dialog box to edit users. <br>"
+				+ "Edit:&#09You can right click on regions and static nodes to edit them. <br>"
+				+ "Scale: 1 grid = 2 feet</nobr></html>");
 		
 	
 		add(instructions);
