@@ -20,8 +20,8 @@ public class XBee
 	private final static String COMMAND_MODE = "+++";
 	private final static String DESTINATION_HIGH = "ATDH";
 	private final static String DESTINATION_LOW = "ATDL";
-	private final static String WRITE_CHANGES = "ATWR\r";
-	private final static String APPLY_CHANGES = "ATAC\r";
+	//private final static String WRITE_CHANGES = "ATWR\r";
+	//private final static String APPLY_CHANGES = "ATAC\r";
 	private final static String EXIT_COMMAND_MODE = "ATCN\r";
 	
 	@SuppressWarnings("unused")

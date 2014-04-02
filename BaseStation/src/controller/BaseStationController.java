@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import tracker.LocationThread;
-import com.pi4j.io.serial.Serial;
 import model.ModelObject;
 import model.Region;
 import model.StaticNode;
