@@ -47,9 +47,6 @@ public class User extends ModelObject
 	{
 		return name;
 	}
-	
-	
-	
 
 	public String getMACAddress() 
 	{
