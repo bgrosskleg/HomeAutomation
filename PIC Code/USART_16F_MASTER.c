@@ -8,7 +8,7 @@
 #include <string.h>
 
 #define Fosc 4000000	//Fosc
-
+#define _XTAL_FREQ 4000000
 unsigned char BYTES_BUFFER[16];
 
 //////////////////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ void send_USART_char(unsigned char character)
 	while(TXIF == 0);	
 
 	TXREG = character;	//Write character out to USART
-	__delay_ms(1);          //Delay to transmit
+	//__delay_ms(1);          //Delay to transmit
 }
 
 void send_USART_string(unsigned char const string[])
@@ -163,8 +163,8 @@ void clear_usart_errors(void)
 	if (OERR == 1)													
 	{																	
 			
-                        TXEN=0;		//Reset transmitter
-			TXEN=1;													
+                       // TXEN=0;		//Reset transmitter
+			//TXEN=1;
 			CREN=0;		//Reset continous recieve									
 			CREN=1;
 	}
@@ -172,8 +172,8 @@ void clear_usart_errors(void)
 	if (FERR == 1)													
 	{
 			dummy=RCREG;    //Flush RCREG
-			TXEN=0;		//Reset transmitter									
-			TXEN=1;
+			//TXEN=0;		//Reset transmitter
+			//TXEN=1;
         }
 }
 

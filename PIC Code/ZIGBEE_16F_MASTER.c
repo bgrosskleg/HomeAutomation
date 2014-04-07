@@ -18,7 +18,7 @@ void getRSSI(unsigned char RSSI[], unsigned char dBm[], unsigned char percentage
     send_USART_string("ATDB\r");
 
         for(char iter = 0; iter < 2; iter++)
-        {RSSI[iter+2] = get_USART_char();}	// Save bytes from USART
+        {RSSI[iter+2] = get_USART_char_timeout();}	// Save bytes from USART
 
     RSSI[4] = '\0';
 
@@ -30,7 +30,7 @@ void getRSSI(unsigned char RSSI[], unsigned char dBm[], unsigned char percentage
     //Write dBm
     //Convert recieved string to integer dBm value
     unsigned int dBmNum = (int) strtol (RSSInum, NULL, 16);
-    char dBmbuf[2];
+    char dBmbuf[3];
     sprintf(dBmbuf , "%d", dBmNum);
     dBm[0] = '-';
     dBm[1] = dBmbuf[0];
@@ -162,7 +162,7 @@ void setDestination(unsigned char const destination[])
 
         //Recieve 'OK'
         for(char iter = 0; iter < 2; iter++)
-        {BYTES_BUFFER[iter] = get_USART_char();}	// Save bytes from USART
+        {BYTES_BUFFER[iter] = get_USART_char_timeout();}	// Save bytes from USART
 
 
     //Set low address
@@ -179,7 +179,7 @@ void setDestination(unsigned char const destination[])
 
         //Recieve 'OK'
         for(char iter =  0; iter < 2; iter++)
-        {BYTES_BUFFER[iter] = get_USART_char();}	// Save bytes from USART
+        {BYTES_BUFFER[iter] = get_USART_char_timeout();}	// Save bytes from USART
 
     __delay_ms(10);
 }
@@ -217,7 +217,7 @@ void enterCommandMode(void)
 
     //Recieve 'OK'
     for(char iter = 0; iter < 2; iter++)
-    {BYTES_BUFFER[iter] = get_USART_char();}	// Save bytes from USART
+    {BYTES_BUFFER[iter] = get_USART_char_timeout();}	// Save bytes from USART
 }
 
 void exitCommandMode(void)
@@ -227,7 +227,7 @@ void exitCommandMode(void)
 
      //Recieve 'OK'
      for(char iter = 0; iter < 2; iter++)
-     {BYTES_BUFFER[iter] = get_USART_char();}	// Save bytes from USART
+     {BYTES_BUFFER[iter] = get_USART_char_timeout();}	// Save bytes from USART
 }
 
 
